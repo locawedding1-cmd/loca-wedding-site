@@ -10,6 +10,7 @@
   <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html,body,#root{height:100%}
@@ -34,6 +35,15 @@ LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfgAAAF6CAYAAAD1UEqsAAAAAX
 <script type="text/babel">
 // Capture logo at script parse time (synchronous, LOGO already set)
 const LOGO = LOGO || '';
+
+// ── SUPABASE ─────────────────────────────────────────────────────────────────
+// La cle "anon" est publique par design (protegee par les policies RLS cote
+// base de donnees) : ce n'est pas un secret, elle n'a pas besoin d'etre cachee.
+const SUPABASE_URL = 'https://esaroqkdohyyyemgemxb.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzYXJvcWtkb2h5eXllbWdlbXhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwNzIzNDMsImV4cCI6MjA5OTY0ODM0M30.zWGoZFrjVOtOCux4H4GMnaqpTgou0xIcmji4ITSWv1s';
+const SB = (SUPABASE_URL !== 'À_COMPLÉTER' && window.supabase)
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
 
 // ── TOKENS ───────────────────────────────────────────────────────────────────
 const G = {
@@ -324,15 +334,15 @@ function getProducts() {
 let PRODUCTS = getProducts();
 
 // ── SHARED COMPONENTS ─────────────────────────────────────────────────────────
-function Btn({children, onClick, variant='solid', style={}, full=false}) {
+function Btn({children, onClick, variant='solid', style={}, full=false, disabled=false}) {
   const [h,sH] = React.useState(false);
-  const base = {border:'none',cursor:'pointer',fontFamily:"'Jost',sans-serif",fontSize:12,letterSpacing:'.14em',textTransform:'uppercase',fontWeight:600,padding:'12px 28px',transition:'all .2s',width:full?'100%':'auto',...style};
+  const base = {border:'none',cursor:disabled?'default':'pointer',fontFamily:"'Jost',sans-serif",fontSize:12,letterSpacing:'.14em',textTransform:'uppercase',fontWeight:600,padding:'12px 28px',transition:'all .2s',width:full?'100%':'auto',opacity:disabled?.5:1,...style};
   const s = {
-    solid:   {background:h?G.goldD:G.gold,   color:'#fff',...base},
+    solid:   {background:h&&!disabled?G.goldD:G.gold,   color:'#fff',...base},
     outline: {background:'transparent',color:h?G.textL:G.textL,border:'1px solid '+(h?G.sage:G.beigeD),...base},
-    sage:    {background:h?'#6B8B61':G.sage,  color:'#fff',...base},
+    sage:    {background:h&&!disabled?'#6B8B61':G.sage,  color:'#fff',...base},
   };
-  return <button onMouseEnter={()=>sH(true)} onMouseLeave={()=>sH(false)} onClick={onClick} style={s[variant]}>{children}</button>;
+  return <button disabled={disabled} onMouseEnter={()=>sH(true)} onMouseLeave={()=>sH(false)} onClick={onClick} style={s[variant]}>{children}</button>;
 }
 
 function SectionTitle({eyebrow, title, sub, align='center', light=false}) {
@@ -381,7 +391,7 @@ function ProductCard({product, onClick}) {
   );
 }
 
-function Modal({product, onClose, setPage}) {
+function Modal({product, onClose, setPage, addToCart}) {
   if (!product) return null;
   return (
     <div style={{position:'fixed',inset:0,zIndex:300,background:'rgba(44,36,25,.6)',display:'flex',alignItems:'center',justifyContent:'center',padding:20}} onClick={onClose}>
@@ -407,7 +417,7 @@ function Modal({product, onClose, setPage}) {
           </div>
           <div style={{display:'flex',gap:12,alignItems:'center'}}>
             <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:26,fontWeight:700,color:G.gold,flexShrink:0}}>{product.price}</span>
-            <Btn onClick={()=>{onClose();setPage('devis');}} style={{flex:1,padding:'12px 16px'}}>Ajouter au devis</Btn>
+            <Btn onClick={()=>{addToCart(product.id,1);onClose();setPage('devis');}} style={{flex:1,padding:'12px 16px'}}>Ajouter au devis</Btn>
           </div>
         </div>
       </div>
@@ -472,11 +482,11 @@ function Footer({setPage}) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // HOME PAGE
 // ═══════════════════════════════════════════════════════════════════════════════
-function HomePage({setPage}) {
+function HomePage({setPage, addToCart}) {
   const [modal, setModal] = React.useState(null);
   return (
     <div>
-      <Modal product={modal} onClose={()=>setModal(null)} setPage={setPage}/>
+      <Modal product={modal} onClose={()=>setModal(null)} setPage={setPage} addToCart={addToCart}/>
 
       {/* HERO */}
       <section style={{height:'100vh',minHeight:700,position:'relative',display:'flex',alignItems:'center',justifyContent:'center'}}>
@@ -708,7 +718,7 @@ function HomePage({setPage}) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // CATALOGUE
 // ═══════════════════════════════════════════════════════════════════════════════
-function CataloguePage({setPage, initialCat='all'}) {
+function CataloguePage({setPage, initialCat='all', addToCart}) {
   const [cat, setCat] = React.useState(initialCat);
   const [search, setSearch] = React.useState('');
   const [modal, setModal] = React.useState(null);
@@ -726,7 +736,7 @@ function CataloguePage({setPage, initialCat='all'}) {
   });
   return (
     <div style={{paddingTop:0,minHeight:'100vh',background:G.cream}}>
-      <Modal product={modal} onClose={()=>setModal(null)} setPage={setPage}/>
+      <Modal product={modal} onClose={()=>setModal(null)} setPage={setPage} addToCart={addToCart}/>
       <div style={{position:'relative',height:180,overflow:'hidden'}}>
         <img src={IMGS.hero2} alt="Catalogue" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
         <div style={{position:'absolute',inset:0,background:'rgba(44,36,25,.55)',display:'flex',alignItems:'center',padding:'0 80px'}}>
@@ -932,13 +942,51 @@ function AboutPage({setPage}) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // DEVIS
 // ═══════════════════════════════════════════════════════════════════════════════
-function DevisPage() {
-  const [f,setF] = React.useState({nom:'',email:'',tel:'',date:'',lieu:'',invites:'',cats:[],msg:''});
+function DevisPage({cart={}, setCartQty=()=>{}, clearCart=()=>{}}) {
+  const [f,setF] = React.useState({nom:'',email:'',tel:'',date:'',lieu:'',invites:'',msg:''});
   const [sent,setSent] = React.useState(false);
+  const [submitting,setSubmitting] = React.useState(false);
+  const [submitError,setSubmitError] = React.useState('');
+  const [openCat,setOpenCat] = React.useState(null);
   const set = (k,v) => setF(p=>({...p,[k]:v}));
-  const tog = id => set('cats', f.cats.includes(id)?f.cats.filter(c=>c!==id):[...f.cats,id]);
   const inp = {width:'100%',padding:'10px 12px',border:'1px solid '+G.beigeD,background:'#fff',fontFamily:"'Jost',sans-serif",fontSize:13,color:G.text,outline:'none',boxSizing:'border-box'};
   const lbl = {fontFamily:"'Jost',sans-serif",fontSize:10,letterSpacing:'.14em',textTransform:'uppercase',color:G.textM,fontWeight:600,display:'block',marginBottom:5};
+
+  const cartItems = Object.entries(cart)
+    .map(([id,qty]) => ({product: PRODUCTS.find(p=>p.id===Number(id)), qty}))
+    .filter(it => it.product);
+  const cartCount = cartItems.reduce((s,it)=>s+it.qty,0);
+  const canSubmit = f.nom.trim() && f.email.trim() && f.date && cartItems.length>0 && !submitting;
+
+  async function handleSubmit() {
+    if (!canSubmit) return;
+    setSubmitError('');
+    if (!SB) { setSubmitError("La prise de devis en ligne n'est pas encore activée sur le site — merci de nous contacter directement en attendant."); return; }
+    setSubmitting(true);
+    try {
+      // L'id est genere cote client : un visiteur anonyme peut inserer un devis
+      // mais n'a pas le droit de le relire (RLS), donc on ne peut pas compter
+      // sur .select() apres l'insert pour recuperer l'id genere par la base.
+      const quoteId = crypto.randomUUID();
+      const { error: qErr } = await SB.from('quotes').insert({
+        id: quoteId,
+        customer_name: f.nom, customer_email: f.email, customer_phone: f.tel || null,
+        event_date: f.date, venue_location: f.lieu || null,
+        guest_count: f.invites ? parseInt(f.invites,10) : null, message: f.msg || null,
+      });
+      if (qErr) throw qErr;
+      const items = cartItems.map(it => ({ quote_id: quoteId, product_id: it.product.id, quantity: it.qty }));
+      const { error: iErr } = await SB.from('quote_items').insert(items);
+      if (iErr) throw iErr;
+      clearCart();
+      setSent(true);
+    } catch (e) {
+      setSubmitError("Une erreur est survenue lors de l'envoi. Merci de réessayer, ou de nous contacter directement.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   return (
     <div style={{paddingTop:0,background:G.cream,minHeight:'100vh'}}>
       <div style={{position:'relative',height:180,overflow:'hidden'}}>
@@ -974,16 +1022,51 @@ function DevisPage() {
             <div><label style={lbl}>Nombre d'invités estimé</label><input type="number" value={f.invites} onChange={e=>set('invites',e.target.value)} style={inp} placeholder="ex: 80"/></div>
           </div>
           <div style={{marginBottom:20}}>
-            <label style={lbl}>Catégories souhaitées</label>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:7}}>
-              {CATEGORIES.map(c=>(
-                <button key={c.id} onClick={()=>tog(c.id)}
-                  style={{padding:'8px 10px',border:'1.5px solid '+(f.cats.includes(c.id)?G.sage:G.beigeD),background:f.cats.includes(c.id)?'rgba(138,158,126,.1)':'#fff',cursor:'pointer',fontFamily:"'Jost',sans-serif",fontSize:11,color:f.cats.includes(c.id)?G.sage:G.textL,fontWeight:f.cats.includes(c.id)?600:400,transition:'all .15s',textAlign:'left'}}>
-                  {c.label}
+            <label style={lbl}>Choisissez vos articles {cartCount>0?`(${cartCount} sélectionné${cartCount>1?'s':''})`:''}</label>
+            {CATEGORIES.map(c=>(
+              <div key={c.id} style={{border:'1px solid '+G.beigeD,marginBottom:6}}>
+                <button type="button" onClick={()=>setOpenCat(openCat===c.id?null:c.id)}
+                  style={{width:'100%',display:'flex',justifyContent:'space-between',alignItems:'center',padding:'11px 14px',background:G.beige,border:'none',cursor:'pointer',fontFamily:"'Jost',sans-serif",fontSize:12,color:G.text,fontWeight:600}}>
+                  <span>{c.label}</span>
+                  <span style={{color:G.textM,fontWeight:400}}>{openCat===c.id?'−':'+'}</span>
                 </button>
+                {openCat===c.id && (
+                  <div style={{padding:'4px 14px'}}>
+                    {PRODUCTS.filter(p=>p.cat===c.id).map(p=>{
+                      const qty = cart[p.id]||0;
+                      return (
+                        <div key={p.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'9px 0',borderBottom:'1px solid '+G.beige,gap:12}}>
+                          <div style={{minWidth:0}}>
+                            <div style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.text}}>{p.name}</div>
+                            <div style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:G.textM}}>{p.price}</div>
+                          </div>
+                          <div style={{display:'flex',alignItems:'center',gap:8,flexShrink:0}}>
+                            <button type="button" onClick={()=>setCartQty(p.id,qty-1)} disabled={qty===0}
+                              style={{width:26,height:26,border:'1px solid '+G.beigeD,background:'#fff',cursor:qty===0?'default':'pointer',color:G.text,fontSize:14,opacity:qty===0?.4:1}}>−</button>
+                            <span style={{width:20,textAlign:'center',fontFamily:"'Jost',sans-serif",fontSize:13}}>{qty}</span>
+                            <button type="button" onClick={()=>setCartQty(p.id,qty+1)}
+                              style={{width:26,height:26,border:'1px solid '+G.beigeD,background:'#fff',cursor:'pointer',color:G.text,fontSize:14}}>+</button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {cartItems.length>0 && (
+            <div style={{background:G.beige,padding:'16px 20px',marginBottom:20}}>
+              <p style={lbl}>Votre sélection</p>
+              {cartItems.map(it=>(
+                <div key={it.product.id} style={{display:'flex',justifyContent:'space-between',alignItems:'center',fontFamily:"'Jost',sans-serif",fontSize:13,color:G.text,padding:'5px 0'}}>
+                  <span>{it.qty} × {it.product.name}</span>
+                  <span onClick={()=>setCartQty(it.product.id,0)} style={{cursor:'pointer',color:G.textM,fontSize:11,textDecoration:'underline'}}>Retirer</span>
+                </div>
               ))}
             </div>
-          </div>
+          )}
           <div style={{marginBottom:20}}><label style={lbl}>Message & précisions</label><textarea value={f.msg} onChange={e=>set('msg',e.target.value)} rows={5} style={{...inp,resize:'vertical'}} placeholder="Décrivez votre vision, vos couleurs, votre lieu…"/></div>
           <div style={{background:G.beige,padding:'20px 24px',marginBottom:24,borderLeft:'4px solid '+G.sage}}>
             <p style={{fontFamily:"'Jost',sans-serif",fontSize:10,letterSpacing:'.12em',textTransform:'uppercase',color:G.sage,fontWeight:600,margin:'0 0 12px'}}>Tarifs indicatifs</p>
@@ -997,7 +1080,15 @@ function DevisPage() {
               ))}
             </div>
           </div>
-          <Btn onClick={()=>setSent(true)} full style={{padding:'14px',fontSize:12}}>Envoyer ma demande de devis</Btn>
+          {submitError && (
+            <div style={{background:'#FBF1F0',border:'1px solid #C4877A',color:'#8B3A2A',fontFamily:"'Jost',sans-serif",fontSize:12,padding:'10px 14px',marginBottom:14}}>{submitError}</div>
+          )}
+          <Btn onClick={handleSubmit} full disabled={!canSubmit} style={{padding:'14px',fontSize:12}}>
+            {submitting?'Envoi en cours…':'Envoyer ma demande de devis'}
+          </Btn>
+          {cartItems.length===0 && (
+            <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:'#8B3A2A',textAlign:'center',marginTop:10}}>Sélectionnez au moins un article ci-dessus pour envoyer votre demande.</p>
+          )}
           <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:G.textM,textAlign:'center',marginTop:10}}>Réponse garantie sous 24h · Sans engagement · 100% gratuit</p>
         </div>
       )}
@@ -1072,6 +1163,20 @@ function App() {
   const [page,setPage] = React.useState(()=>localStorage.getItem('lw_page')||'home');
   const navigate = p => setPage(p);
 
+  // Panier de devis : { [productId]: quantite }, persiste en localStorage.
+  const [cart,setCart] = React.useState(()=>{
+    try { return JSON.parse(localStorage.getItem('lw_cart')) || {}; } catch { return {}; }
+  });
+  React.useEffect(()=>{ localStorage.setItem('lw_cart', JSON.stringify(cart)); },[cart]);
+  const setCartQty = (productId, qty) => setCart(c => {
+    const n = Math.max(0, qty|0);
+    const next = {...c};
+    if (n === 0) delete next[productId]; else next[productId] = n;
+    return next;
+  });
+  const addToCart = (productId, qty=1) => setCartQty(productId, (cart[productId]||0) + qty);
+  const clearCart = () => setCart({});
+
   React.useEffect(()=>{
     localStorage.setItem('lw_page',page);
     const el = document.getElementById('app-scroll');
@@ -1082,11 +1187,11 @@ function App() {
 
   return (
     <div id="app-scroll">
-      {page==='home'      && <HomePage setPage={navigate}/>}
-      {(page==='catalogue'||page.startsWith('cat_')) && <CataloguePage setPage={navigate} initialCat={page.startsWith('cat_')?page.replace('cat_',''):'all'}/>}
+      {page==='home'      && <HomePage setPage={navigate} addToCart={addToCart}/>}
+      {(page==='catalogue'||page.startsWith('cat_')) && <CataloguePage setPage={navigate} initialCat={page.startsWith('cat_')?page.replace('cat_',''):'all'} addToCart={addToCart}/>}
       {page==='how'       && <HowPage setPage={navigate}/>}
       {page==='about'     && <AboutPage setPage={navigate}/>}
-      {page==='devis'     && <DevisPage/>}
+      {page==='devis'     && <DevisPage cart={cart} setCartQty={setCartQty} clearCart={clearCart}/>}
       {page==='contact'   && <ContactPage/>}
       <Footer setPage={navigate}/>
       <BottomNav page={navPage} setPage={navigate}/>
