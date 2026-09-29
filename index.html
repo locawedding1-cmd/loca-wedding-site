@@ -581,27 +581,29 @@ function BottomNav({page, setPage}) {
   const links = [['home','Accueil'],['catalogue','Catalogue'],['how','Process'],['about','À propos'],['contact','Contact']];
   const go = id => { setPage(id); setOpen(false); };
   return (
-    <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:200,background:'rgba(250,250,248,.98)',backdropFilter:'blur(16px)',borderBottom:'1px solid '+G.beigeD,display:'flex',alignItems:'stretch',justifyContent:'center',height:52,boxShadow:'0 2px 16px rgba(44,36,25,.06)'}}>
-      <div className="lw-nav-links" style={{display:'flex',alignItems:'stretch',justifyContent:'center'}}>
-        {links.map(([id,label]) => (
-          <button key={id} onClick={()=>setPage(id)} style={{background:'none',border:'none',cursor:'pointer',fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.12em',textTransform:'uppercase',color:page===id?G.sage:G.textL,fontWeight:page===id?700:400,padding:'0 24px',borderBottom:'2px solid '+(page===id?G.sage:'transparent'),transition:'color .2s',whiteSpace:'nowrap'}}>
-            {label}
-          </button>
-        ))}
-        <div style={{display:'flex',alignItems:'center',paddingLeft:18,marginLeft:8,borderLeft:'1px solid '+G.beigeD}}>
-          <Btn onClick={()=>setPage('devis')} variant="sage" style={{padding:'7px 16px',fontSize:10}}>Devis gratuit</Btn>
+    <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:200}}>
+      <div style={{background:'rgba(250,250,248,.98)',backdropFilter:'blur(16px)',borderBottom:'1px solid '+G.beigeD,display:'flex',alignItems:'stretch',justifyContent:'center',height:52,boxShadow:'0 2px 16px rgba(44,36,25,.06)'}}>
+        <div className="lw-nav-links" style={{display:'flex',alignItems:'stretch',justifyContent:'center'}}>
+          {links.map(([id,label]) => (
+            <button key={id} onClick={()=>setPage(id)} style={{background:'none',border:'none',cursor:'pointer',fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.12em',textTransform:'uppercase',color:page===id?G.sage:G.textL,fontWeight:page===id?700:400,padding:'0 24px',borderBottom:'2px solid '+(page===id?G.sage:'transparent'),transition:'color .2s',whiteSpace:'nowrap'}}>
+              {label}
+            </button>
+          ))}
+          <div style={{display:'flex',alignItems:'center',paddingLeft:18,marginLeft:8,borderLeft:'1px solid '+G.beigeD}}>
+            <Btn onClick={()=>setPage('devis')} variant="sage" style={{padding:'7px 16px',fontSize:10}}>Devis gratuit</Btn>
+          </div>
         </div>
-      </div>
 
-      {/* Mobile : logo + burger */}
-      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',width:'100%',padding:'0 16px'}} className="lw-mobile-bar">
-        {LOGO ? <img src={LOGO} alt="Loca-Wedding" style={{height:28,width:'auto'}}/> : <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontWeight:600,color:G.text}}>Loca-Wedding</span>}
-        <button className="lw-burger-btn" aria-label={open?'Fermer le menu':'Ouvrir le menu'} onClick={()=>setOpen(o=>!o)}
-          style={{alignItems:'center',justifyContent:'center',width:36,height:36,background:'none',border:'none',cursor:'pointer',flexDirection:'column',gap:5}}>
-          <span style={{display:'block',width:22,height:2,background:G.text,transition:'transform .2s',transform:open?'translateY(7px) rotate(45deg)':'none'}}/>
-          <span style={{display:'block',width:22,height:2,background:G.text,opacity:open?0:1,transition:'opacity .2s'}}/>
-          <span style={{display:'block',width:22,height:2,background:G.text,transition:'transform .2s',transform:open?'translateY(-7px) rotate(-45deg)':'none'}}/>
-        </button>
+        {/* Mobile : logo + burger */}
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',width:'100%',padding:'0 16px'}} className="lw-mobile-bar">
+          {LOGO ? <img src={LOGO} alt="Loca-Wedding" style={{height:28,width:'auto'}}/> : <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontWeight:600,color:G.text}}>Loca-Wedding</span>}
+          <button className="lw-burger-btn" aria-label={open?'Fermer le menu':'Ouvrir le menu'} onClick={()=>setOpen(o=>!o)}
+            style={{alignItems:'center',justifyContent:'center',width:36,height:36,background:'none',border:'none',cursor:'pointer',flexDirection:'column',gap:5}}>
+            <span style={{display:'block',width:22,height:2,background:G.text,transition:'transform .2s',transform:open?'translateY(7px) rotate(45deg)':'none'}}/>
+            <span style={{display:'block',width:22,height:2,background:G.text,opacity:open?0:1,transition:'opacity .2s'}}/>
+            <span style={{display:'block',width:22,height:2,background:G.text,transition:'transform .2s',transform:open?'translateY(-7px) rotate(-45deg)':'none'}}/>
+          </button>
+        </div>
       </div>
 
       {/* Panneau de liens mobile */}
