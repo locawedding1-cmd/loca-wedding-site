@@ -14,14 +14,23 @@
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html,body,#root{height:100%}
-    body{background:#FAFAF8;font-family:'Jost',sans-serif;-webkit-font-smoothing:antialiased}
-    #app-scroll{height:100vh;overflow-y:auto;scroll-behavior:smooth}
+    body{background:#FAFAF8;font-family:'Jost',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+    #app-scroll{height:100vh;overflow-y:auto;overflow-x:hidden;scroll-behavior:smooth}
     input,textarea,select,button{font-family:inherit}
+    img{max-width:100%}
     ::-webkit-scrollbar{width:5px}
     ::-webkit-scrollbar-track{background:#F5EFE6}
     ::-webkit-scrollbar-thumb{background:#8A9E7E;border-radius:3px}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
     .pulse{animation:pulse 2s ease-in-out infinite}
+    /* Menu mobile : masqué/affiché selon la largeur d'écran (voir useIsMobile dans le script) */
+    .lw-burger-btn{display:none}
+    .lw-mobile-bar{display:none !important}
+    @media(max-width:768px){
+      .lw-nav-links{display:none !important}
+      .lw-burger-btn{display:flex !important}
+      .lw-mobile-bar{display:flex !important}
+    }
   </style>
 </head>
 <body>
@@ -52,6 +61,25 @@ const G = {
   cream:'#FAFAF8', beige:'#F5EFE6', beigeD:'#EDE4D8',
   text:'#2C2419', textL:'#6B5C48', textM:'#9E8B78',
 };
+
+// ── RESPONSIVE ───────────────────────────────────────────────────────────────
+// Hook simple pour basculer les styles inline (grid, paddings, tailles) entre
+// desktop et mobile (< 768px). Pas de librairie externe.
+function useIsMobile() {
+  const [isMobile, setIsMobile] = React.useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(max-width:768px)').matches
+  );
+  React.useEffect(() => {
+    const mq = window.matchMedia('(max-width:768px)');
+    const onChange = e => setIsMobile(e.matches);
+    mq.addEventListener ? mq.addEventListener('change', onChange) : mq.addListener(onChange);
+    return () => {
+      mq.removeEventListener ? mq.removeEventListener('change', onChange) : mq.removeListener(onChange);
+    };
+  }, []);
+  return isMobile;
+}
+
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "accentColor": "#8A9E7E",
   "img_hero": "https:\/\/images.unsplash.com\/photo-1519225421980-715cb0215aed?w=1600&auto=format&q=85",
@@ -70,11 +98,11 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "img_cat_eclairage": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/Image_1_6bf7f4c9-2417-495a-8588-f115ff098410.jpg?v=1777054152",
   "img_cat_packs": "https:\/\/images.unsplash.com\/photo-1511795409834-ef04bbd61622?w=600&auto=format&q=80",
   "img_p1": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/Image_1-04-26_a_15.12.jpg?v=1776773991",
-  "img_p2": "https:\/\/images.unsplash.com\/photo-1519167758481-83f550bb49b3?w=500&auto=format&q=75",
-  "img_p3": "https:\/\/images.unsplash.com\/photo-1519741497674-611481863552?w=500&auto=format&q=75",
-  "img_p4": "https:\/\/images.unsplash.com\/photo-1528825871115-3581a5387919?w=500&auto=format&q=75",
+  "img_p2": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/3b9fc9bd-a72a-476b-844a-30ef83764d9a.jpg?v=1784271677",
+  "img_p3": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/9638836e-10e3-4418-bf85-1c26f8c15f4e.jpg?v=1784271678",
+  "img_p4": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/3b9fc9bd-a72a-476b-844a-30ef83764d9a.jpg?v=1784271677",
   "img_p5": "https:\/\/images.unsplash.com\/photo-1528825871115-3581a5387919?w=500&auto=format&q=75",
-  "img_p6": "https:\/\/images.unsplash.com\/photo-1511795409834-ef04bbd61622?w=500&auto=format&q=75",
+  "img_p6": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/PHOTO-2026-09-29-21-37-26.jpg?v=1790710703",
   "img_p7": "https:\/\/images.unsplash.com\/photo-1414235077428-338989a2e8c0?w=500&auto=format&q=75",
   "img_p8": "https:\/\/images.unsplash.com\/photo-1515934751635-c81c6bc9a2d8?w=500&auto=format&q=75",
   "img_p9": "https:\/\/images.unsplash.com\/photo-1519741497674-611481863552?w=500&auto=format&q=75",
@@ -110,9 +138,9 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "img_p39": "https:\/\/images.unsplash.com\/photo-1511795409834-ef04bbd61622?w=500&auto=format&q=75",
   "p1_name": "Trones",
   "p1_desc": "",
-  "p1_price": "18€\/j",
-  "p2_name": "Chaise Chiavari dorée",
-  "p2_desc": "Chaise Chiavari en résine dorée, coussin champagne. Empilable.",
+  "p1_price": "300€",
+  "p2_name": "Chaise Napoleon",
+  "p2_desc": "Chaise Napoleon blanche, structure laquée, assise confortable. Empilable.",
   "p2_price": "4€\/j",
   "p3_name": "Table cocktail lumineuse",
   "p3_desc": "Table haute LED rechargeable, 16 couleurs. Idéale pour le cocktail.",
@@ -123,44 +151,44 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "p5_name": "Table en bois brut 200 cm",
   "p5_desc": "Table en bois massif 200 cm, style rustique naturel.",
   "p5_price": "25€\/j",
-  "p6_name": "Chaise bistro vintage",
-  "p6_desc": "Chaise bistro métal blanc ou noir, style vintage.",
-  "p6_price": "3€\/j",
-  "p7_name": "Nappe en lin beige",
-  "p7_desc": "Nappe 100% lin naturel, coloris beige sable.",
+  "p6_name": "Chaise Napoléon Blanche",
+  "p6_desc": "Chaise blanche, style bistro.",
+  "p6_price": "2,50€",
+  "p7_name": "Nappe en lin",
+  "p7_desc": "Nappe 100% lin naturel.",
   "p7_price": "8€\/j",
-  "p8_name": "Chemin de table doré",
-  "p8_desc": "Chemin en organza doré, longueur 3 m.",
+  "p8_name": "Chemin de table",
+  "p8_desc": "Chemin en organza, longueur 3 m.",
   "p8_price": "5€\/j",
-  "p9_name": "Housse de chaise ivoire",
-  "p9_desc": "Housse universelle jersey stretch, coloris ivoire.",
+  "p9_name": "Housse de chaise",
+  "p9_desc": "Housse universelle jersey stretch.",
   "p9_price": "2€\/j",
   "p10_name": "Rideau macramé bohème",
   "p10_desc": "Panneau macramé 2×2,4 m, style bohème romantique.",
   "p10_price": "35€\/j",
-  "p11_name": "Nappe ronde satin blanc",
+  "p11_name": "Nappe ronde satin",
   "p11_desc": "Nappe ronde satin pour table Ø180 cm, tombé luxueux.",
   "p11_price": "Sur devis",
   "p12_name": "Serviette coton brodée",
   "p12_desc": "Serviette coton blanc ou crème.",
   "p12_price": "1,50€\/j",
-  "p13_name": "Arche florale en bois",
-  "p13_desc": "Arche en bois naturel 2,5×2 m.",
+  "p13_name": "Arche florale",
+  "p13_desc": "Arche florale 2,5×2 m.",
   "p13_price": "55€\/j",
-  "p14_name": "Bougeoir en verre doré",
-  "p14_desc": "Bougeoir cylindrique verre avec filet doré, H 25 cm.",
+  "p14_name": "Bougeoir en verre",
+  "p14_desc": "Bougeoir cylindrique en verre, H 25 cm.",
   "p14_price": "3€\/j",
   "p15_name": "Vase soliflore lot de 6",
-  "p15_desc": "Vase soliflore verre transparent, H 25 cm.",
+  "p15_desc": "Vase soliflore en verre, H 25 cm.",
   "p15_price": "1,50€\/j",
-  "p16_name": "Miroir rond baroque doré",
-  "p16_desc": "Grand miroir à cadre doré Ø80 cm.",
+  "p16_name": "Miroir rond baroque",
+  "p16_desc": "Grand miroir à cadre Ø80 cm.",
   "p16_price": "18€\/j",
-  "p17_name": "Lanterne métal doré",
-  "p17_desc": "Lanterne métal doré, style marocain H30 cm.",
+  "p17_name": "Lanterne métal",
+  "p17_desc": "Lanterne métal, style marocain H30 cm.",
   "p17_price": "4€\/j",
-  "p18_name": "Colonne piédestal blanc",
-  "p18_desc": "Piédestal blanc H1 m, idéal pour compositions florales.",
+  "p18_name": "Colonne piédestal",
+  "p18_desc": "Piédestal H1 m, idéal pour compositions florales.",
   "p18_price": "12€\/j",
   "p19_name": "Assiette porcelaine blanche",
   "p19_desc": "Assiette plate porcelaine Ø27 cm, finition brillante.",
@@ -189,8 +217,8 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "p27_name": "Urne à messages en bois",
   "p27_desc": "Urne à messages bois naturel avec fente, H25 cm.",
   "p27_price": "12€\/j",
-  "p28_name": "Arche cérémonie blanche",
-  "p28_desc": "Arche rectangulaire blanche 2,5×2 m, drapé ivoire inclus.",
+  "p28_name": "Arche cérémonie",
+  "p28_desc": "Arche rectangulaire 2,5×2 m, drapé inclus.",
   "p28_price": "65€\/j",
   "p29_name": "Chaises cérémonie bois",
   "p29_desc": "Chaises bois naturel style cross-back, photogéniques.",
@@ -225,6 +253,11 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "p39_name": "Pack Photo Booth",
   "p39_desc": "Fond photo + accessoires + cadres.",
   "p39_price": "120€\/j",
+  "img_p40": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/Wedding_ceremony_floral_arch_setup_20260929214925.jpg?v=1790711656",
+  "img_p40b": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/Wedding_arch_floral_decoration_s__20260929215219.jpg?v=1790711657",
+  "p40_name": "Triple Arche",
+  "p40_desc": "Ensemble de trois arches florales pour cérémonie ou allée, effet scénique.",
+  "p40_price": "100€",
   "img_how1": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/Image_12.jpg?v=1777112777",
   "img_how2": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/Image_9_1c1ed39f-a38b-4a93-b2ad-a7defd15ac94.jpg?v=1777112249",
   "img_how3": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/Image_10_ce43f6df-f7ba-4ab4-a82f-c451ddcaf163.jpg?v=1777112320",
@@ -272,6 +305,7 @@ function buildIMGS() {
     p26: d.img_p26, p27: d.img_p27, p28: d.img_p28, p29: d.img_p29, p30: d.img_p30,
     p31: d.img_p31, p32: d.img_p32, p33: d.img_p33, p34: d.img_p34, p35: d.img_p35,
     p36: d.img_p36, p37: d.img_p37, p38: d.img_p38, p39: d.img_p39,
+    p40: d.img_p40, p40b: d.img_p40b,
   };
 }
 let IMGS = buildIMGS();
@@ -287,8 +321,19 @@ const CATEGORIES = [
   {id:'packs',      label:'Packs Mariage',desc:'Ensembles complets clé en main',     count:8},
 ];
 
+// Couleur -> code hex pour les ronds de sélection sur les fiches à variantes.
+const SWATCH_HEX = {
+  'Doré':'#C9A96E', 'Argenté':'#C7C7C7', 'Noir':'#2C2419', 'Blanc':'#FFFFFF',
+  'Transparent':'#EAEAE6', 'Ambré':'#C98A3E', 'Beige':'#E8DCC8', 'Gris':'#ABA79C',
+  'Rose poudré':'#E7C6C0', 'Ivoire':'#FFF6E9', 'Or':'#D4AF37', 'Gris perle':'#DAD7CF',
+  'Bois naturel':'#C8A165', 'Blanchi':'#EDE4D3', 'Naturel':'#B8935F',
+};
+
 function getProducts() {
   const d = TWEAK_DEFAULTS;
+  // Produits à variantes couleur : même fiche (nom/prix/desc/photo pour l'instant),
+  // un "group" partagé + un "colorLabel" par couleur. La photo est un placeholder
+  // partagé (celle du produit d'origine) en attendant les vraies photos par couleur.
   return [
   {id:1, cat:'mobilier',   name:d.p1_name,  price:d.p1_price,  tag:'Bestseller',img:'p1', stock:2,   desc:d.p1_desc},
   {id:2, cat:'mobilier',   name:d.p2_name,  price:d.p2_price,  tag:'',          img:'p2', stock:120, desc:d.p2_desc},
@@ -296,18 +341,64 @@ function getProducts() {
   {id:4, cat:'mobilier',   name:d.p4_name,  price:d.p4_price,  tag:'',          img:'p4', stock:3,   desc:d.p4_desc},
   {id:5, cat:'mobilier',   name:d.p5_name,  price:d.p5_price,  tag:'',          img:'p5', stock:10,  desc:d.p5_desc},
   {id:6, cat:'mobilier',   name:d.p6_name,  price:d.p6_price,  tag:'',          img:'p6', stock:80,  desc:d.p6_desc},
-  {id:7, cat:'textile',    name:d.p7_name,  price:d.p7_price,  tag:'Bestseller',img:'p7', stock:40,  desc:d.p7_desc},
-  {id:8, cat:'textile',    name:d.p8_name,  price:d.p8_price,  tag:'',          img:'p8', stock:50,  desc:d.p8_desc},
-  {id:9, cat:'textile',    name:d.p9_name,  price:d.p9_price,  tag:'',          img:'p9', stock:200, desc:d.p9_desc},
+
+  // Nappe en lin — group nappe_lin
+  {id:7, cat:'textile',    name:d.p7_name+' — Beige',        baseName:d.p7_name, group:'nappe_lin',  colorLabel:'Beige',       price:d.p7_price, tag:'Bestseller',img:'p7', stock:40,  desc:d.p7_desc},
+  {id:40,cat:'textile',    name:d.p7_name+' — Blanc',        baseName:d.p7_name, group:'nappe_lin',  colorLabel:'Blanc',       price:d.p7_price, tag:'Bestseller',img:'p7', stock:40,  desc:d.p7_desc},
+  {id:41,cat:'textile',    name:d.p7_name+' — Gris',         baseName:d.p7_name, group:'nappe_lin',  colorLabel:'Gris',        price:d.p7_price, tag:'Bestseller',img:'p7', stock:40,  desc:d.p7_desc},
+  {id:42,cat:'textile',    name:d.p7_name+' — Rose poudré',  baseName:d.p7_name, group:'nappe_lin',  colorLabel:'Rose poudré', price:d.p7_price, tag:'Bestseller',img:'p7', stock:40,  desc:d.p7_desc},
+
+  // Chemin de table — group chemin_table
+  {id:8, cat:'textile',    name:d.p8_name+' — Doré',    baseName:d.p8_name, group:'chemin_table', colorLabel:'Doré',    price:d.p8_price, tag:'', img:'p8', stock:50, desc:d.p8_desc},
+  {id:43,cat:'textile',    name:d.p8_name+' — Argenté', baseName:d.p8_name, group:'chemin_table', colorLabel:'Argenté', price:d.p8_price, tag:'', img:'p8', stock:50, desc:d.p8_desc},
+  {id:44,cat:'textile',    name:d.p8_name+' — Blanc',   baseName:d.p8_name, group:'chemin_table', colorLabel:'Blanc',   price:d.p8_price, tag:'', img:'p8', stock:50, desc:d.p8_desc},
+
+  // Housse de chaise — group housse_chaise
+  {id:9, cat:'textile',    name:d.p9_name+' — Ivoire',     baseName:d.p9_name, group:'housse_chaise', colorLabel:'Ivoire',     price:d.p9_price, tag:'', img:'p9', stock:200, desc:d.p9_desc},
+  {id:45,cat:'textile',    name:d.p9_name+' — Blanc',      baseName:d.p9_name, group:'housse_chaise', colorLabel:'Blanc',      price:d.p9_price, tag:'', img:'p9', stock:200, desc:d.p9_desc},
+  {id:46,cat:'textile',    name:d.p9_name+' — Noir',       baseName:d.p9_name, group:'housse_chaise', colorLabel:'Noir',       price:d.p9_price, tag:'', img:'p9', stock:200, desc:d.p9_desc},
+  {id:47,cat:'textile',    name:d.p9_name+' — Gris perle', baseName:d.p9_name, group:'housse_chaise', colorLabel:'Gris perle', price:d.p9_price, tag:'', img:'p9', stock:200, desc:d.p9_desc},
+
   {id:10,cat:'textile',    name:d.p10_name, price:d.p10_price, tag:'Nouveau',   img:'p10',stock:4,   desc:d.p10_desc},
-  {id:11,cat:'textile',    name:d.p11_name, price:d.p11_price, tag:'',          img:'p11',stock:20,  desc:d.p11_desc},
+
+  // Nappe ronde satin — group nappe_satin
+  {id:11,cat:'textile',    name:d.p11_name+' — Blanc',  baseName:d.p11_name, group:'nappe_satin', colorLabel:'Blanc',  price:d.p11_price, tag:'', img:'p11', stock:20, desc:d.p11_desc},
+  {id:48,cat:'textile',    name:d.p11_name+' — Ivoire', baseName:d.p11_name, group:'nappe_satin', colorLabel:'Ivoire', price:d.p11_price, tag:'', img:'p11', stock:20, desc:d.p11_desc},
+  {id:49,cat:'textile',    name:d.p11_name+' — Noir',   baseName:d.p11_name, group:'nappe_satin', colorLabel:'Noir',   price:d.p11_price, tag:'', img:'p11', stock:20, desc:d.p11_desc},
+  {id:50,cat:'textile',    name:d.p11_name+' — Or',     baseName:d.p11_name, group:'nappe_satin', colorLabel:'Or',     price:d.p11_price, tag:'', img:'p11', stock:20, desc:d.p11_desc},
+
   {id:12,cat:'textile',    name:d.p12_name, price:d.p12_price, tag:'',          img:'p12',stock:300, desc:d.p12_desc},
-  {id:13,cat:'decoration', name:d.p13_name, price:d.p13_price, tag:'Bestseller',img:'p13',stock:6,   desc:d.p13_desc},
-  {id:14,cat:'decoration', name:d.p14_name, price:d.p14_price, tag:'',          img:'p14',stock:60,  desc:d.p14_desc},
-  {id:15,cat:'decoration', name:d.p15_name, price:d.p15_price, tag:'',          img:'p15',stock:30,  desc:d.p15_desc},
-  {id:16,cat:'decoration', name:d.p16_name, price:d.p16_price, tag:'Nouveau',   img:'p16',stock:4,   desc:d.p16_desc},
-  {id:17,cat:'decoration', name:d.p17_name, price:d.p17_price, tag:'',          img:'p17',stock:25,  desc:d.p17_desc},
-  {id:18,cat:'decoration', name:d.p18_name, price:d.p18_price, tag:'',          img:'p18',stock:8,   desc:d.p18_desc},
+
+  // Arche florale — group arche_florale
+  {id:13,cat:'decoration', name:d.p13_name+' — Bois naturel', baseName:d.p13_name, group:'arche_florale', colorLabel:'Bois naturel', price:d.p13_price, tag:'Bestseller', img:'p13', stock:6, desc:d.p13_desc},
+  {id:51,cat:'decoration', name:d.p13_name+' — Blanchi',      baseName:d.p13_name, group:'arche_florale', colorLabel:'Blanchi',      price:d.p13_price, tag:'Bestseller', img:'p13', stock:6, desc:d.p13_desc},
+  {id:52,cat:'decoration', name:d.p13_name+' — Doré',         baseName:d.p13_name, group:'arche_florale', colorLabel:'Doré',         price:d.p13_price, tag:'Bestseller', img:'p13', stock:6, desc:d.p13_desc},
+
+  // Bougeoir en verre — group bougeoir_verre
+  {id:14,cat:'decoration', name:d.p14_name+' — Doré',        baseName:d.p14_name, group:'bougeoir_verre', colorLabel:'Doré',        price:d.p14_price, tag:'', img:'p14', stock:60, desc:d.p14_desc},
+  {id:53,cat:'decoration', name:d.p14_name+' — Argenté',     baseName:d.p14_name, group:'bougeoir_verre', colorLabel:'Argenté',     price:d.p14_price, tag:'', img:'p14', stock:60, desc:d.p14_desc},
+  {id:54,cat:'decoration', name:d.p14_name+' — Transparent', baseName:d.p14_name, group:'bougeoir_verre', colorLabel:'Transparent',price:d.p14_price, tag:'', img:'p14', stock:60, desc:d.p14_desc},
+
+  // Vase soliflore (lot de 6) — group vase_soliflore
+  {id:15,cat:'decoration', name:d.p15_name+' — Transparent', baseName:d.p15_name, group:'vase_soliflore', colorLabel:'Transparent',price:d.p15_price, tag:'', img:'p15', stock:30, desc:d.p15_desc},
+  {id:55,cat:'decoration', name:d.p15_name+' — Doré',        baseName:d.p15_name, group:'vase_soliflore', colorLabel:'Doré',        price:d.p15_price, tag:'', img:'p15', stock:30, desc:d.p15_desc},
+  {id:56,cat:'decoration', name:d.p15_name+' — Ambré',       baseName:d.p15_name, group:'vase_soliflore', colorLabel:'Ambré',       price:d.p15_price, tag:'', img:'p15', stock:30, desc:d.p15_desc},
+
+  // Miroir rond baroque — group miroir_baroque
+  {id:16,cat:'decoration', name:d.p16_name+' — Doré',    baseName:d.p16_name, group:'miroir_baroque', colorLabel:'Doré',    price:d.p16_price, tag:'Nouveau', img:'p16', stock:4, desc:d.p16_desc},
+  {id:57,cat:'decoration', name:d.p16_name+' — Argenté', baseName:d.p16_name, group:'miroir_baroque', colorLabel:'Argenté', price:d.p16_price, tag:'Nouveau', img:'p16', stock:4, desc:d.p16_desc},
+  {id:58,cat:'decoration', name:d.p16_name+' — Noir',    baseName:d.p16_name, group:'miroir_baroque', colorLabel:'Noir',    price:d.p16_price, tag:'Nouveau', img:'p16', stock:4, desc:d.p16_desc},
+
+  // Lanterne métal — group lanterne_metal
+  {id:17,cat:'decoration', name:d.p17_name+' — Doré',  baseName:d.p17_name, group:'lanterne_metal', colorLabel:'Doré',  price:d.p17_price, tag:'', img:'p17', stock:25, desc:d.p17_desc},
+  {id:59,cat:'decoration', name:d.p17_name+' — Noir',  baseName:d.p17_name, group:'lanterne_metal', colorLabel:'Noir',  price:d.p17_price, tag:'', img:'p17', stock:25, desc:d.p17_desc},
+  {id:60,cat:'decoration', name:d.p17_name+' — Blanc', baseName:d.p17_name, group:'lanterne_metal', colorLabel:'Blanc', price:d.p17_price, tag:'', img:'p17', stock:25, desc:d.p17_desc},
+
+  // Colonne piédestal — group colonne_piedestal
+  {id:18,cat:'decoration', name:d.p18_name+' — Blanc', baseName:d.p18_name, group:'colonne_piedestal', colorLabel:'Blanc', price:d.p18_price, tag:'', img:'p18', stock:8, desc:d.p18_desc},
+  {id:61,cat:'decoration', name:d.p18_name+' — Doré',  baseName:d.p18_name, group:'colonne_piedestal', colorLabel:'Doré',  price:d.p18_price, tag:'', img:'p18', stock:8, desc:d.p18_desc},
+  {id:62,cat:'decoration', name:d.p18_name+' — Noir',  baseName:d.p18_name, group:'colonne_piedestal', colorLabel:'Noir',  price:d.p18_price, tag:'', img:'p18', stock:8, desc:d.p18_desc},
+
   {id:19,cat:'vaisselle',  name:d.p19_name, price:d.p19_price, tag:'Bestseller',img:'p19',stock:500, desc:d.p19_desc},
   {id:20,cat:'vaisselle',  name:d.p20_name, price:d.p20_price, tag:'',          img:'p20',stock:400, desc:d.p20_desc},
   {id:21,cat:'vaisselle',  name:d.p21_name, price:d.p21_price, tag:'Nouveau',   img:'p21',stock:300, desc:d.p21_desc},
@@ -317,21 +408,36 @@ function getProducts() {
   {id:25,cat:'accessoires',name:d.p25_name, price:d.p25_price, tag:'',          img:'p25',stock:200, desc:d.p25_desc},
   {id:26,cat:'accessoires',name:d.p26_name, price:d.p26_price, tag:'',          img:'p26',stock:8,   desc:d.p26_desc},
   {id:27,cat:'accessoires',name:d.p27_name, price:d.p27_price, tag:'',          img:'p27',stock:12,  desc:d.p27_desc},
-  {id:28,cat:'ceremonie',  name:d.p28_name, price:d.p28_price, tag:'Bestseller',img:'p28',stock:4,   desc:d.p28_desc},
+
+  // Arche cérémonie — group arche_ceremonie
+  {id:28,cat:'ceremonie',  name:d.p28_name+' — Blanc',   baseName:d.p28_name, group:'arche_ceremonie', colorLabel:'Blanc',   price:d.p28_price, tag:'Bestseller', img:'p28', stock:4, desc:d.p28_desc},
+  {id:63,cat:'ceremonie',  name:d.p28_name+' — Doré',    baseName:d.p28_name, group:'arche_ceremonie', colorLabel:'Doré',    price:d.p28_price, tag:'Bestseller', img:'p28', stock:4, desc:d.p28_desc},
+  {id:64,cat:'ceremonie',  name:d.p28_name+' — Naturel', baseName:d.p28_name, group:'arche_ceremonie', colorLabel:'Naturel', price:d.p28_price, tag:'Bestseller', img:'p28', stock:4, desc:d.p28_desc},
+
   {id:29,cat:'ceremonie',  name:d.p29_name, price:d.p29_price, tag:'',          img:'p29',stock:150, desc:d.p29_desc},
   {id:30,cat:'ceremonie',  name:d.p30_name, price:d.p30_price, tag:'',          img:'p30',stock:6,   desc:d.p30_desc},
   {id:31,cat:'ceremonie',  name:d.p31_name, price:d.p31_price, tag:'Nouveau',   img:'p31',stock:3,   desc:d.p31_desc},
   {id:32,cat:'eclairage',  name:d.p32_name, price:d.p32_price, tag:'Bestseller',img:'p32',stock:20,  desc:d.p32_desc},
-  {id:33,cat:'eclairage',  name:d.p33_name, price:d.p33_price, tag:'',          img:'p33',stock:15,  desc:d.p33_desc},
+
+  // Chandelier de table — group chandelier_table
+  {id:33,cat:'eclairage',  name:d.p33_name+' — Doré',    baseName:d.p33_name, group:'chandelier_table', colorLabel:'Doré',    price:d.p33_price, tag:'', img:'p33', stock:15, desc:d.p33_desc},
+  {id:65,cat:'eclairage',  name:d.p33_name+' — Argenté', baseName:d.p33_name, group:'chandelier_table', colorLabel:'Argenté', price:d.p33_price, tag:'', img:'p33', stock:15, desc:d.p33_desc},
+  {id:66,cat:'eclairage',  name:d.p33_name+' — Noir',    baseName:d.p33_name, group:'chandelier_table', colorLabel:'Noir',    price:d.p33_price, tag:'', img:'p33', stock:15, desc:d.p33_desc},
+
   {id:34,cat:'eclairage',  name:d.p34_name, price:d.p34_price, tag:'',          img:'p34',stock:10,  desc:d.p34_desc},
   {id:35,cat:'eclairage',  name:d.p35_name, price:d.p35_price, tag:'Nouveau',   img:'p35',stock:30,  desc:d.p35_desc},
   {id:36,cat:'packs',      name:d.p36_name, price:d.p36_price, tag:'Bestseller',img:'p36',stock:1,   desc:d.p36_desc},
   {id:37,cat:'packs',      name:d.p37_name, price:d.p37_price, tag:'',          img:'p37',stock:1,   desc:d.p37_desc},
   {id:38,cat:'packs',      name:d.p38_name, price:d.p38_price, tag:'Nouveau',   img:'p38',stock:2,   desc:d.p38_desc},
   {id:39,cat:'packs',      name:d.p39_name, price:d.p39_price, tag:'',          img:'p39',stock:3,   desc:d.p39_desc},
+  {id:67,cat:'ceremonie',  name:d.p40_name, price:d.p40_price, tag:'Nouveau',   img:'p40',images:['p40','p40b'], stock:3, desc:d.p40_desc},
   ];
 }
 let PRODUCTS = getProducts();
+// Renvoie toutes les couleurs d'un produit (lui-même seul s'il n'a pas de variantes).
+function getVariants(p) {
+  return p.group ? PRODUCTS.filter(x => x.group === p.group) : [p];
+}
 
 // ── SHARED COMPONENTS ─────────────────────────────────────────────────────────
 function Btn({children, onClick, variant='solid', style={}, full=false, disabled=false}) {
@@ -349,7 +455,7 @@ function SectionTitle({eyebrow, title, sub, align='center', light=false}) {
   return (
     <div style={{textAlign:align, marginBottom:50}}>
       {eyebrow && <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:light?G.goldL:G.gold,fontWeight:600,margin:'0 0 12px'}}>{eyebrow}</p>}
-      <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:44,fontWeight:400,color:light?'#fff':G.text,margin:0,lineHeight:1.1}}>{title}</h2>
+      <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'clamp(28px,6vw,44px)',fontWeight:400,color:light?'#fff':G.text,margin:0,lineHeight:1.1}}>{title}</h2>
       {sub && <p style={{fontFamily:"'Jost',sans-serif",fontSize:15,color:light?'rgba(255,255,255,.7)':G.textM,margin:'14px auto 0',maxWidth:540,lineHeight:1.75}}>{sub}</p>}
     </div>
   );
@@ -368,8 +474,13 @@ function StockBadge({stock}) {
   );
 }
 
-function ProductCard({product, onClick}) {
+function ProductCard({variants, onClick}) {
   const [h,sH] = React.useState(false);
+  const [ci,setCi] = React.useState(0);
+  const list = variants||[];
+  const product = list[Math.min(ci, list.length-1)];
+  const hasColors = list.length>1;
+  if (!product) return null;
   return (
     <div onMouseEnter={()=>sH(true)} onMouseLeave={()=>sH(false)} onClick={()=>onClick(product)}
       style={{background:'#fff',cursor:'pointer',transition:'transform .25s,box-shadow .25s',transform:h?'translateY(-4px)':'none',boxShadow:h?'0 14px 40px rgba(44,36,25,.12)':'0 2px 10px rgba(44,36,25,.05)',display:'flex',flexDirection:'column'}}>
@@ -380,8 +491,18 @@ function ProductCard({product, onClick}) {
       </div>
       <div style={{padding:'13px 15px 16px',flex:1,display:'flex',flexDirection:'column'}}>
         <StockBadge stock={product.stock}/>
-        <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:16,fontWeight:600,color:G.text,margin:'0 0 4px'}}>{product.name}</p>
+        <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:16,fontWeight:600,color:G.text,margin:'0 0 4px'}}>{hasColors?product.baseName:product.name}</p>
         <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:G.textM,margin:'0 0 auto',lineHeight:1.5,paddingBottom:10}}>{product.desc.slice(0,58)}…</p>
+        {hasColors && (
+          <div onClick={e=>e.stopPropagation()} style={{display:'flex',alignItems:'center',gap:6,margin:'0 0 10px'}}>
+            {list.map((v,i)=>(
+              <button key={v.id} type="button" onClick={()=>setCi(i)} title={v.colorLabel} aria-label={v.colorLabel}
+                style={{width:16,height:16,borderRadius:'50%',padding:0,cursor:'pointer',background:SWATCH_HEX[v.colorLabel]||'#ccc',
+                  border:i===ci?'2px solid '+G.sage:'1px solid rgba(44,36,25,.18)',boxShadow:(SWATCH_HEX[v.colorLabel]||'').toLowerCase()==='#ffffff'?'inset 0 0 0 1px #ddd':'none'}}/>
+            ))}
+            <span style={{fontFamily:"'Jost',sans-serif",fontSize:10,color:G.textM}}>{product.colorLabel}</span>
+          </div>
+        )}
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',borderTop:'1px solid '+G.beigeD,paddingTop:10,marginTop:10}}>
           <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:17,fontWeight:700,color:G.gold}}>{product.price}</span>
           <span style={{fontFamily:"'Jost',sans-serif",fontSize:10,letterSpacing:'.1em',textTransform:'uppercase',color:G.sage,fontWeight:600}}>Voir →</span>
@@ -392,22 +513,51 @@ function ProductCard({product, onClick}) {
 }
 
 function Modal({product, onClose, setPage, addToCart}) {
+  const isMobile = useIsMobile();
+  const variants = React.useMemo(()=>product?getVariants(product):[], [product]);
+  const [ci,setCi] = React.useState(0);
+  const [pi,setPi] = React.useState(0);
+  React.useEffect(()=>{
+    if (product) setCi(Math.max(0, variants.findIndex(v=>v.id===product.id)));
+    setPi(0);
+  }, [product]);
   if (!product) return null;
+  const current = variants[ci] || product;
+  const hasColors = variants.length>1;
+  const photos = current.images && current.images.length>1 ? current.images : [current.img];
   return (
-    <div style={{position:'fixed',inset:0,zIndex:300,background:'rgba(44,36,25,.6)',display:'flex',alignItems:'center',justifyContent:'center',padding:20}} onClick={onClose}>
-      <div style={{background:G.cream,maxWidth:660,width:'100%',maxHeight:'88vh',overflowY:'auto'}} onClick={e=>e.stopPropagation()}>
-        <div style={{position:'relative',height:280,flexShrink:0}}>
-          <img src={IMGS[product.img]} alt={product.name} style={{width:'100%',height:'100%',objectFit:'cover'}}/>
+    <div style={{position:'fixed',inset:0,zIndex:300,background:'rgba(44,36,25,.6)',display:'flex',alignItems:isMobile?'stretch':'center',justifyContent:'center',padding:isMobile?0:20}} onClick={onClose}>
+      <div style={{background:G.cream,maxWidth:isMobile?'100%':660,width:'100%',maxHeight:isMobile?'100%':'88vh',height:isMobile?'100%':'auto',overflowY:'auto'}} onClick={e=>e.stopPropagation()}>
+        <div style={{position:'relative',height:isMobile?220:280,flexShrink:0}}>
+          <img src={IMGS[photos[pi]||current.img]} alt={current.name} style={{width:'100%',height:'100%',objectFit:'cover'}}/>
           <button onClick={onClose} style={{position:'absolute',top:12,right:12,background:'rgba(250,250,248,.9)',border:'none',cursor:'pointer',width:34,height:34,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,color:G.text}}>×</button>
-          {product.tag && <span style={{position:'absolute',bottom:12,left:12,background:product.tag==='Bestseller'?G.gold:G.sage,color:'#fff',fontFamily:"'Jost',sans-serif",fontSize:9,letterSpacing:'.1em',textTransform:'uppercase',padding:'3px 9px',fontWeight:600}}>{product.tag}</span>}
+          {current.tag && <span style={{position:'absolute',bottom:12,left:12,background:current.tag==='Bestseller'?G.gold:G.sage,color:'#fff',fontFamily:"'Jost',sans-serif",fontSize:9,letterSpacing:'.1em',textTransform:'uppercase',padding:'3px 9px',fontWeight:600}}>{current.tag}</span>}
+          {photos.length>1 && (
+            <div style={{position:'absolute',bottom:12,right:12,display:'flex',gap:6}}>
+              {photos.map((ph,i)=>(
+                <button key={ph+i} type="button" onClick={()=>setPi(i)} aria-label={'Photo '+(i+1)}
+                  style={{width:9,height:9,borderRadius:'50%',padding:0,border:'1px solid #fff',cursor:'pointer',background:i===pi?'#fff':'rgba(255,255,255,.4)'}}/>
+              ))}
+            </div>
+          )}
         </div>
-        <div style={{padding:'26px 34px 34px'}}>
-          <StockBadge stock={product.stock}/>
-          {product.stock <= 5 && <div style={{background:'#FDF3F1',border:'1px solid #C4877A',padding:'10px 14px',marginBottom:16,display:'flex',gap:8,alignItems:'center'}}>
+        <div style={{padding:isMobile?'20px 18px 24px':'26px 34px 34px'}}>
+          <StockBadge stock={current.stock}/>
+          {current.stock <= 5 && <div style={{background:'#FDF3F1',border:'1px solid #C4877A',padding:'10px 14px',marginBottom:16,display:'flex',gap:8,alignItems:'center'}}>
             <span style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:'#8B3A2A'}}>Très demandé — vérifiez la disponibilité pour votre date dès maintenant.</span>
           </div>}
-          <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:28,fontWeight:600,color:G.text,margin:'0 0 10px'}}>{product.name}</h2>
-          <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textL,lineHeight:1.8,margin:'0 0 22px'}}>{product.desc}</p>
+          <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:28,fontWeight:600,color:G.text,margin:'0 0 10px'}}>{hasColors?current.baseName:current.name}</h2>
+          {hasColors && (
+            <div style={{display:'flex',alignItems:'center',gap:8,margin:'0 0 16px'}}>
+              {variants.map((v,i)=>(
+                <button key={v.id} type="button" onClick={()=>setCi(i)} title={v.colorLabel} aria-label={v.colorLabel}
+                  style={{width:26,height:26,borderRadius:'50%',padding:0,cursor:'pointer',background:SWATCH_HEX[v.colorLabel]||'#ccc',
+                    border:i===ci?'2px solid '+G.sage:'1px solid rgba(44,36,25,.18)',boxShadow:(SWATCH_HEX[v.colorLabel]||'').toLowerCase()==='#ffffff'?'inset 0 0 0 1px #ddd':'none'}}/>
+              ))}
+              <span style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textM}}>{current.colorLabel}</span>
+            </div>
+          )}
+          <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textL,lineHeight:1.8,margin:'0 0 22px'}}>{current.desc}</p>
           <div style={{background:G.beige,padding:'12px 16px',marginBottom:20,display:'flex',gap:20,flexWrap:'wrap'}}>
             {['Matériel vérifié & nettoyé','Reprise incluse','Assistance personnalisée'].map(t=>(
               <span key={t} style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:G.textL,display:'flex',gap:5,alignItems:'center'}}>
@@ -416,8 +566,8 @@ function Modal({product, onClose, setPage, addToCart}) {
             ))}
           </div>
           <div style={{display:'flex',gap:12,alignItems:'center'}}>
-            <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:26,fontWeight:700,color:G.gold,flexShrink:0}}>{product.price}</span>
-            <Btn onClick={()=>{addToCart(product.id,1);onClose();setPage('devis');}} style={{flex:1,padding:'12px 16px'}}>Ajouter au devis</Btn>
+            <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:26,fontWeight:700,color:G.gold,flexShrink:0}}>{current.price}</span>
+            <Btn onClick={()=>{addToCart(current.id,1);onClose();setPage('devis');}} style={{flex:1,padding:'12px 16px'}}>Ajouter au devis</Btn>
           </div>
         </div>
       </div>
@@ -427,27 +577,57 @@ function Modal({product, onClose, setPage, addToCart}) {
 
 // ── BOTTOM NAV ────────────────────────────────────────────────────────────────
 function BottomNav({page, setPage}) {
+  const [open, setOpen] = React.useState(false);
   const links = [['home','Accueil'],['catalogue','Catalogue'],['how','Process'],['about','À propos'],['contact','Contact']];
+  const go = id => { setPage(id); setOpen(false); };
   return (
     <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:200,background:'rgba(250,250,248,.98)',backdropFilter:'blur(16px)',borderBottom:'1px solid '+G.beigeD,display:'flex',alignItems:'stretch',justifyContent:'center',height:52,boxShadow:'0 2px 16px rgba(44,36,25,.06)'}}>
-      {links.map(([id,label]) => (
-        <button key={id} onClick={()=>setPage(id)} style={{background:'none',border:'none',cursor:'pointer',fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.12em',textTransform:'uppercase',color:page===id?G.sage:G.textL,fontWeight:page===id?700:400,padding:'0 24px',borderBottom:'2px solid '+(page===id?G.sage:'transparent'),transition:'color .2s',whiteSpace:'nowrap'}}>
-          {label}
-        </button>
-      ))}
-      <div style={{display:'flex',alignItems:'center',paddingLeft:18,marginLeft:8,borderLeft:'1px solid '+G.beigeD}}>
-        <Btn onClick={()=>setPage('devis')} variant="sage" style={{padding:'7px 16px',fontSize:10}}>Devis gratuit</Btn>
+      <div className="lw-nav-links" style={{display:'flex',alignItems:'stretch',justifyContent:'center'}}>
+        {links.map(([id,label]) => (
+          <button key={id} onClick={()=>setPage(id)} style={{background:'none',border:'none',cursor:'pointer',fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.12em',textTransform:'uppercase',color:page===id?G.sage:G.textL,fontWeight:page===id?700:400,padding:'0 24px',borderBottom:'2px solid '+(page===id?G.sage:'transparent'),transition:'color .2s',whiteSpace:'nowrap'}}>
+            {label}
+          </button>
+        ))}
+        <div style={{display:'flex',alignItems:'center',paddingLeft:18,marginLeft:8,borderLeft:'1px solid '+G.beigeD}}>
+          <Btn onClick={()=>setPage('devis')} variant="sage" style={{padding:'7px 16px',fontSize:10}}>Devis gratuit</Btn>
+        </div>
       </div>
+
+      {/* Mobile : logo + burger */}
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',width:'100%',padding:'0 16px'}} className="lw-mobile-bar">
+        {LOGO ? <img src={LOGO} alt="Loca-Wedding" style={{height:28,width:'auto'}}/> : <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontWeight:600,color:G.text}}>Loca-Wedding</span>}
+        <button className="lw-burger-btn" aria-label={open?'Fermer le menu':'Ouvrir le menu'} onClick={()=>setOpen(o=>!o)}
+          style={{alignItems:'center',justifyContent:'center',width:36,height:36,background:'none',border:'none',cursor:'pointer',flexDirection:'column',gap:5}}>
+          <span style={{display:'block',width:22,height:2,background:G.text,transition:'transform .2s',transform:open?'translateY(7px) rotate(45deg)':'none'}}/>
+          <span style={{display:'block',width:22,height:2,background:G.text,opacity:open?0:1,transition:'opacity .2s'}}/>
+          <span style={{display:'block',width:22,height:2,background:G.text,transition:'transform .2s',transform:open?'translateY(-7px) rotate(-45deg)':'none'}}/>
+        </button>
+      </div>
+
+      {/* Panneau de liens mobile */}
+      {open && (
+        <div style={{position:'fixed',top:52,left:0,right:0,bottom:0,zIndex:199,background:G.cream,display:'flex',flexDirection:'column',padding:'12px 0',overflowY:'auto'}}>
+          {links.map(([id,label]) => (
+            <button key={id} onClick={()=>go(id)} style={{background:'none',border:'none',borderBottom:'1px solid '+G.beigeD,cursor:'pointer',fontFamily:"'Jost',sans-serif",fontSize:14,letterSpacing:'.08em',textTransform:'uppercase',color:page===id?G.sage:G.text,fontWeight:page===id?700:500,padding:'16px 24px',textAlign:'left'}}>
+              {label}
+            </button>
+          ))}
+          <div style={{padding:'20px 24px'}}>
+            <Btn onClick={()=>go('devis')} variant="sage" full style={{padding:'13px'}}>Devis gratuit</Btn>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
 
 // ── FOOTER ────────────────────────────────────────────────────────────────────
 function Footer({setPage}) {
+  const isMobile = useIsMobile();
   return (
-    <footer style={{background:G.text,color:'#fff',padding:'52px 80px 26px'}}>
-      <div style={{display:'grid',gridTemplateColumns:'1.3fr 1fr 1fr 1fr',gap:40,marginBottom:40}}>
-        <div>
+    <footer style={{background:G.text,color:'#fff',padding:isMobile?'40px 20px 20px':'52px 80px 26px'}}>
+      <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'1.3fr 1fr 1fr 1fr',gap:isMobile?28:40,marginBottom:isMobile?28:40}}>
+        <div style={{gridColumn:isMobile?'1 / -1':'auto'}}>
           {LOGO && <img src={LOGO} alt="Loca-Wedding" style={{height:50,width:'auto',marginBottom:14}}/>}
           <p style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:'rgba(255,255,255,.5)',lineHeight:1.8,maxWidth:200,margin:'0 0 14px'}}>Location de matériel de mariage haut de gamme. Créée en Belgique, pour les mariages belges.</p>
           <span style={{fontFamily:"'Jost',sans-serif",fontSize:10,color:G.goldL,border:'1px solid rgba(201,169,110,.3)',padding:'4px 10px'}}>Entreprise belge</span>
@@ -471,7 +651,7 @@ function Footer({setPage}) {
           </div>
         ))}
       </div>
-      <div style={{borderTop:'1px solid rgba(255,255,255,.08)',paddingTop:20,display:'flex',justifyContent:'space-between'}}>
+      <div style={{borderTop:'1px solid rgba(255,255,255,.08)',paddingTop:20,display:'flex',justifyContent:'space-between',flexWrap:'wrap',gap:8}}>
         <span style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:'rgba(255,255,255,.3)'}}>© 2026 Loca-Wedding · TVA BE 0XXX.XXX.XXX</span>
         <span style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:'rgba(255,255,255,.3)'}}>Mentions légales · CGV</span>
       </div>
@@ -484,28 +664,30 @@ function Footer({setPage}) {
 // ═══════════════════════════════════════════════════════════════════════════════
 function HomePage({setPage, addToCart}) {
   const [modal, setModal] = React.useState(null);
+  const isMobile = useIsMobile();
+  const PAD = isMobile ? 20 : 80;
   return (
     <div>
       <Modal product={modal} onClose={()=>setModal(null)} setPage={setPage} addToCart={addToCart}/>
 
       {/* HERO */}
-      <section style={{height:'100vh',minHeight:700,position:'relative',display:'flex',alignItems:'center',justifyContent:'center'}}>
+      <section style={{height:'100vh',minHeight:isMobile?560:700,position:'relative',display:'flex',alignItems:'center',justifyContent:'center'}}>
         <img src={IMGS.hero} alt="Mariage élégant" style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover'}}/>
         <div style={{position:'absolute',inset:0,background:'linear-gradient(to bottom,rgba(44,36,25,.3) 0%,rgba(44,36,25,.6) 100%)'}}/>
-        <div style={{position:'relative',textAlign:'center',padding:'0 40px',maxWidth:860,display:'flex',flexDirection:'column',alignItems:'center'}}>
+        <div style={{position:'relative',textAlign:'center',padding:isMobile?'0 20px':'0 40px',maxWidth:860,display:'flex',flexDirection:'column',alignItems:'center'}}>
           {/* LOGO — grand & centré */}
           {LOGO && (
-            <img src={LOGO} alt="Loca-Wedding" style={{height:120,width:'auto',marginBottom:40,display:'block'}}/>
+            <img src={LOGO} alt="Loca-Wedding" style={{height:isMobile?72:120,width:'auto',marginBottom:isMobile?24:40,display:'block'}}/>
           )}
           {/* Scarcity badge */}
-          <div style={{display:'inline-flex',alignItems:'center',gap:8,background:'rgba(255,255,255,.12)',backdropFilter:'blur(6px)',border:'1px solid rgba(255,255,255,.2)',padding:'6px 16px',marginBottom:24}}>
-            <div style={{width:7,height:7,borderRadius:'50%',background:'#E8C14A',display:'inline-block'}} className="pulse"/>
-            <span style={{fontFamily:"'Jost',sans-serif",fontSize:10,letterSpacing:'.2em',textTransform:'uppercase',color:'#fff',fontWeight:600}}>Saison 2026 · Disponibilités limitées · Réservez tôt</span>
+          <div style={{display:'inline-flex',alignItems:'center',gap:8,background:'rgba(255,255,255,.12)',backdropFilter:'blur(6px)',border:'1px solid rgba(255,255,255,.2)',padding:'6px 16px',marginBottom:isMobile?18:24,textAlign:'left'}}>
+            <div style={{width:7,height:7,borderRadius:'50%',background:'#E8C14A',flexShrink:0,display:'inline-block'}} className="pulse"/>
+            <span style={{fontFamily:"'Jost',sans-serif",fontSize:isMobile?9:10,letterSpacing:'.15em',textTransform:'uppercase',color:'#fff',fontWeight:600}}>Saison 2026 · Disponibilités limitées</span>
           </div>
-          <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'clamp(44px,6vw,80px)',fontWeight:300,color:'#fff',margin:'0 0 18px',lineHeight:1.05}}>
+          <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'clamp(34px,8vw,80px)',fontWeight:300,color:'#fff',margin:'0 0 18px',lineHeight:1.05}}>
             Votre mariage mérite<br/><em style={{fontStyle:'italic',color:G.goldL}}>le meilleur décor</em>
           </h1>
-          <p style={{fontFamily:"'Jost',sans-serif",fontSize:15,color:'rgba(255,255,255,.88)',maxWidth:500,margin:'0 auto 36px',lineHeight:1.75}}>
+          <p style={{fontFamily:"'Jost',sans-serif",fontSize:isMobile?13:15,color:'rgba(255,255,255,.88)',maxWidth:500,margin:'0 auto 36px',lineHeight:1.75}}>
             Location de mobilier & décoration haut de gamme pour votre mariage dans toute la Belgique.
           </p>
           <div style={{display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap'}}>
@@ -514,19 +696,19 @@ function HomePage({setPage, addToCart}) {
           </div>
         </div>
         {/* Stats strip */}
-        <div style={{position:'absolute',bottom:0,left:0,right:0,padding:'20px 80px',background:'rgba(44,36,25,.75)',backdropFilter:'blur(4px)',display:'flex',justifyContent:'space-around'}}>
+        <div style={{position:'absolute',bottom:0,left:0,right:0,padding:isMobile?'14px 12px':'20px 80px',background:'rgba(44,36,25,.75)',backdropFilter:'blur(4px)',display:'flex',justifyContent:'space-around',flexWrap:'wrap',gap:isMobile?8:0}}>
           {[['500+','Articles en stock'],['300+','Mariages accompagnés'],['Belgique','Entreprise locale'],['4,9 / 5','Note clients']].map(([n,l])=>(
-            <div key={l} style={{textAlign:'center',padding:'4px 16px'}}>
-              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:26,fontWeight:600,color:G.goldL,lineHeight:1}}>{n}</div>
-              <div style={{fontFamily:"'Jost',sans-serif",fontSize:10,letterSpacing:'.1em',textTransform:'uppercase',color:'rgba(255,255,255,.45)',marginTop:4}}>{l}</div>
+            <div key={l} style={{textAlign:'center',padding:isMobile?'4px 8px':'4px 16px'}}>
+              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?18:26,fontWeight:600,color:G.goldL,lineHeight:1}}>{n}</div>
+              <div style={{fontFamily:"'Jost',sans-serif",fontSize:isMobile?8:10,letterSpacing:'.1em',textTransform:'uppercase',color:'rgba(255,255,255,.45)',marginTop:4}}>{l}</div>
             </div>
           ))}
         </div>
       </section>
 
       {/* TRUST STRIP */}
-      <section style={{background:G.beigeD,padding:'22px 80px'}}>
-        <div style={{display:'flex',gap:40,justifyContent:'center',flexWrap:'wrap',alignItems:'center'}}>
+      <section style={{background:G.beigeD,padding:isMobile?'16px 20px':'22px 80px'}}>
+        <div style={{display:'flex',gap:isMobile?16:40,justifyContent:'center',flexWrap:'wrap',alignItems:'center'}}>
           {['Matériel vérifié & désinfecté','Entreprise 100% belge','+300 mariages depuis 2019','Accompagnement personnalisé','Matériel premium & durable','Toute la Belgique'].map(t=>(
             <div key={t} style={{display:'flex',alignItems:'center',gap:7}}>
               <span style={{width:4,height:4,borderRadius:'50%',background:G.sage,flexShrink:0,display:'inline-block'}}/>
@@ -537,14 +719,14 @@ function HomePage({setPage, addToCart}) {
       </section>
 
       {/* CATEGORIES */}
-      <section style={{padding:'88px 80px',background:G.cream}}>
+      <section style={{padding:isMobile?'48px 20px':'88px 80px',background:G.cream}}>
         <SectionTitle eyebrow="Nos collections" title="Tout pour votre grand jour" sub="8 catégories, plus de 500 articles disponibles à la location en Belgique."/>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:3}}>
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(4,1fr)',gap:3}}>
           {CATEGORIES.map(cat => {
             const [h,sH] = React.useState(false);
             return (
               <div key={cat.id} onMouseEnter={()=>sH(true)} onMouseLeave={()=>sH(false)} onClick={()=>setPage('cat_'+cat.id)}
-                style={{position:'relative',cursor:'pointer',overflow:'hidden',height:210}}>
+                style={{position:'relative',cursor:'pointer',overflow:'hidden',height:isMobile?160:210}}>
                 <img src={IMGS['cat_'+cat.id]} alt={cat.label} style={{width:'100%',height:'100%',objectFit:'cover',transition:'transform .4s',transform:h?'scale(1.06)':'scale(1)'}} loading="lazy"/>
                 <div style={{position:'absolute',inset:0,background:h?'rgba(44,36,25,.55)':'rgba(44,36,25,.38)',transition:'background .3s'}}/>
                 <div style={{position:'absolute',inset:0,padding:'18px',display:'flex',flexDirection:'column',justifyContent:'flex-end'}}>
@@ -559,10 +741,10 @@ function HomePage({setPage, addToCart}) {
       </section>
 
       {/* HOW IT WORKS */}
-      <section style={{padding:'88px 80px',background:G.beige}}>
+      <section style={{padding:isMobile?'48px 20px':'88px 80px',background:G.beige}}>
         <SectionTitle eyebrow="Simple & rassurant" title="3 étapes vers le mariage de vos rêves"/>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:48,position:'relative'}}>
-          <div style={{position:'absolute',top:28,left:'16%',right:'16%',height:1,background:G.goldL,opacity:.4}}/>
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:isMobile?36:48,position:'relative'}}>
+          {!isMobile && <div style={{position:'absolute',top:28,left:'16%',right:'16%',height:1,background:G.goldL,opacity:.4}}/>}
           {[
             {n:'01',t:'Choisissez vos articles',d:'Parcourez le catalogue et sélectionnez le mobilier, la décoration et les accessoires qui correspondent à votre vision.'},
             {n:'02',t:'Recevez votre devis',d:'Envoyez-nous votre liste et votre date. Nous vous répondons sous 24h avec un devis détaillé et personnalisé, sans engagement.'},
@@ -584,10 +766,10 @@ function HomePage({setPage, addToCart}) {
 
       {/* GALLERY */}
       <section style={{background:G.text}}>
-        <div style={{padding:'60px 80px 40px',textAlign:'center'}}>
+        <div style={{padding:isMobile?'40px 20px 28px':'60px 80px 40px',textAlign:'center'}}>
           <SectionTitle eyebrow="Nos réalisations" title="Mariages dont nous sommes fiers" sub="Quelques réalisations récentes en Belgique." light/>
         </div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gridTemplateRows:'220px 220px',gap:3}}>
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(3,1fr)',gridAutoRows:isMobile?'150px':undefined,gridTemplateRows:isMobile?undefined:'220px 220px',gap:3}}>
           {[
             {img:IMGS.gallery1,label:'Cérémonie champêtre · Liège'},
             {img:IMGS.gallery2,label:'Réception de gala · Bruxelles'},
@@ -598,7 +780,7 @@ function HomePage({setPage, addToCart}) {
             const [h,sH] = React.useState(false);
             return (
               <div key={i} onMouseEnter={()=>sH(true)} onMouseLeave={()=>sH(false)}
-                style={{position:'relative',overflow:'hidden',gridRow:g.span?'span 2':'span 1'}}>
+                style={{position:'relative',overflow:'hidden',gridRow:(!isMobile && g.span)?'span 2':'span 1'}}>
                 <img src={g.img} alt={g.label} style={{width:'100%',height:'100%',objectFit:'cover',transition:'transform .5s',transform:h?'scale(1.05)':'scale(1)'}} loading="lazy"/>
                 <div style={{position:'absolute',inset:0,background:h?'rgba(44,36,25,.4)':'rgba(44,36,25,.15)',transition:'background .3s',display:'flex',alignItems:'flex-end',padding:14}}>
                   <span style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:'rgba(255,255,255,.9)',opacity:h?1:0,transition:'opacity .3s'}}>{g.label}</span>
@@ -610,12 +792,19 @@ function HomePage({setPage, addToCart}) {
       </section>
 
       {/* BESTSELLERS */}
-      <section style={{padding:'88px 80px',background:G.cream}}>
+      <section style={{padding:isMobile?'48px 20px':'88px 80px',background:G.cream}}>
         <SectionTitle eyebrow="Coup de cœur" title="Nos articles les plus demandés"/>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:18}}>
-          {PRODUCTS.filter(p=>p.tag==='Bestseller').slice(0,4).map(p => (
-            <ProductCard key={p.id} product={p} onClick={setModal}/>
-          ))}
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(4,1fr)',gap:isMobile?12:18}}>
+          {(() => {
+            const seenGroups = new Set();
+            return PRODUCTS.filter(p=>p.tag==='Bestseller').filter(p=>{
+              const k = p.group||('single-'+p.id);
+              if (seenGroups.has(k)) return false;
+              seenGroups.add(k); return true;
+            }).slice(0,4).map(p => (
+              <ProductCard key={p.id} variants={getVariants(p)} onClick={setModal}/>
+            ));
+          })()}
         </div>
         <div style={{textAlign:'center',marginTop:40}}>
           <Btn onClick={()=>setPage('catalogue')} style={{padding:'13px 36px'}}>Voir tout le catalogue</Btn>
@@ -623,28 +812,28 @@ function HomePage({setPage, addToCart}) {
       </section>
 
       {/* SCARCITY BANNER */}
-      <section style={{background:'linear-gradient(135deg,#3D2E1F 0%,#2C2419 100%)',padding:'56px 80px',position:'relative',overflow:'hidden'}}>
-        <div style={{position:'absolute',right:80,top:'50%',transform:'translateY(-50%)',fontSize:110,opacity:.04,fontFamily:'serif'}}>2026</div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:40,alignItems:'center',position:'relative'}}>
+      <section style={{background:'linear-gradient(135deg,#3D2E1F 0%,#2C2419 100%)',padding:isMobile?'40px 20px':'56px 80px',position:'relative',overflow:'hidden'}}>
+        {!isMobile && <div style={{position:'absolute',right:80,top:'50%',transform:'translateY(-50%)',fontSize:110,opacity:.04,fontFamily:'serif'}}>2026</div>}
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr auto',gap:isMobile?24:40,alignItems:'center',position:'relative'}}>
           <div>
             <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:14}}>
-              <div style={{width:7,height:7,borderRadius:'50%',background:'#E8C14A'}} className="pulse"/>
+              <div style={{width:7,height:7,borderRadius:'50%',background:'#E8C14A',flexShrink:0}} className="pulse"/>
               <span style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.18em',textTransform:'uppercase',color:'#E8C14A',fontWeight:600}}>Saison haute · Forte demande</span>
             </div>
-            <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:38,fontWeight:400,color:'#fff',margin:'0 0 12px',lineHeight:1.1}}>Les weekends de juin & juillet 2026 se remplissent rapidement</h2>
+            <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?26:38,fontWeight:400,color:'#fff',margin:'0 0 12px',lineHeight:1.1}}>Les weekends de juin & juillet 2026 se remplissent rapidement</h2>
             <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:'rgba(255,255,255,.6)',lineHeight:1.7,maxWidth:540}}>Nos stocks sont limités. Vérifiez la disponibilité pour votre date dès maintenant — gratuit et sans engagement.</p>
           </div>
-          <div style={{textAlign:'center',flexShrink:0}}>
-            <Btn onClick={()=>setPage('devis')} style={{padding:'14px 32px',fontSize:12,display:'block',marginBottom:8}}>Vérifier ma date</Btn>
+          <div style={{textAlign:isMobile?'left':'center',flexShrink:0}}>
+            <Btn onClick={()=>setPage('devis')} full={isMobile} style={{padding:'14px 32px',fontSize:12,display:'block',marginBottom:8}}>Vérifier ma date</Btn>
             <p style={{fontFamily:"'Jost',sans-serif",fontSize:10,color:'rgba(255,255,255,.35)'}}>Réponse garantie sous 24h</p>
           </div>
         </div>
       </section>
 
       {/* TESTIMONIALS */}
-      <section style={{padding:'88px 80px',background:G.beige}}>
+      <section style={{padding:isMobile?'48px 20px':'88px 80px',background:G.beige}}>
         <SectionTitle eyebrow="Ils nous ont fait confiance" title="300+ couples nous ont dit oui" sub="Des témoignages vrais, de vrais mariés, de toute la Belgique."/>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:20,marginBottom:28}}>
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:20,marginBottom:28}}>
           {[
             {n:'Sophie & Thomas',loc:'Liège, juin 2025',s:5,t:'Un service impeccable du début à la fin. La décoration était exactement comme nous l\'avions imaginée. Merci infiniment !',img:'https://i.pravatar.cc/80?img=47'},
             {n:'Camille & Hugo',loc:'Bruxelles, septembre 2025',s:5,t:'Installation soignée, reprise sans accroc. Nous avons pu profiter de notre journée sans nous soucier de quoi que ce soit.',img:'https://i.pravatar.cc/80?img=44'},
@@ -668,9 +857,9 @@ function HomePage({setPage, addToCart}) {
       </section>
 
       {/* REASSURANCE */}
-      <section style={{padding:'80px 80px',background:G.cream}}>
+      <section style={{padding:isMobile?'48px 20px':'80px 80px',background:G.cream}}>
         <SectionTitle eyebrow="Nos engagements" title="Pourquoi choisir Loca-Wedding ?"/>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:24}}>
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:isMobile?14:24}}>
           {[
             {t:'Matériel vérifié',d:'Chaque article est inspecté et reconditionné après chaque mariage. Qualité garantie à chaque location.'},
             {t:'Ancrage belge',d:'Fondée en Belgique en 2019, nous connaissons les lieux de réception et les prestataires locaux.'},
@@ -688,25 +877,25 @@ function HomePage({setPage, addToCart}) {
       </section>
 
       {/* ABOUT TEASER */}
-      <section style={{display:'grid',gridTemplateColumns:'1fr 1fr',minHeight:400}}>
-        <div style={{position:'relative',overflow:'hidden'}}>
+      <section style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',minHeight:isMobile?'auto':400}}>
+        <div style={{position:'relative',overflow:'hidden',height:isMobile?220:'auto'}}>
           <img src={IMGS.about} alt="Notre équipe" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
           <div style={{position:'absolute',inset:0,background:'rgba(44,36,25,.2)'}}/>
         </div>
-        <div style={{background:G.beigeD,padding:'60px 56px',display:'flex',flexDirection:'column',justifyContent:'center'}}>
+        <div style={{background:G.beigeD,padding:isMobile?'32px 20px':'60px 56px',display:'flex',flexDirection:'column',justifyContent:'center'}}>
           <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.sage,fontWeight:600,margin:'0 0 14px'}}>Notre histoire</p>
-          <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:36,fontWeight:400,color:G.text,margin:'0 0 18px',lineHeight:1.15}}>Née d'un mariage,<br/><em style={{fontStyle:'italic',color:G.gold}}>pour tous les mariages</em></h2>
+          <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?26:36,fontWeight:400,color:G.text,margin:'0 0 18px',lineHeight:1.15}}>Née d'un mariage,<br/><em style={{fontStyle:'italic',color:G.gold}}>pour tous les mariages</em></h2>
           <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textL,lineHeight:1.8,margin:'0 0 24px'}}>En 2019, en cherchant à décorer notre propre mariage en Belgique, nous avons réalisé qu'il manquait une offre de location vraiment premium. Loca-Wedding est née de cette frustration — et de cette passion.</p>
-          <Btn variant="sage" onClick={()=>setPage('about')} style={{alignSelf:'flex-start',padding:'11px 26px'}}>Découvrir notre histoire</Btn>
+          <Btn variant="sage" onClick={()=>setPage('about')} full={isMobile} style={{alignSelf:isMobile?'stretch':'flex-start',padding:'11px 26px'}}>Découvrir notre histoire</Btn>
         </div>
       </section>
 
       {/* CTA */}
-      <section style={{padding:'72px 80px',background:G.text,textAlign:'center'}}>
+      <section style={{padding:isMobile?'48px 20px':'72px 80px',background:G.text,textAlign:'center'}}>
         <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.goldL,margin:'0 0 12px'}}>Votre mariage de rêve commence ici</p>
-        <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:48,fontWeight:300,color:'#fff',margin:'0 0 12px',lineHeight:1.05}}>Demandez votre devis gratuit</h2>
+        <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?30:48,fontWeight:300,color:'#fff',margin:'0 0 12px',lineHeight:1.05}}>Demandez votre devis gratuit</h2>
         <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:'rgba(255,255,255,.45)',margin:'0 0 32px'}}>Réponse personnalisée sous 24h · Sans engagement · 100% gratuit</p>
-        <div style={{display:'flex',gap:12,justifyContent:'center'}}>
+        <div style={{display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap'}}>
           <Btn onClick={()=>setPage('devis')} style={{padding:'14px 40px',fontSize:13}}>Commencer maintenant</Btn>
           <Btn variant="outline" onClick={()=>setPage('contact')} style={{padding:'14px 28px',fontSize:13,color:'rgba(255,255,255,.65)',borderColor:'rgba(255,255,255,.2)'}}>Nous contacter</Btn>
         </div>
@@ -719,6 +908,7 @@ function HomePage({setPage, addToCart}) {
 // CATALOGUE
 // ═══════════════════════════════════════════════════════════════════════════════
 function CataloguePage({setPage, initialCat='all', addToCart}) {
+  const isMobile = useIsMobile();
   const [cat, setCat] = React.useState(initialCat);
   const [search, setSearch] = React.useState('');
   const [modal, setModal] = React.useState(null);
@@ -734,20 +924,29 @@ function CataloguePage({setPage, initialCat='all', addToCart}) {
     const mt = !tagFilter||p.tag===tagFilter;
     return mc&&ms&&mt;
   });
+  // Une carte par produit/modèle : les couleurs d'un même groupe partagent une seule carte.
+  const cardGroups = [];
+  const seenGroups = new Set();
+  filtered.forEach(p => {
+    const k = p.group||('single-'+p.id);
+    if (seenGroups.has(k)) return;
+    seenGroups.add(k);
+    cardGroups.push(p);
+  });
   return (
     <div style={{paddingTop:0,minHeight:'100vh',background:G.cream}}>
       <Modal product={modal} onClose={()=>setModal(null)} setPage={setPage} addToCart={addToCart}/>
-      <div style={{position:'relative',height:180,overflow:'hidden'}}>
+      <div style={{position:'relative',height:isMobile?130:180,overflow:'hidden'}}>
         <img src={IMGS.hero2} alt="Catalogue" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
-        <div style={{position:'absolute',inset:0,background:'rgba(44,36,25,.55)',display:'flex',alignItems:'center',padding:'0 80px'}}>
+        <div style={{position:'absolute',inset:0,background:'rgba(44,36,25,.55)',display:'flex',alignItems:'center',padding:isMobile?'0 20px':'0 80px'}}>
           <div>
             <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.goldL,fontWeight:600,margin:'0 0 6px'}}>+500 articles disponibles</p>
-            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:48,fontWeight:400,color:'#fff',margin:0}}>Notre catalogue</h1>
+            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?30:48,fontWeight:400,color:'#fff',margin:0}}>Notre catalogue</h1>
           </div>
         </div>
       </div>
-      <div style={{display:'flex'}}>
-        <aside style={{width:240,flexShrink:0,background:'#fff',borderRight:'1px solid '+G.beigeD,padding:'20px 0',position:'sticky',top:0,height:'calc(100vh)',overflowY:'auto'}}>
+      <div style={{display:'flex',flexDirection:isMobile?'column':'row'}}>
+        <aside style={{width:isMobile?'100%':240,flexShrink:0,background:'#fff',borderRight:isMobile?'none':'1px solid '+G.beigeD,borderBottom:isMobile?'1px solid '+G.beigeD:'none',padding:'20px 0',position:isMobile?'static':'sticky',top:0,height:isMobile?'auto':'calc(100vh)',overflowY:'auto'}}>
           <div style={{padding:'0 16px 14px',borderBottom:'1px solid '+G.beigeD}}>
             <div style={{position:'relative'}}>
               <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Rechercher…"
@@ -784,15 +983,15 @@ function CataloguePage({setPage, initialCat='all', addToCart}) {
             </div>
           </div>
         </aside>
-        <main style={{flex:1,padding:'22px 32px'}}>
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+        <main style={{flex:1,padding:isMobile?'18px 16px':'22px 32px'}}>
+          <div style={{display:'flex',flexWrap:'wrap',justifyContent:'space-between',alignItems:'center',gap:10,marginBottom:20}}>
             <p style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:G.textM,margin:0}}><strong style={{color:G.text}}>{filtered.length}</strong> article{filtered.length>1?'s':''}</p>
             <Btn onClick={()=>setPage('devis')} variant="sage" style={{padding:'7px 14px',fontSize:10}}>Demander un devis</Btn>
           </div>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:16}}>
-            {filtered.map(p=><ProductCard key={p.id} product={p} onClick={setModal}/>)}
+          <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(3,1fr)',gap:isMobile?12:16}}>
+            {cardGroups.map(p=><ProductCard key={p.id} variants={getVariants(p)} onClick={setModal}/>)}
           </div>
-          {filtered.length===0 && <div style={{textAlign:'center',padding:'80px'}}><p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:24,color:G.textM}}>Aucun article trouvé</p></div>}
+          {filtered.length===0 && <div style={{textAlign:'center',padding:'80px 20px'}}><p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:24,color:G.textM}}>Aucun article trouvé</p></div>}
         </main>
       </div>
     </div>
@@ -803,6 +1002,7 @@ function CataloguePage({setPage, initialCat='all', addToCart}) {
 // HOW IT WORKS
 // ═══════════════════════════════════════════════════════════════════════════════
 function HowPage({setPage}) {
+  const isMobile = useIsMobile();
   const steps = [
     {n:'01',t:'Parcourez le catalogue',d:'Explorez nos 8 catégories et plus de 500 articles. Notez les références qui vous correspondent. Chaque fiche produit précise les quantités disponibles et les tarifs à la journée.',img:IMGS.how1},
     {n:'02',t:'Envoyez votre demande',d:'Remplissez notre formulaire en ligne avec votre date, le lieu de réception et le nombre d\'invités. C\'est gratuit et sans aucun engagement de votre part.',img:IMGS.how2},
@@ -813,35 +1013,35 @@ function HowPage({setPage}) {
   ];
   return (
     <div style={{paddingTop:0,background:G.cream}}>
-      <div style={{position:'relative',height:200,overflow:'hidden'}}>
+      <div style={{position:'relative',height:isMobile?150:200,overflow:'hidden'}}>
         <img src={IMGS.gallery1} alt="Comment ça marche" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
-        <div style={{position:'absolute',inset:0,background:'rgba(44,36,25,.55)',display:'flex',alignItems:'center',padding:'0 80px'}}>
+        <div style={{position:'absolute',inset:0,background:'rgba(44,36,25,.55)',display:'flex',alignItems:'center',padding:isMobile?'0 20px':'0 80px'}}>
           <div>
             <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.goldL,fontWeight:600,margin:'0 0 6px'}}>Simple, transparent & rassurant</p>
-            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:48,fontWeight:400,color:'#fff',margin:0}}>Comment ça marche</h1>
+            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?30:48,fontWeight:400,color:'#fff',margin:0}}>Comment ça marche</h1>
           </div>
         </div>
       </div>
-      <div style={{padding:'64px 80px'}}>
+      <div style={{padding:isMobile?'40px 20px':'64px 80px'}}>
         {steps.map((s,i) => (
-          <div key={s.n} style={{display:'grid',gridTemplateColumns:i%2===0?'56px 1fr 320px':'56px 320px 1fr',gap:32,marginBottom:48,paddingBottom:48,borderBottom:i<5?'1px solid '+G.beigeD:'none',alignItems:'center'}}>
+          <div key={s.n} style={{display:'grid',gridTemplateColumns:isMobile?'1fr':(i%2===0?'56px 1fr 320px':'56px 320px 1fr'),gap:isMobile?16:32,marginBottom:isMobile?32:48,paddingBottom:isMobile?32:48,borderBottom:i<5?'1px solid '+G.beigeD:'none',alignItems:isMobile?'flex-start':'center'}}>
             <div style={{width:52,height:52,border:'1.5px solid '+G.goldL,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,alignSelf:'flex-start',marginTop:6}}>
               <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontWeight:600,color:G.gold}}>{s.n}</span>
             </div>
-            {i%2!==0 && <div style={{height:240,overflow:'hidden',flexShrink:0}}><img src={s.img} alt={s.t} style={{width:'100%',height:'100%',objectFit:'cover'}} loading="lazy"/></div>}
+            {(isMobile || i%2!==0) && <div style={{height:isMobile?180:240,overflow:'hidden',flexShrink:0}}><img src={s.img} alt={s.t} style={{width:'100%',height:'100%',objectFit:'cover'}} loading="lazy"/></div>}
             <div>
-              <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:26,fontWeight:600,color:G.text,margin:'0 0 10px'}}>{s.t}</h3>
+              <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?21:26,fontWeight:600,color:G.text,margin:'0 0 10px'}}>{s.t}</h3>
               <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textL,lineHeight:1.8,margin:0,maxWidth:540}}>{s.d}</p>
             </div>
-            {i%2===0 && <div style={{height:240,overflow:'hidden',flexShrink:0}}><img src={s.img} alt={s.t} style={{width:'100%',height:'100%',objectFit:'cover'}} loading="lazy"/></div>}
+            {!isMobile && i%2===0 && <div style={{height:240,overflow:'hidden',flexShrink:0}}><img src={s.img} alt={s.t} style={{width:'100%',height:'100%',objectFit:'cover'}} loading="lazy"/></div>}
           </div>
         ))}
-        <div style={{background:G.beige,padding:'36px 48px',display:'flex',justifyContent:'space-between',alignItems:'center',gap:20,borderLeft:'4px solid '+G.sage}}>
+        <div style={{background:G.beige,padding:isMobile?'24px 20px':'36px 48px',display:'flex',flexDirection:isMobile?'column':'row',justifyContent:'space-between',alignItems:isMobile?'stretch':'center',gap:20,borderLeft:'4px solid '+G.sage}}>
           <div>
-            <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:26,fontWeight:600,color:G.text,margin:'0 0 5px'}}>Prêt à commencer ?</h3>
+            <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?21:26,fontWeight:600,color:G.text,margin:'0 0 5px'}}>Prêt à commencer ?</h3>
             <p style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:G.textM,margin:0}}>Devis gratuit, réponse sous 24h, sans engagement.</p>
           </div>
-          <Btn variant="sage" onClick={()=>setPage('devis')} style={{flexShrink:0,padding:'12px 30px'}}>Demander un devis</Btn>
+          <Btn variant="sage" onClick={()=>setPage('devis')} full={isMobile} style={{flexShrink:0,padding:'12px 30px'}}>Demander un devis</Btn>
         </div>
       </div>
     </div>
@@ -852,36 +1052,37 @@ function HowPage({setPage}) {
 // À PROPOS
 // ═══════════════════════════════════════════════════════════════════════════════
 function AboutPage({setPage}) {
+  const isMobile = useIsMobile();
   return (
     <div style={{paddingTop:0,background:G.cream}}>
-      <div style={{position:'relative',height:300,overflow:'hidden'}}>
+      <div style={{position:'relative',height:isMobile?220:300,overflow:'hidden'}}>
         <img src={IMGS.about} alt="Notre équipe" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
-        <div style={{position:'absolute',inset:0,background:'linear-gradient(to right,rgba(44,36,25,.75) 0%,rgba(44,36,25,.3) 100%)',display:'flex',alignItems:'flex-end',padding:'0 80px 44px'}}>
+        <div style={{position:'absolute',inset:0,background:'linear-gradient(to right,rgba(44,36,25,.75) 0%,rgba(44,36,25,.3) 100%)',display:'flex',alignItems:'flex-end',padding:isMobile?'0 20px 28px':'0 80px 44px'}}>
           <div>
             <span style={{fontFamily:"'Jost',sans-serif",fontSize:9,letterSpacing:'.2em',textTransform:'uppercase',color:G.goldL,fontWeight:600,border:'1px solid rgba(223,196,154,.3)',padding:'4px 10px',display:'inline-block',marginBottom:12}}>Fondée en Belgique · 2019</span>
-            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:52,fontWeight:300,color:'#fff',margin:0,lineHeight:1.05}}>Notre histoire,<br/><em style={{fontStyle:'italic',color:G.goldL}}>votre mariage</em></h1>
+            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?32:52,fontWeight:300,color:'#fff',margin:0,lineHeight:1.05}}>Notre histoire,<br/><em style={{fontStyle:'italic',color:G.goldL}}>votre mariage</em></h1>
           </div>
         </div>
       </div>
 
-      <section style={{padding:'68px 80px',display:'grid',gridTemplateColumns:'1fr 1fr',gap:72,alignItems:'center'}}>
+      <section style={{padding:isMobile?'40px 20px':'68px 80px',display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:isMobile?28:72,alignItems:'center'}}>
         <div>
           <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.sage,fontWeight:600,margin:'0 0 14px'}}>Notre histoire</p>
-          <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:36,fontWeight:400,color:G.text,margin:'0 0 22px',lineHeight:1.15}}>Née d'une frustration,<br/>construite avec passion</h2>
+          <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?26:36,fontWeight:400,color:G.text,margin:'0 0 22px',lineHeight:1.15}}>Née d'une frustration,<br/>construite avec passion</h2>
           <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textL,lineHeight:1.85,margin:'0 0 14px'}}>En 2019, en organisant notre propre mariage quelque part entre Liège et Namur, nous avons réalisé qu'il n'existait pas vraiment, en Belgique, d'offre de location de décoration vraiment premium, bien organisée et accompagnée.</p>
           <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textL,lineHeight:1.85,margin:'0 0 14px'}}>Trop de stress, trop peu de choix, des prestataires peu réactifs. Nous avons décidé de créer ce que nous aurions voulu trouver : une plateforme belge, humaine, avec une offre complète et un vrai service d'accompagnement.</p>
           <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textL,lineHeight:1.85,margin:0}}>Depuis, Loca-Wedding a accompagné plus de 300 couples dans toute la Belgique. Chaque mariage est unique. Chaque client mérite une attention particulière.</p>
         </div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,height:400}}>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,height:isMobile?280:400}}>
           <img src={IMGS.gallery1} alt="" style={{width:'100%',height:'100%',objectFit:'cover',gridRow:'span 2'}} loading="lazy"/>
           <img src={IMGS.gallery2} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}} loading="lazy"/>
           <img src={IMGS.gallery3} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}} loading="lazy"/>
         </div>
       </section>
 
-      <section style={{padding:'68px 80px',background:G.beige}}>
+      <section style={{padding:isMobile?'40px 20px':'68px 80px',background:G.beige}}>
         <SectionTitle eyebrow="Ce qui nous anime" title="Mission, valeurs & vision"/>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:24}}>
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:isMobile?14:24}}>
           {[
             {t:'Notre mission',c:G.gold,d:'Rendre accessibles les plus belles décorations de mariage à tous les couples belges, en leur offrant un service impeccable du premier contact à la dernière bougie éteinte.'},
             {t:'Nos valeurs',c:G.sage,d:'Qualité sans compromis. Proximité humaine. Honnêteté totale dans nos prix et nos engagements. Respect de l\'environnement à travers la location plutôt que l\'achat jetable.'},
@@ -895,9 +1096,9 @@ function AboutPage({setPage}) {
         </div>
       </section>
 
-      <section style={{padding:'68px 80px',background:G.cream}}>
+      <section style={{padding:isMobile?'40px 20px':'68px 80px',background:G.cream}}>
         <SectionTitle eyebrow="L'équipe derrière Loca-Wedding" title="Des passionnés à votre service"/>
-        <div style={{display:'flex',justifyContent:'center'}}>
+        <div style={{display:'flex',flexWrap:'wrap',justifyContent:'center',gap:isMobile?28:0}}>
           {[
             {name:'Farida',role:'Fondatrice & directrice',img:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiB2aWV3Qm94PSIwIDAgMzAwIDMwMCI+PHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNGNUVGRTYiLz48Y2lyY2xlIGN4PSIxNTAiIGN5PSIxMjAiIHI9IjU1IiBmaWxsPSIjQzlBOTZFIi8+PHBhdGggZD0iTSA2MCAyODAgUSA2MCAyMDAgMTUwIDIwMCBRIDI0MCAyMDAgMjQwIDI4MCBaIiBmaWxsPSIjQzlBOTZFIi8+PGNpcmNsZSBjeD0iMTM1IiBjeT0iMTE1IiByPSIzIiBmaWxsPSIjMkMyNDE5Ii8+PGNpcmNsZSBjeD0iMTY1IiBjeT0iMTE1IiByPSIzIiBmaWxsPSIjMkMyNDE5Ii8+PHBhdGggZD0iTSAxMzggMTM4IFEgMTUwIDE0NSAxNjIgMTM4IiBzdHJva2U9IiMyQzI0MTkiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PHBhdGggZD0iTSA5NSA5MCBRIDEwMCA2MCAxNTAgNTUgUSAyMDAgNjAgMjA1IDkwIFEgMjAwIDEwMCAxOTUgOTUgUSAxOTAgODAgMTUwIDc4IFEgMTEwIDgwIDEwNSA5NSBRIDEwMCAxMDAgOTUgOTAgWiIgZmlsbD0iIzhCNkY0NyIvPjwvc3ZnPg==',desc:'Passionnée d\'événementiel, Farida a fondé Loca-Wedding en Belgique pour offrir aux futurs mariés un service haut de gamme, attentionné et accessible. Chaque détail compte.'},
             {name:'Marc Lejeune',role:'Responsable logistique',img:IMGS.team2,desc:'Garant de l\'opérationnel. Marc veille à ce que chaque mariage soit impeccable sur le plan logistique.'},
@@ -916,8 +1117,8 @@ function AboutPage({setPage}) {
         </div>
       </section>
 
-      <section style={{background:G.text,padding:'52px 80px'}}>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:20,textAlign:'center'}}>
+      <section style={{background:G.text,padding:isMobile?'32px 20px':'52px 80px'}}>
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(5,1fr)',gap:20,textAlign:'center'}}>
           {[['2019','Création'],['300+','Mariages'],['500+','Articles'],['4,9/5','Note'],['Belgique','Partout']].map(([n,l])=>(
             <div key={l}>
               <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:36,fontWeight:600,color:G.goldL,lineHeight:1,marginBottom:6}}>{n}</div>
@@ -927,10 +1128,10 @@ function AboutPage({setPage}) {
         </div>
       </section>
 
-      <section style={{padding:'60px 80px',background:G.beige,textAlign:'center'}}>
-        <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:38,fontWeight:400,color:G.text,margin:'0 0 14px'}}>Faisons connaissance</h2>
+      <section style={{padding:isMobile?'40px 20px':'60px 80px',background:G.beige,textAlign:'center'}}>
+        <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?26:38,fontWeight:400,color:G.text,margin:'0 0 14px'}}>Faisons connaissance</h2>
         <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textM,margin:'0 0 28px'}}>Parlons de votre mariage. Sans pression, juste entre nous.</p>
-        <div style={{display:'flex',gap:12,justifyContent:'center'}}>
+        <div style={{display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap'}}>
           <Btn variant="sage" onClick={()=>setPage('devis')} style={{padding:'12px 32px'}}>Demander un devis</Btn>
           <Btn variant="outline" onClick={()=>setPage('contact')} style={{padding:'12px 24px'}}>Nous écrire</Btn>
         </div>
@@ -943,6 +1144,7 @@ function AboutPage({setPage}) {
 // DEVIS
 // ═══════════════════════════════════════════════════════════════════════════════
 function DevisPage({cart={}, setCartQty=()=>{}, clearCart=()=>{}}) {
+  const isMobile = useIsMobile();
   const [f,setF] = React.useState({nom:'',email:'',tel:'',date:'',lieu:'',invites:'',msg:''});
   const [sent,setSent] = React.useState(false);
   const [submitting,setSubmitting] = React.useState(false);
@@ -989,22 +1191,22 @@ function DevisPage({cart={}, setCartQty=()=>{}, clearCart=()=>{}}) {
 
   return (
     <div style={{paddingTop:0,background:G.cream,minHeight:'100vh'}}>
-      <div style={{position:'relative',height:180,overflow:'hidden'}}>
+      <div style={{position:'relative',height:isMobile?140:180,overflow:'hidden'}}>
         <img src={IMGS.gallery2} alt="Devis" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
-        <div style={{position:'absolute',inset:0,background:'rgba(44,36,25,.58)',display:'flex',alignItems:'flex-end',padding:'0 80px 36px'}}>
+        <div style={{position:'absolute',inset:0,background:'rgba(44,36,25,.58)',display:'flex',alignItems:'flex-end',padding:isMobile?'0 20px 24px':'0 80px 36px'}}>
           <div>
             <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.goldL,fontWeight:600,margin:'0 0 6px'}}>Gratuit · Sans engagement · Réponse sous 24h</p>
-            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:48,fontWeight:400,color:'#fff',margin:0}}>Demandez un devis</h1>
+            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?28:48,fontWeight:400,color:'#fff',margin:0}}>Demandez un devis</h1>
           </div>
         </div>
       </div>
       {sent ? (
-        <div style={{padding:'100px',textAlign:'center'}}>
-          <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:38,fontWeight:400,color:G.text,margin:'0 0 14px'}}>Merci, {f.nom.split(' ')[0]||'cher(e) client(e)'} !</h2>
+        <div style={{padding:isMobile?'56px 24px':'100px',textAlign:'center'}}>
+          <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?26:38,fontWeight:400,color:G.text,margin:'0 0 14px'}}>Merci, {f.nom.split(' ')[0]||'cher(e) client(e)'} !</h2>
           <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textM,lineHeight:1.75,maxWidth:440,margin:'0 auto'}}>Votre demande a été reçue. Nous vous répondons dans les 24 heures avec votre devis personnalisé.</p>
         </div>
       ) : (
-        <div style={{padding:'48px 80px',maxWidth:900,margin:'0 auto'}}>
+        <div style={{padding:isMobile?'28px 16px':'48px 80px',maxWidth:900,margin:'0 auto'}}>
           <div style={{background:'#FDF3F1',border:'1px solid #C4877A',padding:'12px 18px',marginBottom:32,display:'flex',alignItems:'center',gap:10}}>
             <div style={{width:7,height:7,borderRadius:'50%',background:'#C4877A',flexShrink:0}} className="pulse"/>
             <div>
@@ -1012,12 +1214,12 @@ function DevisPage({cart={}, setCartQty=()=>{}, clearCart=()=>{}}) {
               <span style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:'#8B3A2A'}}>Certains weekends de juin–août 2026 sont déjà réservés. Envoyez votre demande maintenant.</span>
             </div>
           </div>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20,marginBottom:20}}>
+          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:20,marginBottom:20}}>
             {[['Nom complet','nom','text'],['Email','email','email'],['Téléphone','tel','tel'],['Date du mariage','date','date']].map(([l,k,t])=>(
               <div key={k}><label style={lbl}>{l}</label><input type={t} value={f[k]} onChange={e=>set(k,e.target.value)} style={inp}/></div>
             ))}
           </div>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20,marginBottom:20}}>
+          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:20,marginBottom:20}}>
             <div><label style={lbl}>Lieu de réception</label><input value={f.lieu} onChange={e=>set('lieu',e.target.value)} style={inp} placeholder="Domaine, salle, ville belge…"/></div>
             <div><label style={lbl}>Nombre d'invités estimé</label><input type="number" value={f.invites} onChange={e=>set('invites',e.target.value)} style={inp} placeholder="ex: 80"/></div>
           </div>
@@ -1070,7 +1272,7 @@ function DevisPage({cart={}, setCartQty=()=>{}, clearCart=()=>{}}) {
           <div style={{marginBottom:20}}><label style={lbl}>Message & précisions</label><textarea value={f.msg} onChange={e=>set('msg',e.target.value)} rows={5} style={{...inp,resize:'vertical'}} placeholder="Décrivez votre vision, vos couleurs, votre lieu…"/></div>
           <div style={{background:G.beige,padding:'20px 24px',marginBottom:24,borderLeft:'4px solid '+G.sage}}>
             <p style={{fontFamily:"'Jost',sans-serif",fontSize:10,letterSpacing:'.12em',textTransform:'uppercase',color:G.sage,fontWeight:600,margin:'0 0 12px'}}>Tarifs indicatifs</p>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:16}}>
+            <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:16}}>
               {[['Pack Essentiel','dès 450€/j','≤ 50 pers.'],['Pack Standard','dès 750€/j','≤ 80 pers.'],['Pack Prestige','dès 950€/j','100+ pers.']].map(([n,p,s])=>(
                 <div key={n} style={{textAlign:'center',background:G.cream,padding:'14px'}}>
                   <div style={{fontFamily:"'Jost',sans-serif",fontSize:10,letterSpacing:'.1em',textTransform:'uppercase',color:G.sage,fontWeight:600,marginBottom:4}}>{n}</div>
@@ -1100,21 +1302,22 @@ function DevisPage({cart={}, setCartQty=()=>{}, clearCart=()=>{}}) {
 // CONTACT
 // ═══════════════════════════════════════════════════════════════════════════════
 function ContactPage() {
+  const isMobile = useIsMobile();
   const [sent,setSent] = React.useState(false);
   const inp = {width:'100%',padding:'10px 12px',border:'1px solid '+G.beigeD,background:'#fff',fontFamily:"'Jost',sans-serif",fontSize:13,color:G.text,outline:'none',boxSizing:'border-box'};
   const lbl = {fontFamily:"'Jost',sans-serif",fontSize:10,letterSpacing:'.14em',textTransform:'uppercase',color:G.textM,fontWeight:600,display:'block',marginBottom:5};
   return (
     <div style={{paddingTop:0,background:G.cream,minHeight:'100vh'}}>
-      <div style={{position:'relative',height:180,overflow:'hidden'}}>
+      <div style={{position:'relative',height:isMobile?140:180,overflow:'hidden'}}>
         <img src={IMGS.gallery4} alt="Contact" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
-        <div style={{position:'absolute',inset:0,background:'rgba(44,36,25,.55)',display:'flex',alignItems:'flex-end',padding:'0 80px 36px'}}>
+        <div style={{position:'absolute',inset:0,background:'rgba(44,36,25,.55)',display:'flex',alignItems:'flex-end',padding:isMobile?'0 20px 24px':'0 80px 36px'}}>
           <div>
             <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.goldL,fontWeight:600,margin:'0 0 6px'}}>Nous sommes là pour vous</p>
-            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:48,fontWeight:400,color:'#fff',margin:0}}>Contactez-nous</h1>
+            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?28:48,fontWeight:400,color:'#fff',margin:0}}>Contactez-nous</h1>
           </div>
         </div>
       </div>
-      <div style={{padding:'56px 80px',display:'grid',gridTemplateColumns:'1fr 1.6fr',gap:72}}>
+      <div style={{padding:isMobile?'28px 16px':'56px 80px',display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1.6fr',gap:isMobile?32:72}}>
         <div>
           <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:24,fontWeight:600,color:G.text,margin:'0 0 22px'}}>Nos coordonnées</h3>
           {[['Téléphone','+32 470 00 00 00'],['Email','contact@loca-wedding.be'],['Zone de livraison','Toute la Belgique & Luxembourg'],['Horaires','Lun – Sam · 9h00 – 19h00']].map(([l,v])=>(
@@ -1134,7 +1337,7 @@ function ContactPage() {
           </div>
         ) : (
           <div>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:16}}>
+            <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:16,marginBottom:16}}>
               <div><label style={lbl}>Nom</label><input style={inp}/></div>
               <div><label style={lbl}>Email</label><input type="email" style={inp}/></div>
             </div>
