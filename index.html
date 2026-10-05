@@ -290,10 +290,6 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "p48_name": "Centre de table acrylique fleuri",
   "p48_desc": "Pied acrylique transparent surmonté d'une composition florale blanche, bougie pilier.",
   "p48_price": "À venir",
-  "img_p49": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/cd84e8eb-2bf8-45e2-a902-92d8ec3a77f5_d2a1672e-d59b-490b-9ebf-4ec96e3df280.jpg?v=1791231756",
-  "p49_name": "Chandelier doré baroque — détail",
-  "p49_desc": "Chandelier doré baroque 5 bras, style classique pour table d'honneur.",
-  "p49_price": "À venir",
   "img_p50": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/1e54a57d-6dc2-4f17-995d-f8eebe92f5bd_db67544d-74cc-4461-a30a-15103d22dc3b.jpg?v=1791231757",
   "p50_name": "Centre de table mauve romantique",
   "p50_desc": "Composition de roses blanches et mauves sur chandelier blanc, ambiance romantique.",
@@ -307,9 +303,6 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "p52_desc": "Grand vase trompette blanc fleuri, entouré de photophores à bougies flottantes.",
   "p52_price": "À venir",
   "img_p53": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/0d0c3479-68e5-4a7e-b747-af9644ea8f5c_5f4e4297-4562-4daf-adaf-c40b80a8b6fe.jpg?v=1791231756",
-  "p53_name": "Chandelier doré baroque — table d'honneur",
-  "p53_desc": "Chandelier doré baroque 5 bras, mis en scène sur grande tablée d'honneur.",
-  "p53_price": "À venir",
   "img_how1": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/Image_12.jpg?v=1777112777",
   "img_how2": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/Image_9_1c1ed39f-a38b-4a93-b2ad-a7defd15ac94.jpg?v=1777112249",
   "img_how3": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/Image_10_ce43f6df-f7ba-4ab4-a82f-c451ddcaf163.jpg?v=1777112320",
@@ -359,7 +352,7 @@ function buildIMGS() {
     p36: d.img_p36, p37: d.img_p37, p38: d.img_p38, p39: d.img_p39,
     p40: d.img_p40, p40b: d.img_p40b, p41: d.img_p41,
     p42: d.img_p42, p43: d.img_p43, p44: d.img_p44, p45: d.img_p45, p46: d.img_p46,
-    p47: d.img_p47, p48: d.img_p48, p49: d.img_p49, p50: d.img_p50, p51: d.img_p51,
+    p47: d.img_p47, p48: d.img_p48, p50: d.img_p50, p51: d.img_p51,
     p52: d.img_p52, p53: d.img_p53,
   };
 }
@@ -490,15 +483,13 @@ function getProducts() {
   {id:69,cat:'decoration',  name:d.p42_name, price:d.p42_price, tag:'Nouveau',   img:'p42', stock:5, desc:d.p42_desc},
   {id:70,cat:'decoration',  name:d.p43_name, price:d.p43_price, tag:'Nouveau',   img:'p43', stock:5, desc:d.p43_desc},
   {id:71,cat:'decoration', name:d.p44_name, price:d.p44_price, tag:'Nouveau',   img:'p44', stock:5, desc:d.p44_desc},
-  {id:72,cat:'decoration',  name:d.p45_name, price:d.p45_price, tag:'Nouveau',   img:'p45', stock:5, desc:d.p45_desc},
+  {id:72,cat:'decoration',  name:d.p45_name, price:d.p45_price, tag:'Nouveau',   img:'p45', images:['p45','p53'], stock:5, desc:d.p45_desc},
   {id:73,cat:'decoration',  name:d.p46_name, price:d.p46_price, tag:'Nouveau',   img:'p46', stock:5, desc:d.p46_desc},
   {id:74,cat:'decoration', name:d.p47_name, price:d.p47_price, tag:'Nouveau',   img:'p47', stock:5, desc:d.p47_desc},
   {id:75,cat:'decoration', name:d.p48_name, price:d.p48_price, tag:'Nouveau',   img:'p48', stock:5, desc:d.p48_desc},
-  {id:76,cat:'decoration',  name:d.p49_name, price:d.p49_price, tag:'Nouveau',   img:'p49', stock:5, desc:d.p49_desc},
   {id:77,cat:'decoration', name:d.p50_name, price:d.p50_price, tag:'Nouveau',   img:'p50', stock:5, desc:d.p50_desc},
   {id:78,cat:'decoration', name:d.p51_name, price:d.p51_price, tag:'Nouveau',   img:'p51', stock:5, desc:d.p51_desc},
   {id:79,cat:'decoration', name:d.p52_name, price:d.p52_price, tag:'Nouveau',   img:'p52', stock:5, desc:d.p52_desc},
-  {id:80,cat:'decoration',  name:d.p53_name, price:d.p53_price, tag:'Nouveau',   img:'p53', stock:5, desc:d.p53_desc},
   ];
 }
 let PRODUCTS = getProducts();
