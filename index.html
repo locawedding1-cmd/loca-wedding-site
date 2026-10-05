@@ -142,7 +142,7 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "p2_name": "Chaise Napoleon",
   "p2_desc": "Chaise Napoleon blanche, structure laquée, assise confortable. Empilable.",
   "p2_price": "4€\/j",
-  "p3_name": "Table cocktail lumineuse",
+  "p3_name": "Chandelier noir 5 branches",
   "p3_desc": "Table haute LED rechargeable, 16 couleurs. Idéale pour le cocktail.",
   "p3_price": "22€\/j",
   "p4_name": "Canapé lounge blanc",
@@ -258,6 +258,10 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "p40_name": "Triple Arche",
   "p40_desc": "Ensemble de trois arches florales pour cérémonie ou allée, effet scénique.",
   "p40_price": "100€",
+  "img_p41": "https:\/\/cdn.phototourl.com\/member\/2026-10-05-8469e602-7dc3-4eaa-90e1-bcdac74f045e.jpg",
+  "p41_name": "Trio arche",
+  "p41_desc": "Ensemble de trois arches pour cérémonie ou allée.",
+  "p41_price": "100€",
   "img_how1": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/Image_12.jpg?v=1777112777",
   "img_how2": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/Image_9_1c1ed39f-a38b-4a93-b2ad-a7defd15ac94.jpg?v=1777112249",
   "img_how3": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/Image_10_ce43f6df-f7ba-4ab4-a82f-c451ddcaf163.jpg?v=1777112320",
@@ -305,7 +309,7 @@ function buildIMGS() {
     p26: d.img_p26, p27: d.img_p27, p28: d.img_p28, p29: d.img_p29, p30: d.img_p30,
     p31: d.img_p31, p32: d.img_p32, p33: d.img_p33, p34: d.img_p34, p35: d.img_p35,
     p36: d.img_p36, p37: d.img_p37, p38: d.img_p38, p39: d.img_p39,
-    p40: d.img_p40, p40b: d.img_p40b,
+    p40: d.img_p40, p40b: d.img_p40b, p41: d.img_p41,
   };
 }
 let IMGS = buildIMGS();
@@ -431,6 +435,7 @@ function getProducts() {
   {id:38,cat:'packs',      name:d.p38_name, price:d.p38_price, tag:'Nouveau',   img:'p38',stock:2,   desc:d.p38_desc},
   {id:39,cat:'packs',      name:d.p39_name, price:d.p39_price, tag:'',          img:'p39',stock:3,   desc:d.p39_desc},
   {id:67,cat:'ceremonie',  name:d.p40_name, price:d.p40_price, tag:'Nouveau',   img:'p40',images:['p40','p40b'], stock:3, desc:d.p40_desc},
+  {id:68,cat:'ceremonie',  name:d.p41_name, price:d.p41_price, tag:'Nouveau',   img:'p41', stock:3, desc:d.p41_desc},
   ];
 }
 let PRODUCTS = getProducts();
