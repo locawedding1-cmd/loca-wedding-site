@@ -1304,9 +1304,11 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
 
 const U = 'https://images.unsplash.com/photo-';
 
-// Image store — chaque clé img_pX de TWEAK_DEFAULTS est directement éditable ci-dessous
-function buildIMGS() {
-  const d = TWEAK_DEFAULTS;
+// Image store — chaque clé img_pX de TWEAK_DEFAULTS est directement éditable ci-dessous.
+// Accepte un objet de contenu explicite (par défaut TWEAK_DEFAULTS) afin de
+// pouvoir reconstruire la table d'images à partir du brouillon en mode édition
+// (voir useImgs() plus bas) sans jamais appeler de hook ici (fonction pure).
+function buildIMGS(d = TWEAK_DEFAULTS) {
   return {
     hero:           d.img_hero,
     hero2:          d.img_hero2,
@@ -1363,8 +1365,502 @@ const SWATCH_HEX = {
 // PRODUCTS vient désormais directement de TWEAK_DEFAULTS.products (éditable via admin.html).
 let PRODUCTS = TWEAK_DEFAULTS.products;
 // Renvoie toutes les couleurs d'un produit (lui-même seul s'il n'a pas de variantes).
-function getVariants(p) {
-  return p.group ? PRODUCTS.filter(x => x.group === p.group) : [p];
+// `list` est optionnel : par défaut la liste globale PRODUCTS (visiteur normal),
+// ou la liste du brouillon en mode édition (voir useProducts()).
+function getVariants(p, list) {
+  list = list || PRODUCTS;
+  return p.group ? list.filter(x => x.group === p.group) : [p];
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MODE ÉDITION EN DIRECT — édition du contenu directement depuis le site public.
+//
+// Totalement invisible/inactif pour un visiteur normal : rien dans ce bloc ne
+// déclenche d'appel réseau, de lecture localStorage ou de changement de style
+// tant que editMode est faux. Le seul élément visible pour un visiteur normal
+// est le petit bouton crayon discret en bas à droite (voir EditLauncher).
+//
+// Réutilise exactement la même logique que admin.html (mot de passe "Farida.84",
+// token GitHub stocké en localStorage, lecture/écriture via l'API Contents de
+// GitHub) — voir admin.html pour le détail commenté de cette approche.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const EDIT_REPO = 'locawedding1-cmd/loca-wedding-site';
+const EDIT_FILE_PATH = 'index.html';
+const EDIT_API_BASE = 'https://api.github.com/repos/' + EDIT_REPO + '/contents/' + EDIT_FILE_PATH;
+const EDIT_LS_TOKEN = 'lw_admin_gh_token';
+const EDIT_LS_AUTH = 'lw_admin_authed';
+
+async function editSha256(text) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+// Hash du mot de passe admin ("Farida.84"), identique à admin.html. Calculé une
+// seule fois, de façon asynchrone, sans jamais toucher le réseau ni le DOM.
+let EDIT_ADMIN_HASH = null;
+editSha256('Farida.84').then(h => { EDIT_ADMIN_HASH = h; });
+
+function editB64DecodeUnicode(str) {
+  const binary = atob(str.replace(/\n/g,''));
+  const bytes = new Uint8Array(binary.length);
+  for (let i=0;i<binary.length;i++) bytes[i] = binary.charCodeAt(i);
+  return new TextDecoder('utf-8').decode(bytes);
+}
+function editB64EncodeUnicode(str) {
+  const bytes = new TextEncoder().encode(str);
+  let binary = '';
+  bytes.forEach(b => binary += String.fromCharCode(b));
+  return btoa(binary);
+}
+async function editFetchIndexHtml(token) {
+  const res = await fetch(EDIT_API_BASE, { headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github+json' } });
+  if (!res.ok) {
+    const body = await res.text().catch(()=> '');
+    console.error('GitHub GET failed', res.status, body);
+    throw new Error('github-get-failed-' + res.status);
+  }
+  const json = await res.json();
+  return { content: editB64DecodeUnicode(json.content), sha: json.sha };
+}
+function editExtractTweakBlock(fullHtml) {
+  const m = fullHtml.match(/const TWEAK_DEFAULTS = \/\*EDITMODE-BEGIN\*\/([\s\S]*?)\/\*EDITMODE-END\*\/;;/);
+  if (!m) throw new Error('tweak-block-not-found');
+  // Le bloc est écrit et publié par Abdel lui-même : on l'évalue tel quel,
+  // comme le fait déjà admin.html.
+  return new Function('return (' + m[1] + ')')();
+}
+function editReinjectTweakBlock(fullHtml, obj) {
+  const serialized = JSON.stringify(obj, null, 2);
+  const newBlock = 'const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/' + serialized + '/*EDITMODE-END*/;;';
+  return fullHtml.replace(/const TWEAK_DEFAULTS = \/\*EDITMODE-BEGIN\*\/[\s\S]*?\/\*EDITMODE-END\*\/;;/, newBlock);
+}
+async function editPublishIndexHtml(token, newFullHtml, sha) {
+  const res = await fetch(EDIT_API_BASE, {
+    method: 'PUT',
+    headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github+json', 'Content-Type':'application/json' },
+    body: JSON.stringify({
+      message: 'Mise à jour contenu via édition en direct — ' + new Date().toISOString().slice(0,19).replace('T',' '),
+      content: editB64EncodeUnicode(newFullHtml),
+      sha,
+    }),
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(()=> '');
+    console.error('GitHub PUT failed', res.status, body);
+    throw new Error('github-put-failed-' + res.status);
+  }
+  return res.json();
+}
+// Upload d'une image choisie par Abdel vers le dépôt GitHub (dossier uploads/),
+// puis renvoie l'URL jsDelivr correspondante (CDN gratuit qui sert directement
+// les fichiers d'un dépôt GitHub public, plus rapide/fiable que raw.githubusercontent.com).
+async function uploadImageToGitHub(file, token) {
+  const safeName = file.name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/[^a-z0-9.]+/g,'-').replace(/^-+|-+$/g,'') || 'image';
+  const path = 'uploads/' + Date.now() + '-' + safeName;
+  const dataUrl = await new Promise((resolve,reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+  const base64 = dataUrl.split(',')[1];
+  const res = await fetch('https://api.github.com/repos/' + EDIT_REPO + '/contents/' + path, {
+    method: 'PUT',
+    headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github+json', 'Content-Type':'application/json' },
+    body: JSON.stringify({ message: 'Upload image via édition en direct — ' + path, content: base64 }),
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(()=> '');
+    console.error('GitHub upload failed', res.status, body);
+    throw new Error('github-upload-failed-' + res.status);
+  }
+  return 'https://cdn.jsdelivr.net/gh/' + EDIT_REPO + '@main/' + path;
+}
+
+// ── Contexte d'édition ───────────────────────────────────────────────────────
+const EditCtx = React.createContext(null);
+function useEditCtx() { return React.useContext(EditCtx); }
+
+// Contenu courant : la référence EXACTE de TWEAK_DEFAULTS pour tout visiteur
+// normal (donc zéro différence de rendu), ou le brouillon en cours de
+// modification une fois le mode édition actif.
+function useContent() {
+  const ctx = useEditCtx();
+  return (ctx && ctx.editMode) ? ctx.draft : TWEAK_DEFAULTS;
+}
+function useProducts() {
+  const ctx = useEditCtx();
+  return (ctx && ctx.editMode) ? ctx.draft.products : PRODUCTS;
+}
+function useImgs() {
+  const ctx = useEditCtx();
+  return (ctx && ctx.editMode) ? buildIMGS(ctx.draft) : IMGS;
+}
+
+// ── Texte éditable sur place ─────────────────────────────────────────────────
+// Usage le plus courant : <Edit k="hero_title">{d.hero_title}</Edit>
+// Usage sur mesure (champ imbriqué, ex. catégories/produits) :
+//   <Edit value={x} onCommit={v=>...}>{aperçu affiché}</Edit>
+// Hors mode édition : renvoie EXACTEMENT `children`, sans aucun wrapper DOM,
+// aucun style, aucun appel réseau ni localStorage.
+function Edit({k, value, onCommit, multiline, children}) {
+  const ctx = useEditCtx();
+  const [active, setActive] = React.useState(false);
+  if (!ctx || !ctx.editMode) return children;
+  const current = k !== undefined ? ctx.draft[k] : value;
+  function commit(text) {
+    if (onCommit) onCommit(text); else ctx.setField(k, text);
+  }
+  if (active) {
+    const common = {
+      autoFocus: true,
+      defaultValue: current,
+      onClick: e => e.stopPropagation(),
+      onBlur: e => { commit(e.target.value); setActive(false); },
+      onKeyDown: e => { if (e.key === 'Escape') setActive(false); if (e.key === 'Enter' && !multiline) e.target.blur(); },
+      style: {font:'inherit', color:'inherit', letterSpacing:'inherit', textTransform:'inherit', background:'#fff', border:'1px dashed #4C8BF5', outline:'none', width:'100%', minWidth:60, boxSizing:'border-box', resize: multiline?'vertical':'none'},
+    };
+    return multiline ? <textarea rows={3} {...common}/> : <input {...common}/>;
+  }
+  return (
+    <span onClick={e => { e.stopPropagation(); setActive(true); }} title="Cliquer pour modifier"
+      style={{outline:'1px dashed rgba(76,139,245,.55)', outlineOffset:2, cursor:'text', background:'rgba(76,139,245,.07)'}}>
+      {children}
+    </span>
+  );
+}
+
+// ── Image produit éditable (overlay « Changer la photo » au survol) ─────────
+function ProductImageOverlay({onUploaded}) {
+  const [hover, setHover] = React.useState(false);
+  const [busy, setBusy] = React.useState(false);
+  const inputRef = React.useRef(null);
+  const ctx = useEditCtx();
+  async function onFile(e) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file || !ctx) return;
+    setBusy(true);
+    try {
+      const url = await uploadImageToGitHub(file, ctx.token);
+      onUploaded(url);
+    } catch (err) {
+      console.error(err);
+      alert("Échec de l'envoi de la photo. Vérifiez la connexion et le token GitHub.");
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div onMouseEnter={()=>setHover(true)} onMouseLeave={()=>setHover(false)} onClick={e=>e.stopPropagation()}
+      style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',background:hover?'rgba(44,36,25,.55)':'transparent',transition:'background .15s',zIndex:5}}>
+      {hover && (
+        <button type="button" disabled={busy} onClick={()=>inputRef.current && inputRef.current.click()}
+          style={{background:'#fff',color:'#2C2419',border:'none',padding:'8px 14px',fontSize:11,fontFamily:"'Jost',sans-serif",letterSpacing:'.06em',textTransform:'uppercase',cursor:busy?'default':'pointer',fontWeight:600}}>
+          {busy ? 'Envoi…' : 'Changer la photo'}
+        </button>
+      )}
+      <input ref={inputRef} type="file" accept="image/*" style={{display:'none'}} onChange={onFile}/>
+    </div>
+  );
+}
+
+// ── Fournisseur du mode édition ──────────────────────────────────────────────
+function EditModeProvider({children}) {
+  const [editMode, setEditMode] = React.useState(false);
+  const [draft, setDraft] = React.useState(TWEAK_DEFAULTS);
+  const [token, setToken] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
+  const [loginError, setLoginError] = React.useState('');
+  const [publishing, setPublishing] = React.useState(false);
+  const [publishMsg, setPublishMsg] = React.useState(null);
+  const loadedRef = React.useRef(null); // JSON du contenu tel que chargé depuis GitHub (détecte les changements non publiés)
+  const autoResumeTried = React.useRef(false);
+
+  async function enterEditMode(tok) {
+    setLoading(true); setLoginError('');
+    try {
+      const { content, sha: freshSha } = await editFetchIndexHtml(tok);
+      const obj = editExtractTweakBlock(content);
+      setDraft(obj);
+      loadedRef.current = JSON.stringify(obj);
+      setEditMode(true);
+    } catch (e) {
+      console.error(e);
+      setLoginError("Impossible de récupérer le contenu actuel du site. Vérifiez la connexion et le token GitHub.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Reprend automatiquement une session d'édition déjà ouverte sur cet
+  // appareil (localStorage) — appelé uniquement depuis EditLauncher, jamais
+  // au premier rendu de l'app pour un visiteur qui n'a jamais ouvert le
+  // panneau d'édition.
+  function tryAutoResume() {
+    if (autoResumeTried.current) return;
+    autoResumeTried.current = true;
+    let authed = false, tok = '';
+    try {
+      authed = localStorage.getItem(EDIT_LS_AUTH) === '1';
+      tok = localStorage.getItem(EDIT_LS_TOKEN) || '';
+    } catch (e) {}
+    if (authed && tok) { setToken(tok); enterEditMode(tok); }
+  }
+
+  async function login(password, tok) {
+    setLoginError('');
+    const hash = await editSha256(password);
+    if (hash !== EDIT_ADMIN_HASH) { setLoginError('Mot de passe incorrect.'); return; }
+    if (!tok || !tok.trim()) { setLoginError('Collez votre token GitHub (voir les instructions ci-dessous) pour continuer.'); return; }
+    const cleanTok = tok.trim();
+    try { localStorage.setItem(EDIT_LS_TOKEN, cleanTok); localStorage.setItem(EDIT_LS_AUTH, '1'); } catch (e) {}
+    setToken(cleanTok);
+    await enterEditMode(cleanTok);
+  }
+
+  function logout() {
+    const dirty = loadedRef.current !== null && loadedRef.current !== JSON.stringify(draft);
+    if (dirty && !confirm('Des changements ne sont pas encore publiés. Quitter le mode édition sans publier ?')) return;
+    try { localStorage.removeItem(EDIT_LS_AUTH); } catch (e) {}
+    setEditMode(false);
+    setDraft(TWEAK_DEFAULTS);
+    setPublishMsg(null);
+  }
+
+  function setField(key, value) { setDraft(d => ({...d, [key]: value})); }
+  function updateCategoryField(id, field, value) {
+    setDraft(d => ({...d, categories: d.categories.map(c => c.id===id ? {...c, [field]: value} : c)}));
+  }
+  function updateProduct(id, patch) {
+    setDraft(d => ({...d, products: d.products.map(p => p.id===id ? {...p, ...patch} : p)}));
+  }
+  function setProductImage(product, url) {
+    if (product.img) setField('img_' + product.img, url);
+    else updateProduct(product.id, {imgUrl: url});
+  }
+  function reorderProduct(id, dir) {
+    setDraft(d => {
+      const list = d.products.slice();
+      const idx = list.findIndex(p=>p.id===id);
+      const j = idx + dir;
+      if (idx<0 || j<0 || j>=list.length) return d;
+      [list[idx], list[j]] = [list[j], list[idx]];
+      return {...d, products: list};
+    });
+  }
+  function deleteProduct(id) {
+    setDraft(d => ({...d, products: d.products.filter(p=>p.id!==id)}));
+  }
+  function addProduct({name, price, cat, imgUrl}) {
+    setDraft(d => {
+      const maxId = d.products.reduce((m,p)=>Math.max(m,p.id),0);
+      const newProduct = {id:maxId+1, cat, name:name||'Nouvel article', price:price||'', tag:'', img:'', stock:1, desc:'', imgUrl:imgUrl||''};
+      return {...d, products: d.products.concat([newProduct])};
+    });
+  }
+  function reorderSection(id, dir) {
+    setDraft(d => {
+      const list = d.home_sections.slice();
+      const idx = list.indexOf(id);
+      const j = idx + dir;
+      if (idx<0 || j<0 || j>=list.length) return d;
+      [list[idx], list[j]] = [list[j], list[idx]];
+      return {...d, home_sections: list};
+    });
+  }
+  async function uploadImage(file) { return uploadImageToGitHub(file, token); }
+
+  async function publish() {
+    setPublishing(true); setPublishMsg(null);
+    try {
+      // On relit le fichier juste avant de publier pour récupérer le sha le
+      // plus récent (évite un conflit si le fichier a changé entre-temps),
+      // exactement comme le fait admin.html.
+      const { content: freshHtml, sha: freshSha } = await editFetchIndexHtml(token);
+      const newHtml = editReinjectTweakBlock(freshHtml, draft);
+      await editPublishIndexHtml(token, newHtml, freshSha);
+      loadedRef.current = JSON.stringify(draft);
+      setPublishMsg({type:'ok', text:'Publié ! Le site sera à jour sur locawedding.be dans 1 à 2 minutes.'});
+    } catch (e) {
+      console.error(e);
+      setPublishMsg({type:'error', text:"La publication a échoué. Vérifiez la connexion et le token GitHub (il doit avoir le droit d'écrire sur le dépôt), puis réessayez."});
+    } finally {
+      setPublishing(false);
+    }
+  }
+
+  const value = {
+    editMode, draft, loading, loginError, publishing, publishMsg, token,
+    tryAutoResume, login, logout, setField, updateCategoryField,
+    updateProduct, setProductImage, reorderProduct, deleteProduct, addProduct,
+    reorderSection, uploadImage, publish,
+  };
+  return <EditCtx.Provider value={value}>{children}</EditCtx.Provider>;
+}
+
+// ── Bouton crayon discret + panneau de connexion (toujours rendu, même pour
+// un visiteur normal — c'est le seul ajout visible hors mode édition) ────────
+function EditLauncher() {
+  const ctx = useEditCtx();
+  const [open, setOpen] = React.useState(false);
+  const [pwd, setPwd] = React.useState('');
+  const [tok, setTok] = React.useState('');
+  const triedRef = React.useRef(false);
+
+  React.useEffect(() => {
+    if (!triedRef.current) { triedRef.current = true; ctx && ctx.tryAutoResume(); }
+  }, []);
+
+  if (!ctx || ctx.editMode) return null; // la barre d'outils remplace ce bouton en mode édition
+
+  // Le bouton crayon reste invisible pour tout le monde sauf : 1) un navigateur
+  // déjà connecté une fois (session mémorisée dans localStorage), ou 2) une
+  // visite avec ?edit=1 dans l'URL (connu d'Abdel seulement). Un visiteur
+  // normal ne voit donc jamais ce bouton.
+  let alreadyAuthed = false;
+  try { alreadyAuthed = localStorage.getItem(EDIT_LS_AUTH) === '1'; } catch (e) {}
+  let hasSecretParam = false;
+  try { hasSecretParam = new URLSearchParams(window.location.search).get('edit') === '1'; } catch (e) {}
+  if (!alreadyAuthed && !hasSecretParam) return null;
+
+  async function submit() { await ctx.login(pwd, tok); }
+
+  return (
+    <div style={{position:'fixed',bottom:18,right:18,zIndex:9999}}>
+      {open && (
+        <div style={{position:'absolute',bottom:52,right:0,width:320,maxWidth:'calc(100vw - 36px)',background:'#fff',border:'1px solid #EDE4D8',boxShadow:'0 10px 40px rgba(44,36,25,.18)',padding:'22px 20px',fontFamily:"'Jost',sans-serif"}}>
+          <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:19,fontWeight:600,color:'#2C2419',margin:'0 0 14px'}}>Mode édition</p>
+          <label style={{display:'block',fontSize:10,letterSpacing:'.08em',textTransform:'uppercase',color:'#9E8B78',fontWeight:600,marginBottom:5}}>Mot de passe admin</label>
+          <input type="password" value={pwd} onChange={e=>setPwd(e.target.value)} style={{width:'100%',padding:'8px 10px',border:'1px solid #EDE4D8',marginBottom:12,fontSize:13,boxSizing:'border-box'}}/>
+          <label style={{display:'block',fontSize:10,letterSpacing:'.08em',textTransform:'uppercase',color:'#9E8B78',fontWeight:600,marginBottom:5}}>Token GitHub (Personal Access Token)</label>
+          <input type="password" value={tok} onChange={e=>setTok(e.target.value)} style={{width:'100%',padding:'8px 10px',border:'1px solid #EDE4D8',marginBottom:6,fontSize:13,boxSizing:'border-box'}}/>
+          <p style={{fontSize:10,color:'#9E8B78',marginBottom:12}}>Collé une seule fois : il reste stocké dans ce navigateur uniquement.</p>
+          {ctx.loginError && <div style={{background:'#FBF1F0',border:'1px solid #C4877A',color:'#8B3A2A',padding:'8px 10px',fontSize:11,marginBottom:12}}>{ctx.loginError}</div>}
+          <button onClick={submit} disabled={ctx.loading} style={{width:'100%',padding:'11px',background:'#8A9E7E',color:'#fff',border:'none',cursor:ctx.loading?'default':'pointer',fontSize:12,letterSpacing:'.08em',textTransform:'uppercase',fontWeight:600,opacity:ctx.loading?.6:1}}>
+            {ctx.loading ? 'Connexion…' : 'Entrer en mode édition'}
+          </button>
+          <details style={{marginTop:16,fontSize:11,color:'#6B5C48',lineHeight:1.6}}>
+            <summary style={{cursor:'pointer',color:'#8A9E7E',fontWeight:600}}>Comment obtenir mon token GitHub ?</summary>
+            <ol style={{paddingLeft:16,marginTop:8}}>
+              <li>Allez sur <strong>github.com</strong>, connectez-vous avec le compte qui possède le dépôt <code>loca-wedding-site</code>.</li>
+              <li>Cliquez sur votre photo de profil (en haut à droite) → <strong>Settings</strong>.</li>
+              <li>Dans le menu de gauche, tout en bas : <strong>Developer settings</strong>.</li>
+              <li><strong>Personal access tokens</strong> → <strong>Tokens (classic)</strong> → <strong>Generate new token (classic)</strong>.</li>
+              <li>Donnez-lui un nom (ex: "Édition directe Loca-Wedding"), une expiration (ex: 90 jours), et cochez la case <strong>repo</strong>.</li>
+              <li>Cliquez sur <strong>Generate token</strong> en bas de page. GitHub affiche le token UNE SEULE FOIS — copiez-le immédiatement.</li>
+              <li>Collez-le dans le champ "Token GitHub" ci-dessus.</li>
+            </ol>
+          </details>
+        </div>
+      )}
+      <button onClick={()=>setOpen(o=>!o)} title="Mode édition" aria-label="Mode édition"
+        style={{width:44,height:44,borderRadius:'50%',border:'none',cursor:'pointer',background:'rgba(44,36,25,.35)',color:'#fff',fontSize:18,display:'flex',alignItems:'center',justifyContent:'center',opacity:.42,transition:'opacity .2s'}}
+        onMouseEnter={e=>e.currentTarget.style.opacity=1} onMouseLeave={e=>e.currentTarget.style.opacity=.42}>
+        ✎
+      </button>
+    </div>
+  );
+}
+
+// ── Barre d'outils flottante, visible uniquement en mode édition ────────────
+function EditToolbar() {
+  const ctx = useEditCtx();
+  if (!ctx || !ctx.editMode) return null;
+  return (
+    <div style={{position:'fixed',left:0,right:0,bottom:0,zIndex:9999,background:'#2C2419',color:'#fff',padding:'12px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:16,flexWrap:'wrap',fontFamily:"'Jost',sans-serif",boxShadow:'0 -6px 24px rgba(0,0,0,.25)'}}>
+      <div style={{display:'flex',alignItems:'center',gap:8}}>
+        <span style={{width:8,height:8,borderRadius:'50%',background:'#8A9E7E',display:'inline-block'}}/>
+        <span style={{fontSize:12,letterSpacing:'.08em',textTransform:'uppercase',fontWeight:600}}>Mode édition actif</span>
+      </div>
+      {ctx.publishMsg && (
+        <span style={{fontSize:12,color:ctx.publishMsg.type==='ok'?'#B5C4AD':'#E7A99A',flex:'1 1 240px'}}>{ctx.publishMsg.text}</span>
+      )}
+      <div style={{display:'flex',gap:10}}>
+        <button onClick={ctx.logout} style={{background:'transparent',color:'rgba(255,255,255,.75)',border:'1px solid rgba(255,255,255,.3)',padding:'9px 16px',fontSize:11,letterSpacing:'.06em',textTransform:'uppercase',cursor:'pointer'}}>Quitter le mode édition</button>
+        <button onClick={ctx.publish} disabled={ctx.publishing} style={{background:'#C9A96E',color:'#fff',border:'none',padding:'9px 20px',fontSize:11,letterSpacing:'.06em',textTransform:'uppercase',fontWeight:600,cursor:ctx.publishing?'default':'pointer',opacity:ctx.publishing?.6:1}}>{ctx.publishing?'Publication…':'Publier les changements'}</button>
+      </div>
+    </div>
+  );
+}
+
+// ── Panneau flottant « sections de l'accueil » (réordonnable) ───────────────
+const EDIT_SECTION_LABELS = {
+  hero:"Grand visuel d'accueil (hero)", trust:'Bandeau de confiance', categories:'Catégories (collections)',
+  how:'Comment ça marche (aperçu)', gallery:'Galerie de réalisations', bestsellers:'Articles les plus demandés',
+  scarcity:'Bandeau "stocks limités"', testimonials:'Témoignages clients', reassurance:'Nos engagements',
+  about_teaser:'Aperçu « à propos »', cta:"Appel à l'action final",
+};
+function HomeSectionsPanel({sections, onMove}) {
+  const [open, setOpen] = React.useState(true);
+  return (
+    <div style={{position:'fixed',top:64,right:16,zIndex:400,width:260,background:'#fff',border:'1px solid #EDE4D8',boxShadow:'0 10px 30px rgba(44,36,25,.15)',fontFamily:"'Jost',sans-serif"}}>
+      <button onClick={()=>setOpen(o=>!o)} style={{width:'100%',display:'flex',justifyContent:'space-between',padding:'10px 14px',background:'#F5EFE6',border:'none',cursor:'pointer',fontSize:11,letterSpacing:'.06em',textTransform:'uppercase',fontWeight:600,color:'#2C2419'}}>
+        <span>Sections de l'accueil</span><span>{open?'−':'+'}</span>
+      </button>
+      {open && (
+        <div style={{maxHeight:'60vh',overflowY:'auto',padding:8}}>
+          {sections.map((id,idx)=>(
+            <div key={id} style={{display:'flex',alignItems:'center',gap:8,padding:'6px 8px',fontSize:11,color:'#2C2419',borderBottom:'1px solid #F5EFE6'}}>
+              <span style={{flex:1}}>{EDIT_SECTION_LABELS[id]||id}</span>
+              <button onClick={()=>onMove(id,-1)} disabled={idx===0} style={{width:22,height:20,border:'1px solid #EDE4D8',background:'#fff',cursor:idx===0?'default':'pointer'}}>↑</button>
+              <button onClick={()=>onMove(id,1)} disabled={idx===sections.length-1} style={{width:22,height:20,border:'1px solid #EDE4D8',background:'#fff',cursor:idx===sections.length-1?'default':'pointer'}}>↓</button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Tuile « + » : ajout rapide d'un article au catalogue ─────────────────────
+function AddProductTile({categories, onAdd}) {
+  const [open, setOpen] = React.useState(false);
+  const [name, setName] = React.useState('');
+  const [price, setPrice] = React.useState('');
+  const [cat, setCat] = React.useState(categories[0] ? categories[0].id : '');
+  const [imgUrl, setImgUrl] = React.useState('');
+  const [busy, setBusy] = React.useState(false);
+  const ctx = useEditCtx();
+  const inputRef = React.useRef(null);
+
+  async function onFile(e) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file || !ctx) return;
+    setBusy(true);
+    try { setImgUrl(await ctx.uploadImage(file)); }
+    catch (err) { console.error(err); alert("Échec de l'envoi de la photo."); }
+    finally { setBusy(false); }
+  }
+  function submit() {
+    onAdd({name: name||'Nouvel article', price, cat, imgUrl});
+    setName(''); setPrice(''); setImgUrl(''); setOpen(false);
+  }
+
+  if (!open) {
+    return (
+      <button onClick={()=>setOpen(true)} style={{minHeight:260,border:'2px dashed #DFC49A',background:'#FAFAF8',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:34,color:'#C9A96E'}}>+</button>
+    );
+  }
+  return (
+    <div style={{border:'1px solid #EDE4D8',background:'#fff',padding:16,display:'flex',flexDirection:'column',gap:8}}>
+      <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:16,fontWeight:600,margin:0}}>Nouvel article</p>
+      <input placeholder="Nom" value={name} onChange={e=>setName(e.target.value)} style={{padding:'8px 10px',border:'1px solid #EDE4D8',fontSize:12}}/>
+      <input placeholder="Prix (ex: 25€/j)" value={price} onChange={e=>setPrice(e.target.value)} style={{padding:'8px 10px',border:'1px solid #EDE4D8',fontSize:12}}/>
+      <select value={cat} onChange={e=>setCat(e.target.value)} style={{padding:'8px 10px',border:'1px solid #EDE4D8',fontSize:12}}>
+        {categories.map(c=><option key={c.id} value={c.id}>{c.label}</option>)}
+      </select>
+      <button type="button" onClick={()=>inputRef.current && inputRef.current.click()} disabled={busy} style={{padding:'8px 10px',border:'1px solid #EDE4D8',background:'#F5EFE6',fontSize:11,cursor:'pointer'}}>{busy?'Envoi…':(imgUrl?'Photo ajoutée ✓':'Ajouter une photo')}</button>
+      <input ref={inputRef} type="file" accept="image/*" style={{display:'none'}} onChange={onFile}/>
+      {imgUrl && <img src={imgUrl} alt="" style={{width:'100%',height:100,objectFit:'cover'}}/>}
+      <div style={{display:'flex',gap:8,marginTop:4}}>
+        <button onClick={submit} style={{flex:1,padding:'9px',background:'#8A9E7E',color:'#fff',border:'none',cursor:'pointer',fontSize:11,textTransform:'uppercase',fontWeight:600}}>Ajouter</button>
+        <button onClick={()=>setOpen(false)} style={{padding:'9px 14px',background:'none',border:'1px solid #EDE4D8',cursor:'pointer',fontSize:11}}>Annuler</button>
+      </div>
+    </div>
+  );
 }
 
 // ── SHARED COMPONENTS ─────────────────────────────────────────────────────────
@@ -1402,9 +1898,10 @@ function StockBadge({stock}) {
   );
 }
 
-function ProductCard({variants, onClick}) {
+function ProductCard({variants, onClick, editCtrls}) {
   const [h,sH] = React.useState(false);
   const [ci,setCi] = React.useState(0);
+  const IMGS = useImgs();
   const list = variants||[];
   const product = list[Math.min(ci, list.length-1)];
   const hasColors = list.length>1;
@@ -1413,14 +1910,26 @@ function ProductCard({variants, onClick}) {
     <div onMouseEnter={()=>sH(true)} onMouseLeave={()=>sH(false)} onClick={()=>onClick(product)}
       style={{background:'#fff',cursor:'pointer',transition:'transform .25s,box-shadow .25s',transform:h?'translateY(-4px)':'none',boxShadow:h?'0 14px 40px rgba(44,36,25,.12)':'0 2px 10px rgba(44,36,25,.05)',display:'flex',flexDirection:'column'}}>
       <div style={{position:'relative',overflow:'hidden',height:260,background:G.beige}}>
-        <img src={IMGS[product.img]} alt={product.name} style={{width:'100%',height:'100%',objectFit:'contain',transition:'transform .4s',transform:'scale('+(['p40','p40b','p41'].includes(product.img)?1.35:1)*(h?1.05:1)+')'}} loading="lazy"/>
+        <img src={IMGS[product.img] || product.imgUrl} alt={product.name} style={{width:'100%',height:'100%',objectFit:'contain',transition:'transform .4s',transform:'scale('+(['p40','p40b','p41'].includes(product.img)?1.35:1)*(h?1.05:1)+')'}} loading="lazy"/>
         {product.tag && <span style={{position:'absolute',top:10,left:10,background:product.tag==='Bestseller'?G.gold:G.sage,color:'#fff',fontFamily:"'Jost',sans-serif",fontSize:9,letterSpacing:'.1em',textTransform:'uppercase',padding:'3px 9px',fontWeight:600}}>{product.tag}</span>}
         {product.stock <= 5 && <span style={{position:'absolute',top:10,right:10,background:'rgba(196,135,122,.92)',color:'#fff',fontFamily:"'Jost',sans-serif",fontSize:9,padding:'3px 8px',fontWeight:600,letterSpacing:'.05em'}}>STOCK LIMITÉ</span>}
+        {editCtrls && <ProductImageOverlay onUploaded={editCtrls.onImageChange}/>}
+        {editCtrls && (
+          <div onClick={e=>e.stopPropagation()} style={{position:'absolute',bottom:6,left:6,display:'flex',gap:4,zIndex:6}}>
+            <button type="button" title="Monter" onClick={editCtrls.onMoveUp} disabled={!editCtrls.canMoveUp} style={{width:24,height:22,border:'none',background:'rgba(255,255,255,.92)',cursor:editCtrls.canMoveUp?'pointer':'default',opacity:editCtrls.canMoveUp?1:.4,fontSize:11}}>↑</button>
+            <button type="button" title="Descendre" onClick={editCtrls.onMoveDown} disabled={!editCtrls.canMoveDown} style={{width:24,height:22,border:'none',background:'rgba(255,255,255,.92)',cursor:editCtrls.canMoveDown?'pointer':'default',opacity:editCtrls.canMoveDown?1:.4,fontSize:11}}>↓</button>
+            <button type="button" title="Supprimer cet article" onClick={editCtrls.onDelete} style={{width:24,height:22,border:'none',background:'rgba(255,255,255,.92)',color:'#C4877A',cursor:'pointer',fontSize:11}}>🗑</button>
+          </div>
+        )}
       </div>
       <div style={{padding:'13px 15px 16px',flex:1,display:'flex',flexDirection:'column'}}>
         <StockBadge stock={product.stock}/>
-        <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:16,fontWeight:600,color:G.text,margin:'0 0 4px'}}>{hasColors?product.baseName:product.name}</p>
-        <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:G.textM,margin:'0 0 auto',lineHeight:1.5,paddingBottom:10}}>{product.desc.slice(0,58)}…</p>
+        <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:16,fontWeight:600,color:G.text,margin:'0 0 4px'}}>
+          {editCtrls ? <Edit value={hasColors?product.baseName:product.name} onCommit={v=>editCtrls.onUpdate(hasColors?{baseName:v}:{name:v})}>{hasColors?product.baseName:product.name}</Edit> : (hasColors?product.baseName:product.name)}
+        </p>
+        <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:G.textM,margin:'0 0 auto',lineHeight:1.5,paddingBottom:10}}>
+          {editCtrls ? <Edit value={product.desc} multiline onCommit={v=>editCtrls.onUpdate({desc:v})}>{product.desc.slice(0,58)}…</Edit> : (product.desc.slice(0,58)+'…')}
+        </p>
         {hasColors && (
           <div onClick={e=>e.stopPropagation()} style={{display:'flex',alignItems:'center',gap:6,margin:'0 0 10px'}}>
             {list.map((v,i)=>(
@@ -1432,7 +1941,9 @@ function ProductCard({variants, onClick}) {
           </div>
         )}
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',borderTop:'1px solid '+G.beigeD,paddingTop:10,marginTop:10}}>
-          <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:17,fontWeight:700,color:G.gold}}>{product.price}</span>
+          <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:17,fontWeight:700,color:G.gold}}>
+            {editCtrls ? <Edit value={product.price} onCommit={v=>editCtrls.onUpdate({price:v})}>{product.price}</Edit> : product.price}
+          </span>
           <span style={{fontFamily:"'Jost',sans-serif",fontSize:10,letterSpacing:'.1em',textTransform:'uppercase',color:G.sage,fontWeight:600}}>Voir →</span>
         </div>
       </div>
@@ -1442,7 +1953,9 @@ function ProductCard({variants, onClick}) {
 
 function Modal({product, onClose, setPage, addToCart}) {
   const isMobile = useIsMobile();
-  const variants = React.useMemo(()=>product?getVariants(product):[], [product]);
+  const IMGS = useImgs();
+  const MODAL_PRODUCTS = useProducts();
+  const variants = React.useMemo(()=>product?getVariants(product, MODAL_PRODUCTS):[], [product, MODAL_PRODUCTS]);
   const [ci,setCi] = React.useState(0);
   const [pi,setPi] = React.useState(0);
   React.useEffect(()=>{
@@ -1457,7 +1970,7 @@ function Modal({product, onClose, setPage, addToCart}) {
     <div style={{position:'fixed',inset:0,zIndex:300,background:'rgba(44,36,25,.6)',display:'flex',alignItems:isMobile?'stretch':'center',justifyContent:'center',padding:isMobile?0:20}} onClick={onClose}>
       <div style={{background:G.cream,maxWidth:isMobile?'100%':660,width:'100%',maxHeight:isMobile?'100%':'88vh',height:isMobile?'100%':'auto',overflowY:'auto'}} onClick={e=>e.stopPropagation()}>
         <div style={{position:'relative',height:isMobile?300:380,flexShrink:0,background:G.beige,overflow:'hidden'}}>
-          <img src={IMGS[photos[pi]||current.img]} alt={current.name} style={{width:'100%',height:'100%',objectFit:'contain',transform:['p40','p40b','p41'].includes(photos[pi]||current.img)?'scale(1.35)':'none'}}/>
+          <img src={IMGS[photos[pi]||current.img] || current.imgUrl} alt={current.name} style={{width:'100%',height:'100%',objectFit:'contain',transform:['p40','p40b','p41'].includes(photos[pi]||current.img)?'scale(1.35)':'none'}}/>
           <button onClick={onClose} style={{position:'absolute',top:12,right:12,background:'rgba(250,250,248,.9)',border:'none',cursor:'pointer',width:34,height:34,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,color:G.text}}>×</button>
           {current.tag && <span style={{position:'absolute',bottom:12,left:12,background:current.tag==='Bestseller'?G.gold:G.sage,color:'#fff',fontFamily:"'Jost',sans-serif",fontSize:9,letterSpacing:'.1em',textTransform:'uppercase',padding:'3px 9px',fontWeight:600}}>{current.tag}</span>}
           {photos.length>1 && (
@@ -1554,14 +2067,14 @@ function BottomNav({page, setPage}) {
 // ── FOOTER ────────────────────────────────────────────────────────────────────
 function Footer({setPage}) {
   const isMobile = useIsMobile();
-  const d = TWEAK_DEFAULTS;
+  const d = useContent();
   return (
     <footer style={{background:G.text,color:'#fff',padding:isMobile?'40px 20px 20px':'52px 80px 26px'}}>
       <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'1.3fr 1fr 1fr 1fr',gap:isMobile?28:40,marginBottom:isMobile?28:40}}>
         <div style={{gridColumn:isMobile?'1 / -1':'auto'}}>
           {LOGO && <img src={LOGO} alt="Loca-Wedding" style={{height:50,width:'auto',marginBottom:14}}/>}
-          <p style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:'rgba(255,255,255,.5)',lineHeight:1.8,maxWidth:200,margin:'0 0 14px'}}>{d.footer_tagline}</p>
-          <span style={{fontFamily:"'Jost',sans-serif",fontSize:10,color:G.goldL,border:'1px solid rgba(201,169,110,.3)',padding:'4px 10px'}}>{d.footer_badge}</span>
+          <p style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:'rgba(255,255,255,.5)',lineHeight:1.8,maxWidth:200,margin:'0 0 14px'}}><Edit k="footer_tagline">{d.footer_tagline}</Edit></p>
+          <span style={{fontFamily:"'Jost',sans-serif",fontSize:10,color:G.goldL,border:'1px solid rgba(201,169,110,.3)',padding:'4px 10px'}}><Edit k="footer_badge">{d.footer_badge}</Edit></span>
         </div>
         {[
           {t:'Catalogue',ls:[['Mobilier','catalogue'],['Décoration','catalogue'],['Vaisselle','catalogue'],['Packs','catalogue']]},
@@ -1575,16 +2088,16 @@ function Footer({setPage}) {
                 onMouseEnter={e=>e.target.style.color=G.goldL} onMouseLeave={e=>e.target.style.color='rgba(255,255,255,.55)'}>{l}</button>
             )) : (
               <div style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:'rgba(255,255,255,.55)',lineHeight:2.3}}>
-                <div>{d.footer_phone}</div><div>{d.footer_email}</div>
-                <div>{d.footer_zone}</div><div>{d.footer_hours}</div>
+                <div><Edit k="footer_phone">{d.footer_phone}</Edit></div><div><Edit k="footer_email">{d.footer_email}</Edit></div>
+                <div><Edit k="footer_zone">{d.footer_zone}</Edit></div><div><Edit k="footer_hours">{d.footer_hours}</Edit></div>
               </div>
             )}
           </div>
         ))}
       </div>
       <div style={{borderTop:'1px solid rgba(255,255,255,.08)',paddingTop:20,display:'flex',justifyContent:'space-between',flexWrap:'wrap',gap:8}}>
-        <span style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:'rgba(255,255,255,.3)'}}>{d.footer_copyright}</span>
-        <span style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:'rgba(255,255,255,.3)'}}>{d.footer_legal}</span>
+        <span style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:'rgba(255,255,255,.3)'}}><Edit k="footer_copyright">{d.footer_copyright}</Edit></span>
+        <span style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:'rgba(255,255,255,.3)'}}><Edit k="footer_legal">{d.footer_legal}</Edit></span>
       </div>
     </footer>
   );
@@ -1597,7 +2110,10 @@ function HomePage({setPage, addToCart}) {
   const [modal, setModal] = React.useState(null);
   const isMobile = useIsMobile();
   const PAD = isMobile ? 20 : 80;
-  const d = TWEAK_DEFAULTS;
+  const d = useContent();
+  const IMGS = useImgs();
+  const PRODUCTS = useProducts();
+  const editCtx = useEditCtx();
 
   // Chaque grande section de la home est stockée ici sous forme de JSX, et le
   // rendu final itère sur d.home_sections (éditable via admin.html) pour choisir
@@ -1617,13 +2133,13 @@ function HomePage({setPage, addToCart}) {
           {/* Scarcity badge */}
           <div style={{display:'inline-flex',alignItems:'center',gap:8,background:'rgba(255,255,255,.12)',backdropFilter:'blur(6px)',border:'1px solid rgba(255,255,255,.2)',padding:'6px 16px',marginBottom:isMobile?18:24,textAlign:'left'}}>
             <div style={{width:7,height:7,borderRadius:'50%',background:'#E8C14A',flexShrink:0,display:'inline-block'}} className="pulse"/>
-            <span style={{fontFamily:"'Jost',sans-serif",fontSize:isMobile?9:10,letterSpacing:'.15em',textTransform:'uppercase',color:'#fff',fontWeight:600}}>{d.hero_badge}</span>
+            <span style={{fontFamily:"'Jost',sans-serif",fontSize:isMobile?9:10,letterSpacing:'.15em',textTransform:'uppercase',color:'#fff',fontWeight:600}}><Edit k="hero_badge">{d.hero_badge}</Edit></span>
           </div>
           <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'clamp(34px,8vw,80px)',fontWeight:300,color:'#fff',margin:'0 0 18px',lineHeight:1.05}}>
-            {d.hero_title_line1}<br/><em style={{fontStyle:'italic',color:G.goldL}}>{d.hero_title_line2}</em>
+            <Edit k="hero_title_line1">{d.hero_title_line1}</Edit><br/><em style={{fontStyle:'italic',color:G.goldL}}><Edit k="hero_title_line2">{d.hero_title_line2}</Edit></em>
           </h1>
           <p style={{fontFamily:"'Jost',sans-serif",fontSize:isMobile?13:15,color:'rgba(255,255,255,.88)',maxWidth:500,margin:'0 auto 36px',lineHeight:1.75}}>
-            {d.hero_subtitle}
+            <Edit k="hero_subtitle">{d.hero_subtitle}</Edit>
           </p>
           <div style={{display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap'}}>
             <Btn onClick={()=>setPage('catalogue')} style={{padding:'14px 32px',fontSize:13}}>Voir le catalogue</Btn>
@@ -1657,9 +2173,9 @@ function HomePage({setPage, addToCart}) {
 
     categories: (
       <section key="categories" style={{padding:isMobile?'48px 20px':'88px 80px',background:G.cream}}>
-        <SectionTitle eyebrow={d.home_categories_eyebrow} title={d.home_categories_title} sub={d.home_categories_sub}/>
+        <SectionTitle eyebrow={<Edit k="home_categories_eyebrow">{d.home_categories_eyebrow}</Edit>} title={<Edit k="home_categories_title">{d.home_categories_title}</Edit>} sub={<Edit k="home_categories_sub">{d.home_categories_sub}</Edit>}/>
         <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(4,1fr)',gap:3}}>
-          {CATEGORIES.map(cat => {
+          {d.categories.map(cat => {
             const [h,sH] = React.useState(false);
             return (
               <div key={cat.id} onMouseEnter={()=>sH(true)} onMouseLeave={()=>sH(false)} onClick={()=>setPage('cat_'+cat.id)}
@@ -1667,7 +2183,11 @@ function HomePage({setPage, addToCart}) {
                 <img src={IMGS['cat_'+cat.id]} alt={cat.label} style={{width:'100%',height:'100%',objectFit:'cover',transition:'transform .4s',transform:h?'scale(1.06)':'scale(1)'}} loading="lazy"/>
                 <div style={{position:'absolute',inset:0,background:h?'rgba(44,36,25,.55)':'rgba(44,36,25,.38)',transition:'background .3s'}}/>
                 <div style={{position:'absolute',inset:0,padding:'18px',display:'flex',flexDirection:'column',justifyContent:'flex-end'}}>
-                  <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:19,fontWeight:600,color:'#fff',margin:'0 0 3px'}}>{cat.label === 'Textile' ? 'Textille' : cat.label}</h3>
+                  <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:19,fontWeight:600,color:'#fff',margin:'0 0 3px'}}>
+                    {editCtx && editCtx.editMode
+                      ? <Edit value={cat.label} onCommit={v=>editCtx.updateCategoryField(cat.id,'label',v)}>{cat.label === 'Textile' ? 'Textille' : cat.label}</Edit>
+                      : (cat.label === 'Textile' ? 'Textille' : cat.label)}
+                  </h3>
                   <p style={{fontFamily:"'Jost',sans-serif",fontSize:10,color:'rgba(255,255,255,.7)',margin:'0 0 8px',lineHeight:1.4}}>{cat.count} articles</p>
                   <div style={{fontFamily:"'Jost',sans-serif",fontSize:10,letterSpacing:'.1em',textTransform:'uppercase',color:G.goldL,fontWeight:600,opacity:h?1:0,transform:h?'none':'translateY(6px)',transition:'all .3s'}}>Découvrir →</div>
                 </div>
@@ -1680,7 +2200,7 @@ function HomePage({setPage, addToCart}) {
 
     how: (
       <section key="how" style={{padding:isMobile?'48px 20px':'88px 80px',background:G.beige}}>
-        <SectionTitle eyebrow={d.home_how_eyebrow} title={d.home_how_title}/>
+        <SectionTitle eyebrow={<Edit k="home_how_eyebrow">{d.home_how_eyebrow}</Edit>} title={<Edit k="home_how_title">{d.home_how_title}</Edit>}/>
         <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:isMobile?36:48,position:'relative'}}>
           {!isMobile && <div style={{position:'absolute',top:28,left:'16%',right:'16%',height:1,background:G.goldL,opacity:.4}}/>}
           {d.home_how_steps.map((s,i) => (
@@ -1702,7 +2222,7 @@ function HomePage({setPage, addToCart}) {
     gallery: (
       <section key="gallery" style={{background:G.text}}>
         <div style={{padding:isMobile?'40px 20px 28px':'60px 80px 40px',textAlign:'center'}}>
-          <SectionTitle eyebrow={d.home_gallery_eyebrow} title={d.home_gallery_title} sub={d.home_gallery_sub} light/>
+          <SectionTitle eyebrow={<Edit k="home_gallery_eyebrow">{d.home_gallery_eyebrow}</Edit>} title={<Edit k="home_gallery_title">{d.home_gallery_title}</Edit>} sub={<Edit k="home_gallery_sub">{d.home_gallery_sub}</Edit>} light/>
         </div>
         <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(3,1fr)',gridAutoRows:isMobile?'150px':undefined,gridTemplateRows:isMobile?undefined:'220px 220px',gap:3}}>
           {[
@@ -1729,7 +2249,7 @@ function HomePage({setPage, addToCart}) {
 
     bestsellers: (
       <section key="bestsellers" style={{padding:isMobile?'48px 20px':'88px 80px',background:G.cream}}>
-        <SectionTitle eyebrow={d.home_bestsellers_eyebrow} title={d.home_bestsellers_title}/>
+        <SectionTitle eyebrow={<Edit k="home_bestsellers_eyebrow">{d.home_bestsellers_eyebrow}</Edit>} title={<Edit k="home_bestsellers_title">{d.home_bestsellers_title}</Edit>}/>
         <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(4,1fr)',gap:isMobile?12:18}}>
           {(() => {
             const seenGroups = new Set();
@@ -1738,7 +2258,7 @@ function HomePage({setPage, addToCart}) {
               if (seenGroups.has(k)) return false;
               seenGroups.add(k); return true;
             }).slice(0,4).map(p => (
-              <ProductCard key={p.id} variants={getVariants(p)} onClick={setModal}/>
+              <ProductCard key={p.id} variants={getVariants(p, PRODUCTS)} onClick={setModal}/>
             ));
           })()}
         </div>
@@ -1755,14 +2275,14 @@ function HomePage({setPage, addToCart}) {
           <div>
             <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:14}}>
               <div style={{width:7,height:7,borderRadius:'50%',background:'#E8C14A',flexShrink:0}} className="pulse"/>
-              <span style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.18em',textTransform:'uppercase',color:'#E8C14A',fontWeight:600}}>{d.home_scarcity_badge}</span>
+              <span style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.18em',textTransform:'uppercase',color:'#E8C14A',fontWeight:600}}><Edit k="home_scarcity_badge">{d.home_scarcity_badge}</Edit></span>
             </div>
-            <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?26:38,fontWeight:400,color:'#fff',margin:'0 0 12px',lineHeight:1.1}}>{d.home_scarcity_title}</h2>
-            <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:'rgba(255,255,255,.6)',lineHeight:1.7,maxWidth:540}}>{d.home_scarcity_desc}</p>
+            <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?26:38,fontWeight:400,color:'#fff',margin:'0 0 12px',lineHeight:1.1}}><Edit k="home_scarcity_title">{d.home_scarcity_title}</Edit></h2>
+            <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:'rgba(255,255,255,.6)',lineHeight:1.7,maxWidth:540}}><Edit k="home_scarcity_desc">{d.home_scarcity_desc}</Edit></p>
           </div>
           <div style={{textAlign:isMobile?'left':'center',flexShrink:0}}>
             <Btn onClick={()=>setPage('devis')} full={isMobile} style={{padding:'14px 32px',fontSize:12,display:'block',marginBottom:8}}>Vérifier ma date</Btn>
-            <p style={{fontFamily:"'Jost',sans-serif",fontSize:10,color:'rgba(255,255,255,.35)'}}>{d.home_scarcity_cta_note}</p>
+            <p style={{fontFamily:"'Jost',sans-serif",fontSize:10,color:'rgba(255,255,255,.35)'}}><Edit k="home_scarcity_cta_note">{d.home_scarcity_cta_note}</Edit></p>
           </div>
         </div>
       </section>
@@ -1770,7 +2290,7 @@ function HomePage({setPage, addToCart}) {
 
     testimonials: (
       <section key="testimonials" style={{padding:isMobile?'48px 20px':'88px 80px',background:G.beige}}>
-        <SectionTitle eyebrow={d.home_testimonials_eyebrow} title={d.home_testimonials_title} sub={d.home_testimonials_sub}/>
+        <SectionTitle eyebrow={<Edit k="home_testimonials_eyebrow">{d.home_testimonials_eyebrow}</Edit>} title={<Edit k="home_testimonials_title">{d.home_testimonials_title}</Edit>} sub={<Edit k="home_testimonials_sub">{d.home_testimonials_sub}</Edit>}/>
         <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:20,marginBottom:28}}>
           {d.home_testimonials.map((t,ti) => (
             <div key={ti} style={{background:G.cream,padding:'26px 26px 22px',position:'relative'}}>
@@ -1793,7 +2313,7 @@ function HomePage({setPage, addToCart}) {
 
     reassurance: (
       <section key="reassurance" style={{padding:isMobile?'48px 20px':'80px 80px',background:G.cream}}>
-        <SectionTitle eyebrow={d.home_reassurance_eyebrow} title={d.home_reassurance_title}/>
+        <SectionTitle eyebrow={<Edit k="home_reassurance_eyebrow">{d.home_reassurance_eyebrow}</Edit>} title={<Edit k="home_reassurance_title">{d.home_reassurance_title}</Edit>}/>
         <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:isMobile?14:24}}>
           {d.home_reassurance.map((r,ri) => (
             <div key={ri} style={{background:G.beige,padding:'24px 22px',borderBottom:'3px solid '+G.sage}}>
@@ -1812,9 +2332,9 @@ function HomePage({setPage, addToCart}) {
           <div style={{position:'absolute',inset:0,background:'rgba(44,36,25,.2)'}}/>
         </div>
         <div style={{background:G.beigeD,padding:isMobile?'32px 20px':'60px 56px',display:'flex',flexDirection:'column',justifyContent:'center'}}>
-          <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.sage,fontWeight:600,margin:'0 0 14px'}}>{d.home_about_eyebrow}</p>
-          <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?26:36,fontWeight:400,color:G.text,margin:'0 0 18px',lineHeight:1.15}}>{d.home_about_title_line1}<br/><em style={{fontStyle:'italic',color:G.gold}}>{d.home_about_title_line2}</em></h2>
-          <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textL,lineHeight:1.8,margin:'0 0 24px'}}>{d.home_about_desc}</p>
+          <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.sage,fontWeight:600,margin:'0 0 14px'}}><Edit k="home_about_eyebrow">{d.home_about_eyebrow}</Edit></p>
+          <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?26:36,fontWeight:400,color:G.text,margin:'0 0 18px',lineHeight:1.15}}><Edit k="home_about_title_line1">{d.home_about_title_line1}</Edit><br/><em style={{fontStyle:'italic',color:G.gold}}><Edit k="home_about_title_line2">{d.home_about_title_line2}</Edit></em></h2>
+          <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textL,lineHeight:1.8,margin:'0 0 24px'}}><Edit k="home_about_desc">{d.home_about_desc}</Edit></p>
           <Btn variant="sage" onClick={()=>setPage('about')} full={isMobile} style={{alignSelf:isMobile?'stretch':'flex-start',padding:'11px 26px'}}>Découvrir notre histoire</Btn>
         </div>
       </section>
@@ -1822,9 +2342,9 @@ function HomePage({setPage, addToCart}) {
 
     cta: (
       <section key="cta" style={{padding:isMobile?'48px 20px':'72px 80px',background:G.text,textAlign:'center'}}>
-        <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.goldL,margin:'0 0 12px'}}>{d.home_cta_eyebrow}</p>
-        <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?30:48,fontWeight:300,color:'#fff',margin:'0 0 12px',lineHeight:1.05}}>{d.home_cta_title}</h2>
-        <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:'rgba(255,255,255,.45)',margin:'0 0 32px'}}>{d.home_cta_sub}</p>
+        <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.goldL,margin:'0 0 12px'}}><Edit k="home_cta_eyebrow">{d.home_cta_eyebrow}</Edit></p>
+        <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?30:48,fontWeight:300,color:'#fff',margin:'0 0 12px',lineHeight:1.05}}><Edit k="home_cta_title">{d.home_cta_title}</Edit></h2>
+        <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:'rgba(255,255,255,.45)',margin:'0 0 32px'}}><Edit k="home_cta_sub">{d.home_cta_sub}</Edit></p>
         <div style={{display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap'}}>
           <Btn onClick={()=>setPage('devis')} style={{padding:'14px 40px',fontSize:13}}>Commencer maintenant</Btn>
           <Btn variant="outline" onClick={()=>setPage('contact')} style={{padding:'14px 28px',fontSize:13,color:'rgba(255,255,255,.65)',borderColor:'rgba(255,255,255,.2)'}}>Nous contacter</Btn>
@@ -1837,6 +2357,7 @@ function HomePage({setPage, addToCart}) {
   return (
     <div>
       <Modal product={modal} onClose={()=>setModal(null)} setPage={setPage} addToCart={addToCart}/>
+      {editCtx && editCtx.editMode && <HomeSectionsPanel sections={d.home_sections} onMove={editCtx.reorderSection}/>}
       {(d.home_sections||[]).map(id => SECTIONS[id] || null)}
     </div>
   );
@@ -1851,11 +2372,17 @@ function CataloguePage({setPage, initialCat='all', addToCart}) {
   const [search, setSearch] = React.useState('');
   const [modal, setModal] = React.useState(null);
   const [tagFilter, setTagFilter] = React.useState('');
+  const d = useContent();
+  const IMGS = useImgs();
+  const PRODUCTS = useProducts();
+  const CATEGORIES = d.categories;
+  const editCtx = useEditCtx();
+  const editMode = !!(editCtx && editCtx.editMode);
   const counts = React.useMemo(()=>{
     const c={all:PRODUCTS.length};
     CATEGORIES.forEach(ct=>c[ct.id]=PRODUCTS.filter(p=>p.cat===ct.id).length);
     return c;
-  },[]);
+  },[PRODUCTS, CATEGORIES]);
   const filtered = PRODUCTS.filter(p => {
     const mc = cat==='all'||p.cat===cat;
     const ms = !search||p.name.toLowerCase().includes(search.toLowerCase())||p.desc.toLowerCase().includes(search.toLowerCase());
@@ -1927,7 +2454,19 @@ function CataloguePage({setPage, initialCat='all', addToCart}) {
             <Btn onClick={()=>setPage('devis')} variant="sage" style={{padding:'7px 14px',fontSize:10}}>Demander un devis</Btn>
           </div>
           <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(3,1fr)',gap:isMobile?12:16}}>
-            {cardGroups.map(p=><ProductCard key={p.id} variants={getVariants(p)} onClick={setModal}/>)}
+            {cardGroups.map(p=>{
+              const idx = PRODUCTS.findIndex(x=>x.id===p.id);
+              const editCtrls = editMode ? {
+                canMoveUp: idx>0, canMoveDown: idx<PRODUCTS.length-1,
+                onMoveUp: ()=>editCtx.reorderProduct(p.id,-1),
+                onMoveDown: ()=>editCtx.reorderProduct(p.id,1),
+                onDelete: ()=>{ if (confirm('Supprimer définitivement cet article du catalogue ?')) editCtx.deleteProduct(p.id); },
+                onUpdate: patch=>editCtx.updateProduct(p.id, patch),
+                onImageChange: url=>editCtx.setProductImage(p, url),
+              } : null;
+              return <ProductCard key={p.id} variants={getVariants(p, PRODUCTS)} onClick={setModal} editCtrls={editCtrls}/>;
+            })}
+            {editMode && <AddProductTile categories={CATEGORIES} onAdd={editCtx.addProduct}/>}
           </div>
           {filtered.length===0 && <div style={{textAlign:'center',padding:'80px 20px'}}><p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:24,color:G.textM}}>Aucun article trouvé</p></div>}
         </main>
@@ -1941,7 +2480,8 @@ function CataloguePage({setPage, initialCat='all', addToCart}) {
 // ═══════════════════════════════════════════════════════════════════════════════
 function HowPage({setPage}) {
   const isMobile = useIsMobile();
-  const d = TWEAK_DEFAULTS;
+  const d = useContent();
+  const IMGS = useImgs();
   const howImgs = [IMGS.how1, IMGS.how2, IMGS.how3, IMGS.how4, IMGS.how5, IMGS.how6];
   const steps = d.how_steps.map((s,i) => ({n:String(i+1).padStart(2,'0'), t:s.title, d:s.desc, img:howImgs[i]}));
   return (
@@ -1950,8 +2490,8 @@ function HowPage({setPage}) {
         <img src={IMGS.gallery1} alt="Comment ça marche" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
         <div style={{position:'absolute',inset:0,background:'rgba(44,36,25,.55)',display:'flex',alignItems:'center',padding:isMobile?'0 20px':'0 80px'}}>
           <div>
-            <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.goldL,fontWeight:600,margin:'0 0 6px'}}>{d.how_header_eyebrow}</p>
-            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?30:48,fontWeight:400,color:'#fff',margin:0}}>{d.how_header_title}</h1>
+            <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.goldL,fontWeight:600,margin:'0 0 6px'}}><Edit k="how_header_eyebrow">{d.how_header_eyebrow}</Edit></p>
+            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?30:48,fontWeight:400,color:'#fff',margin:0}}><Edit k="how_header_title">{d.how_header_title}</Edit></h1>
           </div>
         </div>
       </div>
@@ -1971,8 +2511,8 @@ function HowPage({setPage}) {
         ))}
         <div style={{background:G.beige,padding:isMobile?'24px 20px':'36px 48px',display:'flex',flexDirection:isMobile?'column':'row',justifyContent:'space-between',alignItems:isMobile?'stretch':'center',gap:20,borderLeft:'4px solid '+G.sage}}>
           <div>
-            <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?21:26,fontWeight:600,color:G.text,margin:'0 0 5px'}}>{d.how_cta_title}</h3>
-            <p style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:G.textM,margin:0}}>{d.how_cta_sub}</p>
+            <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?21:26,fontWeight:600,color:G.text,margin:'0 0 5px'}}><Edit k="how_cta_title">{d.how_cta_title}</Edit></h3>
+            <p style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:G.textM,margin:0}}><Edit k="how_cta_sub">{d.how_cta_sub}</Edit></p>
           </div>
           <Btn variant="sage" onClick={()=>setPage('devis')} full={isMobile} style={{flexShrink:0,padding:'12px 30px'}}>Demander un devis</Btn>
         </div>
@@ -1986,26 +2526,27 @@ function HowPage({setPage}) {
 // ═══════════════════════════════════════════════════════════════════════════════
 function AboutPage({setPage}) {
   const isMobile = useIsMobile();
-  const d = TWEAK_DEFAULTS;
+  const d = useContent();
+  const IMGS = useImgs();
   return (
     <div style={{paddingTop:0,background:G.cream}}>
       <div style={{position:'relative',height:isMobile?220:300,overflow:'hidden'}}>
         <img src={IMGS.about} alt="Notre équipe" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
         <div style={{position:'absolute',inset:0,background:'linear-gradient(to right,rgba(44,36,25,.75) 0%,rgba(44,36,25,.3) 100%)',display:'flex',alignItems:'flex-end',padding:isMobile?'0 20px 28px':'0 80px 44px'}}>
           <div>
-            <span style={{fontFamily:"'Jost',sans-serif",fontSize:9,letterSpacing:'.2em',textTransform:'uppercase',color:G.goldL,fontWeight:600,border:'1px solid rgba(223,196,154,.3)',padding:'4px 10px',display:'inline-block',marginBottom:12}}>{d.about_header_badge}</span>
-            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?32:52,fontWeight:300,color:'#fff',margin:0,lineHeight:1.05}}>{d.about_header_title_line1}<br/><em style={{fontStyle:'italic',color:G.goldL}}>{d.about_header_title_line2}</em></h1>
+            <span style={{fontFamily:"'Jost',sans-serif",fontSize:9,letterSpacing:'.2em',textTransform:'uppercase',color:G.goldL,fontWeight:600,border:'1px solid rgba(223,196,154,.3)',padding:'4px 10px',display:'inline-block',marginBottom:12}}><Edit k="about_header_badge">{d.about_header_badge}</Edit></span>
+            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?32:52,fontWeight:300,color:'#fff',margin:0,lineHeight:1.05}}><Edit k="about_header_title_line1">{d.about_header_title_line1}</Edit><br/><em style={{fontStyle:'italic',color:G.goldL}}><Edit k="about_header_title_line2">{d.about_header_title_line2}</Edit></em></h1>
           </div>
         </div>
       </div>
 
       <section style={{padding:isMobile?'40px 20px':'68px 80px',display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:isMobile?28:72,alignItems:'center'}}>
         <div>
-          <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.sage,fontWeight:600,margin:'0 0 14px'}}>{d.about_intro_eyebrow}</p>
-          <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?26:36,fontWeight:400,color:G.text,margin:'0 0 22px',lineHeight:1.15}}>{d.about_intro_title_line1}<br/>{d.about_intro_title_line2}</h2>
-          <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textL,lineHeight:1.85,margin:'0 0 14px'}}>{d.about_intro_p1}</p>
-          <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textL,lineHeight:1.85,margin:'0 0 14px'}}>{d.about_intro_p2}</p>
-          <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textL,lineHeight:1.85,margin:0}}>{d.about_intro_p3}</p>
+          <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.sage,fontWeight:600,margin:'0 0 14px'}}><Edit k="about_intro_eyebrow">{d.about_intro_eyebrow}</Edit></p>
+          <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?26:36,fontWeight:400,color:G.text,margin:'0 0 22px',lineHeight:1.15}}><Edit k="about_intro_title_line1">{d.about_intro_title_line1}</Edit><br/><Edit k="about_intro_title_line2">{d.about_intro_title_line2}</Edit></h2>
+          <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textL,lineHeight:1.85,margin:'0 0 14px'}}><Edit k="about_intro_p1">{d.about_intro_p1}</Edit></p>
+          <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textL,lineHeight:1.85,margin:'0 0 14px'}}><Edit k="about_intro_p2">{d.about_intro_p2}</Edit></p>
+          <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textL,lineHeight:1.85,margin:0}}><Edit k="about_intro_p3">{d.about_intro_p3}</Edit></p>
         </div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,height:isMobile?280:400}}>
           <img src={IMGS.gallery1} alt="" style={{width:'100%',height:'100%',objectFit:'cover',gridRow:'span 2'}} loading="lazy"/>
@@ -2015,7 +2556,7 @@ function AboutPage({setPage}) {
       </section>
 
       <section style={{padding:isMobile?'40px 20px':'68px 80px',background:G.beige}}>
-        <SectionTitle eyebrow={d.about_values_eyebrow} title={d.about_values_title}/>
+        <SectionTitle eyebrow={<Edit k="about_values_eyebrow">{d.about_values_eyebrow}</Edit>} title={<Edit k="about_values_title">{d.about_values_title}</Edit>}/>
         <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:isMobile?14:24}}>
           {d.about_values.map((v,vi)=>(
             <div key={vi} style={{background:G.cream,padding:'28px 24px',borderTop:'4px solid '+(vi%2===0?G.gold:G.sage)}}>
@@ -2059,8 +2600,8 @@ function AboutPage({setPage}) {
       </section>
 
       <section style={{padding:isMobile?'40px 20px':'60px 80px',background:G.beige,textAlign:'center'}}>
-        <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?26:38,fontWeight:400,color:G.text,margin:'0 0 14px'}}>{d.about_cta_title}</h2>
-        <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textM,margin:'0 0 28px'}}>{d.about_cta_sub}</p>
+        <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?26:38,fontWeight:400,color:G.text,margin:'0 0 14px'}}><Edit k="about_cta_title">{d.about_cta_title}</Edit></h2>
+        <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textM,margin:'0 0 28px'}}><Edit k="about_cta_sub">{d.about_cta_sub}</Edit></p>
         <div style={{display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap'}}>
           <Btn variant="sage" onClick={()=>setPage('devis')} style={{padding:'12px 32px'}}>Demander un devis</Btn>
           <Btn variant="outline" onClick={()=>setPage('contact')} style={{padding:'12px 24px'}}>Nous écrire</Btn>
@@ -2075,7 +2616,9 @@ function AboutPage({setPage}) {
 // ═══════════════════════════════════════════════════════════════════════════════
 function DevisPage({cart={}, setCartQty=()=>{}, clearCart=()=>{}}) {
   const isMobile = useIsMobile();
-  const d = TWEAK_DEFAULTS;
+  const d = useContent();
+  const IMGS = useImgs();
+  const PRODUCTS = useProducts();
   const [f,setF] = React.useState({nom:'',email:'',tel:'',date:'',lieu:'',invites:'',msg:''});
   const [sent,setSent] = React.useState(false);
   const [submitting,setSubmitting] = React.useState(false);
@@ -2126,23 +2669,23 @@ function DevisPage({cart={}, setCartQty=()=>{}, clearCart=()=>{}}) {
         <img src={IMGS.gallery2} alt="Devis" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
         <div style={{position:'absolute',inset:0,background:'rgba(44,36,25,.58)',display:'flex',alignItems:'flex-end',padding:isMobile?'0 20px 24px':'0 80px 36px'}}>
           <div>
-            <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.goldL,fontWeight:600,margin:'0 0 6px'}}>{d.devis_header_eyebrow}</p>
-            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?28:48,fontWeight:400,color:'#fff',margin:0}}>{d.devis_header_title}</h1>
+            <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.goldL,fontWeight:600,margin:'0 0 6px'}}><Edit k="devis_header_eyebrow">{d.devis_header_eyebrow}</Edit></p>
+            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?28:48,fontWeight:400,color:'#fff',margin:0}}><Edit k="devis_header_title">{d.devis_header_title}</Edit></h1>
           </div>
         </div>
       </div>
       {sent ? (
         <div style={{padding:isMobile?'56px 24px':'100px',textAlign:'center'}}>
           <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?26:38,fontWeight:400,color:G.text,margin:'0 0 14px'}}>Merci, {f.nom.split(' ')[0]||'cher(e) client(e)'} !</h2>
-          <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textM,lineHeight:1.75,maxWidth:440,margin:'0 auto'}}>{d.devis_sent_sub}</p>
+          <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textM,lineHeight:1.75,maxWidth:440,margin:'0 auto'}}><Edit k="devis_sent_sub">{d.devis_sent_sub}</Edit></p>
         </div>
       ) : (
         <div style={{padding:isMobile?'28px 16px':'48px 80px',maxWidth:900,margin:'0 auto'}}>
           <div style={{background:'#FDF3F1',border:'1px solid #C4877A',padding:'12px 18px',marginBottom:32,display:'flex',alignItems:'center',gap:10}}>
             <div style={{width:7,height:7,borderRadius:'50%',background:'#C4877A',flexShrink:0}} className="pulse"/>
             <div>
-              <span style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:'#8B3A2A',fontWeight:600}}>{d.devis_urgency_bold}</span>
-              <span style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:'#8B3A2A'}}>{d.devis_urgency_text}</span>
+              <span style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:'#8B3A2A',fontWeight:600}}><Edit k="devis_urgency_bold">{d.devis_urgency_bold}</Edit></span>
+              <span style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:'#8B3A2A'}}><Edit k="devis_urgency_text">{d.devis_urgency_text}</Edit></span>
             </div>
           </div>
           <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:20,marginBottom:20}}>
@@ -2156,7 +2699,7 @@ function DevisPage({cart={}, setCartQty=()=>{}, clearCart=()=>{}}) {
           </div>
           <div style={{marginBottom:20}}>
             <label style={lbl}>Choisissez vos articles {cartCount>0?`(${cartCount} sélectionné${cartCount>1?'s':''})`:''}</label>
-            {CATEGORIES.map(c=>(
+            {d.categories.map(c=>(
               <div key={c.id} style={{border:'1px solid '+G.beigeD,marginBottom:6}}>
                 <button type="button" onClick={()=>setOpenCat(openCat===c.id?null:c.id)}
                   style={{width:'100%',display:'flex',justifyContent:'space-between',alignItems:'center',padding:'11px 14px',background:G.beige,border:'none',cursor:'pointer',fontFamily:"'Jost',sans-serif",fontSize:12,color:G.text,fontWeight:600}}>
@@ -2222,7 +2765,7 @@ function DevisPage({cart={}, setCartQty=()=>{}, clearCart=()=>{}}) {
           {cartItems.length===0 && (
             <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:'#8B3A2A',textAlign:'center',marginTop:10}}>Sélectionnez au moins un article ci-dessus pour envoyer votre demande.</p>
           )}
-          <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:G.textM,textAlign:'center',marginTop:10}}>{d.devis_footer_note}</p>
+          <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:G.textM,textAlign:'center',marginTop:10}}><Edit k="devis_footer_note">{d.devis_footer_note}</Edit></p>
         </div>
       )}
     </div>
@@ -2235,7 +2778,8 @@ function DevisPage({cart={}, setCartQty=()=>{}, clearCart=()=>{}}) {
 function ContactPage() {
   const isMobile = useIsMobile();
   const [sent,setSent] = React.useState(false);
-  const d = TWEAK_DEFAULTS;
+  const d = useContent();
+  const IMGS = useImgs();
   const inp = {width:'100%',padding:'10px 12px',border:'1px solid '+G.beigeD,background:'#fff',fontFamily:"'Jost',sans-serif",fontSize:13,color:G.text,outline:'none',boxSizing:'border-box'};
   const lbl = {fontFamily:"'Jost',sans-serif",fontSize:10,letterSpacing:'.14em',textTransform:'uppercase',color:G.textM,fontWeight:600,display:'block',marginBottom:5};
   return (
@@ -2244,28 +2788,28 @@ function ContactPage() {
         <img src={IMGS.gallery4} alt="Contact" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
         <div style={{position:'absolute',inset:0,background:'rgba(44,36,25,.55)',display:'flex',alignItems:'flex-end',padding:isMobile?'0 20px 24px':'0 80px 36px'}}>
           <div>
-            <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.goldL,fontWeight:600,margin:'0 0 6px'}}>{d.contact_header_eyebrow}</p>
-            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?28:48,fontWeight:400,color:'#fff',margin:0}}>{d.contact_header_title}</h1>
+            <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.goldL,fontWeight:600,margin:'0 0 6px'}}><Edit k="contact_header_eyebrow">{d.contact_header_eyebrow}</Edit></p>
+            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?28:48,fontWeight:400,color:'#fff',margin:0}}><Edit k="contact_header_title">{d.contact_header_title}</Edit></h1>
           </div>
         </div>
       </div>
       <div style={{padding:isMobile?'28px 16px':'56px 80px',display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1.6fr',gap:isMobile?32:72}}>
         <div>
-          <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:24,fontWeight:600,color:G.text,margin:'0 0 22px'}}>{d.contact_coord_title}</h3>
-          {[['Téléphone',d.contact_phone],['Email',d.contact_email],['Zone de livraison',d.contact_zone],['Horaires',d.contact_hours]].map(([l,v])=>(
+          <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:24,fontWeight:600,color:G.text,margin:'0 0 22px'}}><Edit k="contact_coord_title">{d.contact_coord_title}</Edit></h3>
+          {[['Téléphone','contact_phone'],['Email','contact_email'],['Zone de livraison','contact_zone'],['Horaires','contact_hours']].map(([l,k])=>(
             <div key={l} style={{marginBottom:20,paddingBottom:20,borderBottom:'1px solid '+G.beigeD}}>
               <div style={{fontFamily:"'Jost',sans-serif",fontSize:10,letterSpacing:'.12em',textTransform:'uppercase',color:G.sage,fontWeight:600,marginBottom:3}}>{l}</div>
-              <div style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.text}}>{v}</div>
+              <div style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.text}}><Edit k={k}>{d[k]}</Edit></div>
             </div>
           ))}
           <div style={{background:G.beige,padding:'16px 18px',borderLeft:'3px solid '+G.sage}}>
-            <p style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:G.textL,lineHeight:1.7,margin:0}}>{d.contact_note}</p>
+            <p style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:G.textL,lineHeight:1.7,margin:0}}><Edit k="contact_note">{d.contact_note}</Edit></p>
           </div>
         </div>
         {sent ? (
           <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',textAlign:'center',gap:10}}>
-            <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:32,fontWeight:400,color:G.text}}>{d.contact_sent_title}</h2>
-            <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textM}}>{d.contact_sent_sub}</p>
+            <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:32,fontWeight:400,color:G.text}}><Edit k="contact_sent_title">{d.contact_sent_title}</Edit></h2>
+            <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textM}}><Edit k="contact_sent_sub">{d.contact_sent_sub}</Edit></p>
           </div>
         ) : (
           <div>
@@ -2334,7 +2878,22 @@ function App() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+// ── RACINE ────────────────────────────────────────────────────────────────────
+// EditModeProvider enveloppe toute l'app : il ne change rien au rendu de <App/>
+// (il fournit juste un contexte avec editMode=false par défaut). EditLauncher
+// est le seul ajout visible pour un visiteur normal (petit bouton crayon en
+// bas à droite) ; EditToolbar ne rend rien tant que le mode édition est inactif.
+function Root() {
+  return (
+    <EditModeProvider>
+      <App/>
+      <EditLauncher/>
+      <EditToolbar/>
+    </EditModeProvider>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<Root/>);
 
 </script>
 </body>
