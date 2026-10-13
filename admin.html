@@ -56,12 +56,12 @@ const REPO = 'locawedding1-cmd/loca-wedding-site';
 const FILE_PATH = 'index.html';
 const API_BASE = 'https://api.github.com/repos/' + REPO + '/contents/' + FILE_PATH;
 
-// Mot de passe admin par défaut : "lunaweb2026" (à changer, voir plus bas).
+// Mot de passe admin : "Farida.84" (à changer, voir plus bas).
 // Son hash SHA-256 est calculé une seule fois au chargement de la page et
 // stocké dans window.__ADMIN_HASH__ (tout en bas de ce script).
 //
-// Pour changer le mot de passe : remplacez la chaîne 'lunaweb2026' dans
-// l'appel  sha256('lunaweb2026')  tout en bas de ce fichier par votre
+// Pour changer le mot de passe : remplacez la chaîne 'Farida.84' dans
+// l'appel  sha256('Farida.84')  tout en bas de ce fichier par votre
 // nouveau mot de passe, en clair. Le hash sera recalculé automatiquement.
 async function sha256(text) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
@@ -686,9 +686,9 @@ function App() {
   return <Dashboard/>;
 }
 
-// Hash réel du mot de passe par défaut "lunaweb2026", calculé une fois au
+// Hash réel du mot de passe admin, calculé une fois au
 // chargement de la page (SHA-256 n'est pas calculable de façon synchrone).
-sha256('lunaweb2026').then(h => { window.__ADMIN_HASH__ = h; });
+sha256('Farida.84').then(h => { window.__ADMIN_HASH__ = h; });
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 
