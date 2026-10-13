@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Loca-Wedding — Administration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body,#root{min-height:100%}
+  body{background:#FAFAF8;font-family:'Jost',sans-serif;color:#2C2419;-webkit-font-smoothing:antialiased}
+  input,textarea,select,button{font-family:inherit;font-size:13px}
+  ::-webkit-scrollbar{width:7px}
+  ::-webkit-scrollbar-track{background:#F5EFE6}
+  ::-webkit-scrollbar-thumb{background:#8A9E7E;border-radius:3px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ADMIN LOCA-WEDDING
+// Page d'administration privée, séparée du site public.
+//
+// SÉCURITÉ — à bien comprendre avant d'utiliser cette page :
+// - Le mot de passe ci-dessous n'est PAS une sécurité de niveau professionnel.
+//   C'est juste un verrou simple pour éviter qu'un visiteur du site tombe sur
+//   cette page par hasard et modifie le contenu. N'importe qui regardant le
+//   code source de cette page (Ctrl+U dans le navigateur) peut voir comment
+//   la vérification fonctionne.
+// - La vraie protection, c'est le token GitHub (PAT) : sans lui, impossible
+//   de publier quoi que ce soit, mot de passe ou pas. Ne partagez jamais ce
+//   token, ne le collez nulle part ailleurs, et régénérez-le sur GitHub si
+//   vous pensez qu'il a fuité (Settings → Developer settings → Personal
+//   access tokens).
+// - Cette page tourne entièrement dans le navigateur. Rien n'est envoyé à un
+//   serveur tiers : le mot de passe reste local, le token reste dans le
+//   localStorage de VOTRE navigateur (il faut le resaisir sur un autre
+//   appareil ou si vous videz les données du site).
+// ═══════════════════════════════════════════════════════════════════════════
+
+const G = {
+  gold:'#C9A96E', goldL:'#DFC49A', goldD:'#A8834A',
+  sage:'#8A9E7E', sageL:'#B5C4AD',
+  cream:'#FAFAF8', beige:'#F5EFE6', beigeD:'#EDE4D8',
+  text:'#2C2419', textL:'#6B5C48', textM:'#9E8B78',
+};
+
+const REPO = 'locawedding1-cmd/loca-wedding-site';
+const FILE_PATH = 'index.html';
+const API_BASE = 'https://api.github.com/repos/' + REPO + '/contents/' + FILE_PATH;
+
+// Mot de passe admin par défaut : "lunaweb2026" (à changer, voir plus bas).
+// Son hash SHA-256 est calculé une seule fois au chargement de la page et
+// stocké dans window.__ADMIN_HASH__ (tout en bas de ce script).
+//
+// Pour changer le mot de passe : remplacez la chaîne 'lunaweb2026' dans
+// l'appel  sha256('lunaweb2026')  tout en bas de ce fichier par votre
+// nouveau mot de passe, en clair. Le hash sera recalculé automatiquement.
+async function sha256(text) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+// ── LocalStorage helpers ─────────────────────────────────────────────────────
+const LS_TOKEN = 'lw_admin_gh_token';
+const LS_AUTH = 'lw_admin_authed';
+
+// ── UI primitives ────────────────────────────────────────────────────────────
+function Btn({children, onClick, variant='solid', disabled=false, style={}}) {
+  const base = {border:'none',cursor:disabled?'default':'pointer',fontFamily:"'Jost',sans-serif",fontSize:12,letterSpacing:'.08em',textTransform:'uppercase',fontWeight:600,padding:'10px 20px',transition:'opacity .15s',opacity:disabled?.5:1,...style};
+  const s = {
+    solid:  {background:G.sage, color:'#fff', ...base},
+    gold:   {background:G.gold, color:'#fff', ...base},
+    outline:{background:'transparent', color:G.textL, border:'1px solid '+G.beigeD, ...base},
+    danger: {background:'#C4877A', color:'#fff', ...base},
+  };
+  return <button disabled={disabled} onClick={onClick} style={s[variant]}>{children}</button>;
+}
+
+function Field({label, value, onChange, multiline=false, hint, type='text'}) {
+  const inputStyle = {width:'100%',padding:'9px 11px',border:'1px solid '+G.beigeD,background:'#fff',fontFamily:"'Jost',sans-serif",fontSize:13,color:G.text,outline:'none',boxSizing:'border-box'};
+  return (
+    <div style={{marginBottom:14}}>
+      <label style={{display:'block',fontSize:10,letterSpacing:'.1em',textTransform:'uppercase',color:G.textM,fontWeight:600,marginBottom:5}}>{label}</label>
+      {multiline
+        ? <textarea rows={3} value={value||''} onChange={e=>onChange(e.target.value)} style={{...inputStyle,resize:'vertical'}}/>
+        : <input type={type} value={value||''} onChange={e=>onChange(e.target.value)} style={inputStyle}/>}
+      {hint && <p style={{fontSize:11,color:G.textM,marginTop:4}}>{hint}</p>}
+    </div>
+  );
+}
+
+function Section({title, children, defaultOpen=true}) {
+  const [open,setOpen] = React.useState(defaultOpen);
+  return (
+    <div style={{background:'#fff',border:'1px solid '+G.beigeD,marginBottom:16}}>
+      <button onClick={()=>setOpen(o=>!o)} style={{width:'100%',display:'flex',justifyContent:'space-between',alignItems:'center',padding:'14px 18px',background:G.beige,border:'none',cursor:'pointer',fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontWeight:600,color:G.text}}>
+        <span>{title}</span><span style={{color:G.textM,fontSize:14}}>{open?'−':'+'}</span>
+      </button>
+      {open && <div style={{padding:18}}>{children}</div>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LOGIN SCREEN
+// ═══════════════════════════════════════════════════════════════════════════
+function Login({onSuccess}) {
+  const [pwd,setPwd] = React.useState('');
+  const [token,setToken] = React.useState(localStorage.getItem(LS_TOKEN)||'');
+  const [error,setError] = React.useState('');
+  const [checking,setChecking] = React.useState(false);
+
+  async function submit() {
+    setError(''); setChecking(true);
+    try {
+      const hash = await sha256(pwd);
+      if (hash !== window.__ADMIN_HASH__) {
+        setError('Mot de passe incorrect.');
+        setChecking(false);
+        return;
+      }
+      if (!token.trim()) {
+        setError('Collez votre token GitHub (voir les instructions ci-dessous) pour continuer.');
+        setChecking(false);
+        return;
+      }
+      localStorage.setItem(LS_TOKEN, token.trim());
+      localStorage.setItem(LS_AUTH, '1');
+      onSuccess();
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  return (
+    <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:G.beige,padding:20}}>
+      <div style={{background:'#fff',maxWidth:440,width:'100%',padding:'40px 36px',border:'1px solid '+G.beigeD}}>
+        <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:30,fontWeight:600,color:G.text,marginBottom:6,textAlign:'center'}}>Loca-Wedding</h1>
+        <p style={{textAlign:'center',color:G.textM,fontSize:12,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:28}}>Administration du site</p>
+
+        <Field label="Mot de passe admin" value={pwd} onChange={setPwd} type="password"/>
+        <Field label="Token GitHub (Personal Access Token)" value={token} onChange={setToken} type="password"
+          hint="Collé une seule fois : il reste stocké dans ce navigateur uniquement."/>
+
+        {error && <div style={{background:'#FBF1F0',border:'1px solid #C4877A',color:'#8B3A2A',padding:'10px 12px',fontSize:12,marginBottom:14}}>{error}</div>}
+
+        <Btn onClick={submit} disabled={checking} style={{width:'100%',padding:'13px'}}>{checking?'Vérification…':'Se connecter'}</Btn>
+
+        <details style={{marginTop:26,fontSize:12,color:G.textL,lineHeight:1.7}}>
+          <summary style={{cursor:'pointer',color:G.sage,fontWeight:600,marginBottom:8}}>Comment obtenir mon token GitHub ?</summary>
+          <ol style={{paddingLeft:18,marginTop:8}}>
+            <li>Allez sur <strong>github.com</strong>, connectez-vous avec le compte qui possède le dépôt <code>loca-wedding-site</code>.</li>
+            <li>Cliquez sur votre photo de profil (en haut à droite) → <strong>Settings</strong>.</li>
+            <li>Dans le menu de gauche, tout en bas : <strong>Developer settings</strong>.</li>
+            <li><strong>Personal access tokens</strong> → <strong>Tokens (classic)</strong> → <strong>Generate new token (classic)</strong>.</li>
+            <li>Donnez-lui un nom (ex: "Admin site Loca-Wedding"), une expiration (ex: 90 jours), et cochez la case <strong>repo</strong> (accès complet aux dépôts).</li>
+            <li>Cliquez sur <strong>Generate token</strong> en bas de page. GitHub affiche le token UNE SEULE FOIS — copiez-le immédiatement.</li>
+            <li>Collez-le dans le champ "Token GitHub" ci-dessus.</li>
+          </ol>
+          <p style={{marginTop:10}}>Ce token ne sert qu'à publier les mises à jour sur le dépôt du site. Il n'est jamais envoyé ailleurs qu'à l'API officielle de GitHub.</p>
+        </details>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// GITHUB API HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
+function b64DecodeUnicode(str) {
+  const binary = atob(str.replace(/\n/g,''));
+  const bytes = new Uint8Array(binary.length);
+  for (let i=0;i<binary.length;i++) bytes[i] = binary.charCodeAt(i);
+  return new TextDecoder('utf-8').decode(bytes);
+}
+function b64EncodeUnicode(str) {
+  const bytes = new TextEncoder().encode(str);
+  let binary = '';
+  bytes.forEach(b => binary += String.fromCharCode(b));
+  return btoa(binary);
+}
+
+async function fetchIndexHtml(token) {
+  const res = await fetch(API_BASE, { headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github+json' } });
+  if (!res.ok) {
+    const body = await res.text().catch(()=> '');
+    console.error('GitHub GET failed', res.status, body);
+    throw new Error('github-get-failed-' + res.status);
+  }
+  const json = await res.json();
+  const content = b64DecodeUnicode(json.content);
+  return { content, sha: json.sha };
+}
+
+function extractTweakBlock(fullHtml) {
+  const m = fullHtml.match(/const TWEAK_DEFAULTS = \/\*EDITMODE-BEGIN\*\/([\s\S]*?)\/\*EDITMODE-END\*\/;;/);
+  if (!m) throw new Error('tweak-block-not-found');
+  // Le bloc est un objet JS literal (JSON-compatible dans ce projet). On
+  // l'évalue dans une fonction isolée : ce contenu est écrit et publié par
+  // Abdel lui-même, ce n'est pas une donnée venant d'un tiers non vérifié.
+  const obj = new Function('return (' + m[1] + ')')();
+  return obj;
+}
+
+function reinjectTweakBlock(fullHtml, obj) {
+  const serialized = JSON.stringify(obj, null, 2);
+  const newBlock = 'const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/' + serialized + '/*EDITMODE-END*/;;';
+  return fullHtml.replace(/const TWEAK_DEFAULTS = \/\*EDITMODE-BEGIN\*\/[\s\S]*?\/\*EDITMODE-END\*\/;;/, newBlock);
+}
+
+async function publishIndexHtml(token, newFullHtml, sha) {
+  const res = await fetch(API_BASE, {
+    method: 'PUT',
+    headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github+json', 'Content-Type':'application/json' },
+    body: JSON.stringify({
+      message: 'Mise à jour contenu via admin — ' + new Date().toISOString().slice(0,19).replace('T',' '),
+      content: b64EncodeUnicode(newFullHtml),
+      sha,
+    }),
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(()=> '');
+    console.error('GitHub PUT failed', res.status, body);
+    throw new Error('github-put-failed-' + res.status);
+  }
+  return res.json();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CATEGORY LABELS (noms lisibles pour les sections & la nav)
+// ═══════════════════════════════════════════════════════════════════════════
+const SECTION_LABELS = {
+  hero: 'Grand visuel d\'accueil (hero)',
+  trust: 'Bandeau de confiance',
+  categories: 'Catégories (collections)',
+  how: 'Comment ça marche (aperçu)',
+  gallery: 'Galerie de réalisations',
+  bestsellers: 'Articles les plus demandés',
+  scarcity: 'Bandeau "stocks limités"',
+  testimonials: 'Témoignages clients',
+  reassurance: 'Nos engagements',
+  about_teaser: 'Aperçu "à propos"',
+  cta: 'Appel à l\'action final',
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PRODUCTS TAB
+// ═══════════════════════════════════════════════════════════════════════════
+function ProductsTab({data, setData}) {
+  const products = data.products;
+  const categories = data.categories;
+
+  function updateProduct(idx, patch) {
+    const next = products.slice();
+    next[idx] = {...next[idx], ...patch};
+    setData({...data, products: next});
+  }
+  function removeProduct(idx) {
+    if (!confirm('Supprimer définitivement cet article du catalogue ?')) return;
+    const next = products.slice();
+    next.splice(idx,1);
+    setData({...data, products: next});
+  }
+  function move(idx, dir) {
+    const j = idx + dir;
+    if (j<0 || j>=products.length) return;
+    const next = products.slice();
+    [next[idx], next[j]] = [next[j], next[idx]];
+    setData({...data, products: next});
+  }
+  function addProduct() {
+    const maxId = products.reduce((m,p)=>Math.max(m,p.id),0);
+    const newId = maxId+1;
+    const next = products.concat([{id:newId, cat:categories[0]?.id||'mobilier', name:'Nouvel article', price:'', tag:'', img:'', stock:1, desc:''}]);
+    setData({...data, products: next});
+  }
+  function imgKeyFor(p) { return 'img_' + p.img; }
+  function getImgUrl(p) { return p.img ? (data[imgKeyFor(p)] || '') : ''; }
+  function setImgUrl(p, url) {
+    if (!p.img) return; // pas de clé image associée (article ajouté sans photo) — rien à faire tant qu'aucune image n'est définie.
+    setData({...data, [imgKeyFor(p)]: url});
+  }
+
+  // Groupement visuel par catégorie, en respectant l'ordre global pour l'index
+  // réel (utilisé par les boutons monter/descendre).
+  const byCat = {};
+  products.forEach((p, idx) => { (byCat[p.cat] = byCat[p.cat]||[]).push(idx); });
+
+  return (
+    <div>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+        <p style={{fontSize:12,color:G.textM}}>{products.length} articles au catalogue. Les flèches déplacent un article dans l'ordre global d'affichage.</p>
+        <Btn variant="gold" onClick={addProduct}>+ Ajouter un article</Btn>
+      </div>
+      {categories.map(cat => (
+        <Section key={cat.id} title={cat.label + ' (' + (byCat[cat.id]||[]).length + ')'} defaultOpen={false}>
+          {(byCat[cat.id]||[]).map(idx => {
+            const p = products[idx];
+            return (
+              <div key={p.id} style={{display:'grid',gridTemplateColumns:'44px 1fr',gap:12,padding:'14px 0',borderBottom:'1px solid '+G.beigeD}}>
+                <div style={{display:'flex',flexDirection:'column',gap:4,alignItems:'center'}}>
+                  <button onClick={()=>move(idx,-1)} disabled={idx===0} style={{width:32,height:28,border:'1px solid '+G.beigeD,background:'#fff',cursor:idx===0?'default':'pointer'}}>↑</button>
+                  <button onClick={()=>move(idx,1)} disabled={idx===products.length-1} style={{width:32,height:28,border:'1px solid '+G.beigeD,background:'#fff',cursor:idx===products.length-1?'default':'pointer'}}>↓</button>
+                </div>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+                  <Field label="Nom" value={p.name} onChange={v=>updateProduct(idx,{name:v})}/>
+                  <Field label="Prix (texte libre, ex: 25€/j)" value={p.price} onChange={v=>updateProduct(idx,{price:v})}/>
+                  <div style={{gridColumn:'1 / -1'}}>
+                    <Field label="Description" value={p.desc} onChange={v=>updateProduct(idx,{desc:v})} multiline/>
+                  </div>
+                  <Field label="URL de la photo" value={getImgUrl(p)} onChange={v=>setImgUrl(p,v)}
+                    hint={p.group ? 'Photo partagée par toutes les couleurs de ce modèle.' : (!p.img ? 'Aucune photo associée — ajoutez-en une en modifiant le code si besoin.' : undefined)}/>
+                  <div>
+                    <label style={{display:'block',fontSize:10,letterSpacing:'.1em',textTransform:'uppercase',color:G.textM,fontWeight:600,marginBottom:5}}>Catégorie</label>
+                    <select value={p.cat} onChange={e=>updateProduct(idx,{cat:e.target.value})} style={{width:'100%',padding:'9px 11px',border:'1px solid '+G.beigeD,background:'#fff'}}>
+                      {categories.map(c=><option key={c.id} value={c.id}>{c.label}</option>)}
+                    </select>
+                  </div>
+                  <div style={{gridColumn:'1 / -1',display:'flex',justifyContent:'flex-end'}}>
+                    <Btn variant="danger" onClick={()=>removeProduct(idx)}>Supprimer cet article</Btn>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </Section>
+      ))}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HOME SECTIONS TAB (réordonnable)
+// ═══════════════════════════════════════════════════════════════════════════
+function HomeSectionsTab({data, setData}) {
+  const sections = data.home_sections;
+  function move(idx, dir) {
+    const j = idx+dir;
+    if (j<0 || j>=sections.length) return;
+    const next = sections.slice();
+    [next[idx], next[j]] = [next[j], next[idx]];
+    setData({...data, home_sections: next});
+  }
+  return (
+    <div>
+      <p style={{fontSize:12,color:G.textM,marginBottom:16}}>Ordre d'affichage des grandes sections de la page d'accueil. Les flèches déplacent une section vers le haut ou le bas.</p>
+      {sections.map((id, idx) => (
+        <div key={id} style={{display:'flex',alignItems:'center',gap:12,background:'#fff',border:'1px solid '+G.beigeD,padding:'12px 16px',marginBottom:8}}>
+          <div style={{display:'flex',gap:4}}>
+            <button onClick={()=>move(idx,-1)} disabled={idx===0} style={{width:30,height:26,border:'1px solid '+G.beigeD,background:'#fff',cursor:idx===0?'default':'pointer'}}>↑</button>
+            <button onClick={()=>move(idx,1)} disabled={idx===sections.length-1} style={{width:30,height:26,border:'1px solid '+G.beigeD,background:'#fff',cursor:idx===sections.length-1?'default':'pointer'}}>↓</button>
+          </div>
+          <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:17,fontWeight:600}}>{SECTION_LABELS[id] || id}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CATEGORIES TAB
+// ═══════════════════════════════════════════════════════════════════════════
+function CategoriesTab({data, setData}) {
+  function update(idx, patch) {
+    const next = data.categories.slice();
+    next[idx] = {...next[idx], ...patch};
+    setData({...data, categories: next});
+  }
+  return (
+    <div>
+      {data.categories.map((c,idx) => (
+        <Section key={c.id} title={c.label} defaultOpen={false}>
+          <Field label="Nom affiché" value={c.label} onChange={v=>update(idx,{label:v})}/>
+          <Field label="Description courte" value={c.desc} onChange={v=>update(idx,{desc:v})}/>
+        </Section>
+      ))}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// TEXTS TAB — tous les textes de page extraits de index.html
+// ═══════════════════════════════════════════════════════════════════════════
+function ListEditor({data, setData, dataKey, itemLabel, fields}) {
+  const items = data[dataKey];
+  function update(idx, field, value) {
+    const next = items.slice();
+    next[idx] = {...next[idx], [field]: value};
+    setData({...data, [dataKey]: next});
+  }
+  return (
+    <div>
+      {items.map((item, idx) => (
+        <div key={idx} style={{border:'1px solid '+G.beigeD,padding:14,marginBottom:10,background:G.cream}}>
+          <p style={{fontSize:11,letterSpacing:'.1em',textTransform:'uppercase',color:G.sage,fontWeight:700,marginBottom:10}}>{itemLabel} {idx+1}</p>
+          {fields.map(f => (
+            <Field key={f.key} label={f.label} value={item[f.key]} onChange={v=>update(idx,f.key,f.type==='number'?Number(v):v)} multiline={f.multiline} type={f.type==='number'?'number':'text'}/>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TextsTab({data, setData}) {
+  function set(key, value) { setData({...data, [key]: value}); }
+
+  return (
+    <div>
+      <Section title="Accueil — en-tête (hero)">
+        <Field label="Badge au-dessus du titre" value={data.hero_badge} onChange={v=>set('hero_badge',v)}/>
+        <Field label="Titre — ligne 1" value={data.hero_title_line1} onChange={v=>set('hero_title_line1',v)}/>
+        <Field label="Titre — ligne 2 (en italique doré)" value={data.hero_title_line2} onChange={v=>set('hero_title_line2',v)}/>
+        <Field label="Sous-titre" value={data.hero_subtitle} onChange={v=>set('hero_subtitle',v)} multiline/>
+      </Section>
+
+      <Section title="Accueil — Catégories" defaultOpen={false}>
+        <Field label="Petit titre (eyebrow)" value={data.home_categories_eyebrow} onChange={v=>set('home_categories_eyebrow',v)}/>
+        <Field label="Titre" value={data.home_categories_title} onChange={v=>set('home_categories_title',v)}/>
+        <Field label="Sous-titre" value={data.home_categories_sub} onChange={v=>set('home_categories_sub',v)} multiline/>
+      </Section>
+
+      <Section title="Accueil — Comment ça marche (aperçu)" defaultOpen={false}>
+        <Field label="Petit titre (eyebrow)" value={data.home_how_eyebrow} onChange={v=>set('home_how_eyebrow',v)}/>
+        <Field label="Titre" value={data.home_how_title} onChange={v=>set('home_how_title',v)}/>
+        <ListEditor data={data} setData={setData} dataKey="home_how_steps" itemLabel="Étape" fields={[
+          {key:'title', label:'Titre de l\'étape'},
+          {key:'desc', label:'Description', multiline:true},
+        ]}/>
+      </Section>
+
+      <Section title="Accueil — Galerie" defaultOpen={false}>
+        <Field label="Petit titre (eyebrow)" value={data.home_gallery_eyebrow} onChange={v=>set('home_gallery_eyebrow',v)}/>
+        <Field label="Titre" value={data.home_gallery_title} onChange={v=>set('home_gallery_title',v)}/>
+        <Field label="Sous-titre" value={data.home_gallery_sub} onChange={v=>set('home_gallery_sub',v)} multiline/>
+      </Section>
+
+      <Section title="Accueil — Articles les plus demandés" defaultOpen={false}>
+        <Field label="Petit titre (eyebrow)" value={data.home_bestsellers_eyebrow} onChange={v=>set('home_bestsellers_eyebrow',v)}/>
+        <Field label="Titre" value={data.home_bestsellers_title} onChange={v=>set('home_bestsellers_title',v)}/>
+      </Section>
+
+      <Section title="Accueil — Bandeau stocks limités" defaultOpen={false}>
+        <Field label="Badge" value={data.home_scarcity_badge} onChange={v=>set('home_scarcity_badge',v)}/>
+        <Field label="Titre" value={data.home_scarcity_title} onChange={v=>set('home_scarcity_title',v)} multiline/>
+        <Field label="Texte" value={data.home_scarcity_desc} onChange={v=>set('home_scarcity_desc',v)} multiline/>
+        <Field label="Petite note sous le bouton" value={data.home_scarcity_cta_note} onChange={v=>set('home_scarcity_cta_note',v)}/>
+      </Section>
+
+      <Section title="Accueil — Témoignages" defaultOpen={false}>
+        <Field label="Petit titre (eyebrow)" value={data.home_testimonials_eyebrow} onChange={v=>set('home_testimonials_eyebrow',v)}/>
+        <Field label="Titre" value={data.home_testimonials_title} onChange={v=>set('home_testimonials_title',v)}/>
+        <Field label="Sous-titre" value={data.home_testimonials_sub} onChange={v=>set('home_testimonials_sub',v)} multiline/>
+        <ListEditor data={data} setData={setData} dataKey="home_testimonials" itemLabel="Témoignage" fields={[
+          {key:'name', label:'Nom des mariés'},
+          {key:'loc', label:'Lieu & date'},
+          {key:'stars', label:'Note (1 à 5)', type:'number'},
+          {key:'text', label:'Texte du témoignage', multiline:true},
+          {key:'img', label:'URL de la photo (avatar)'},
+        ]}/>
+      </Section>
+
+      <Section title="Accueil — Nos engagements" defaultOpen={false}>
+        <Field label="Petit titre (eyebrow)" value={data.home_reassurance_eyebrow} onChange={v=>set('home_reassurance_eyebrow',v)}/>
+        <Field label="Titre" value={data.home_reassurance_title} onChange={v=>set('home_reassurance_title',v)}/>
+        <ListEditor data={data} setData={setData} dataKey="home_reassurance" itemLabel="Engagement" fields={[
+          {key:'title', label:'Titre'},
+          {key:'desc', label:'Description', multiline:true},
+        ]}/>
+      </Section>
+
+      <Section title="Accueil — Aperçu à propos" defaultOpen={false}>
+        <Field label="Petit titre (eyebrow)" value={data.home_about_eyebrow} onChange={v=>set('home_about_eyebrow',v)}/>
+        <Field label="Titre — ligne 1" value={data.home_about_title_line1} onChange={v=>set('home_about_title_line1',v)}/>
+        <Field label="Titre — ligne 2 (en italique)" value={data.home_about_title_line2} onChange={v=>set('home_about_title_line2',v)}/>
+        <Field label="Texte" value={data.home_about_desc} onChange={v=>set('home_about_desc',v)} multiline/>
+      </Section>
+
+      <Section title="Accueil — Appel à l'action final" defaultOpen={false}>
+        <Field label="Petit titre (eyebrow)" value={data.home_cta_eyebrow} onChange={v=>set('home_cta_eyebrow',v)}/>
+        <Field label="Titre" value={data.home_cta_title} onChange={v=>set('home_cta_title',v)}/>
+        <Field label="Sous-titre" value={data.home_cta_sub} onChange={v=>set('home_cta_sub',v)}/>
+      </Section>
+
+      <Section title="Page « Comment ça marche »" defaultOpen={false}>
+        <Field label="Petit titre (eyebrow)" value={data.how_header_eyebrow} onChange={v=>set('how_header_eyebrow',v)}/>
+        <Field label="Titre de la page" value={data.how_header_title} onChange={v=>set('how_header_title',v)}/>
+        <ListEditor data={data} setData={setData} dataKey="how_steps" itemLabel="Étape" fields={[
+          {key:'title', label:'Titre de l\'étape'},
+          {key:'desc', label:'Description', multiline:true},
+        ]}/>
+        <Field label="Titre du bloc final" value={data.how_cta_title} onChange={v=>set('how_cta_title',v)}/>
+        <Field label="Sous-titre du bloc final" value={data.how_cta_sub} onChange={v=>set('how_cta_sub',v)}/>
+      </Section>
+
+      <Section title="Page « À propos »" defaultOpen={false}>
+        <Field label="Badge en-tête" value={data.about_header_badge} onChange={v=>set('about_header_badge',v)}/>
+        <Field label="Titre — ligne 1" value={data.about_header_title_line1} onChange={v=>set('about_header_title_line1',v)}/>
+        <Field label="Titre — ligne 2 (en italique)" value={data.about_header_title_line2} onChange={v=>set('about_header_title_line2',v)}/>
+        <Field label="Petit titre section histoire" value={data.about_intro_eyebrow} onChange={v=>set('about_intro_eyebrow',v)}/>
+        <Field label="Titre histoire — ligne 1" value={data.about_intro_title_line1} onChange={v=>set('about_intro_title_line1',v)}/>
+        <Field label="Titre histoire — ligne 2" value={data.about_intro_title_line2} onChange={v=>set('about_intro_title_line2',v)}/>
+        <Field label="Paragraphe 1" value={data.about_intro_p1} onChange={v=>set('about_intro_p1',v)} multiline/>
+        <Field label="Paragraphe 2" value={data.about_intro_p2} onChange={v=>set('about_intro_p2',v)} multiline/>
+        <Field label="Paragraphe 3" value={data.about_intro_p3} onChange={v=>set('about_intro_p3',v)} multiline/>
+        <Field label="Petit titre mission/valeurs/vision" value={data.about_values_eyebrow} onChange={v=>set('about_values_eyebrow',v)}/>
+        <Field label="Titre mission/valeurs/vision" value={data.about_values_title} onChange={v=>set('about_values_title',v)}/>
+        <ListEditor data={data} setData={setData} dataKey="about_values" itemLabel="Bloc" fields={[
+          {key:'title', label:'Titre'},
+          {key:'desc', label:'Description', multiline:true},
+        ]}/>
+        <Field label="Titre du bloc final" value={data.about_cta_title} onChange={v=>set('about_cta_title',v)}/>
+        <Field label="Sous-titre du bloc final" value={data.about_cta_sub} onChange={v=>set('about_cta_sub',v)}/>
+      </Section>
+
+      <Section title="Page « Contact »" defaultOpen={false}>
+        <Field label="Petit titre (eyebrow)" value={data.contact_header_eyebrow} onChange={v=>set('contact_header_eyebrow',v)}/>
+        <Field label="Titre de la page" value={data.contact_header_title} onChange={v=>set('contact_header_title',v)}/>
+        <Field label="Titre bloc coordonnées" value={data.contact_coord_title} onChange={v=>set('contact_coord_title',v)}/>
+        <Field label="Téléphone affiché" value={data.contact_phone} onChange={v=>set('contact_phone',v)}/>
+        <Field label="Email affiché" value={data.contact_email} onChange={v=>set('contact_email',v)}/>
+        <Field label="Zone de livraison" value={data.contact_zone} onChange={v=>set('contact_zone',v)}/>
+        <Field label="Horaires" value={data.contact_hours} onChange={v=>set('contact_hours',v)}/>
+        <Field label="Petite note" value={data.contact_note} onChange={v=>set('contact_note',v)} multiline/>
+        <Field label="Titre après envoi du message" value={data.contact_sent_title} onChange={v=>set('contact_sent_title',v)}/>
+        <Field label="Sous-titre après envoi" value={data.contact_sent_sub} onChange={v=>set('contact_sent_sub',v)}/>
+      </Section>
+
+      <Section title="Page « Demande de devis »" defaultOpen={false}>
+        <Field label="Petit titre (eyebrow)" value={data.devis_header_eyebrow} onChange={v=>set('devis_header_eyebrow',v)}/>
+        <Field label="Titre de la page" value={data.devis_header_title} onChange={v=>set('devis_header_title',v)}/>
+        <Field label="Sous-titre après envoi de la demande" value={data.devis_sent_sub} onChange={v=>set('devis_sent_sub',v)} multiline/>
+        <Field label="Bandeau urgence — texte en gras" value={data.devis_urgency_bold} onChange={v=>set('devis_urgency_bold',v)}/>
+        <Field label="Bandeau urgence — texte normal" value={data.devis_urgency_text} onChange={v=>set('devis_urgency_text',v)} multiline/>
+        <Field label="Note en bas de page" value={data.devis_footer_note} onChange={v=>set('devis_footer_note',v)}/>
+      </Section>
+
+      <Section title="Pied de page (footer)" defaultOpen={false}>
+        <Field label="Phrase d'accroche" value={data.footer_tagline} onChange={v=>set('footer_tagline',v)} multiline/>
+        <Field label="Badge" value={data.footer_badge} onChange={v=>set('footer_badge',v)}/>
+        <Field label="Téléphone" value={data.footer_phone} onChange={v=>set('footer_phone',v)}/>
+        <Field label="Email" value={data.footer_email} onChange={v=>set('footer_email',v)}/>
+        <Field label="Zone de livraison" value={data.footer_zone} onChange={v=>set('footer_zone',v)}/>
+        <Field label="Horaires" value={data.footer_hours} onChange={v=>set('footer_hours',v)}/>
+        <Field label="Ligne de copyright" value={data.footer_copyright} onChange={v=>set('footer_copyright',v)}/>
+        <Field label="Mentions légales (texte)" value={data.footer_legal} onChange={v=>set('footer_legal',v)}/>
+      </Section>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MAIN DASHBOARD
+// ═══════════════════════════════════════════════════════════════════════════
+const TABS = [
+  {id:'products', label:'Produits'},
+  {id:'texts', label:'Textes des pages'},
+  {id:'home', label:"Organisation de l'accueil"},
+  {id:'categories', label:'Catégories'},
+];
+
+function Dashboard() {
+  const token = localStorage.getItem(LS_TOKEN) || '';
+  const [loading, setLoading] = React.useState(true);
+  const [loadError, setLoadError] = React.useState('');
+  const [sha, setSha] = React.useState(null);
+  const [fullHtml, setFullHtml] = React.useState('');
+  const [data, setData] = React.useState(null);
+  const [tab, setTab] = React.useState('products');
+  const [publishing, setPublishing] = React.useState(false);
+  const [publishMsg, setPublishMsg] = React.useState(null); // {type:'ok'|'error', text}
+
+  const load = React.useCallback(async () => {
+    setLoading(true); setLoadError('');
+    try {
+      const { content, sha } = await fetchIndexHtml(token);
+      const obj = extractTweakBlock(content);
+      setFullHtml(content);
+      setSha(sha);
+      setData(obj);
+    } catch (e) {
+      console.error(e);
+      setLoadError("Impossible de récupérer le contenu actuel du site. Vérifiez votre connexion et votre token GitHub, puis réessayez.");
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
+
+  React.useEffect(() => { load(); }, [load]);
+
+  async function publish() {
+    setPublishing(true); setPublishMsg(null);
+    try {
+      // On relit le fichier juste avant de publier pour récupérer le sha le
+      // plus récent (évite un conflit si le fichier a changé depuis le
+      // chargement de la page).
+      const { content: freshHtml, sha: freshSha } = await fetchIndexHtml(token);
+      const newHtml = reinjectTweakBlock(freshHtml, data);
+      await publishIndexHtml(token, newHtml, freshSha);
+      setFullHtml(newHtml);
+      setSha(freshSha);
+      setPublishMsg({type:'ok', text:'Les changements ont été publiés. Le site sera à jour sur loca-wedding.be dans 1 à 2 minutes.'});
+    } catch (e) {
+      console.error(e);
+      setPublishMsg({type:'error', text:"La publication a échoué. Vérifiez votre connexion et votre token GitHub (il doit avoir le droit d'écrire sur le dépôt), puis réessayez."});
+    } finally {
+      setPublishing(false);
+    }
+  }
+
+  function logout() {
+    localStorage.removeItem(LS_AUTH);
+    localStorage.removeItem(LS_TOKEN);
+    location.reload();
+  }
+
+  if (loading) {
+    return <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:G.textM}}>Chargement du contenu du site…</div>;
+  }
+  if (loadError) {
+    return (
+      <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
+        <div style={{maxWidth:480,textAlign:'center'}}>
+          <p style={{color:'#8B3A2A',marginBottom:16}}>{loadError}</p>
+          <Btn onClick={load}>Réessayer</Btn>
+          <div style={{marginTop:10}}><Btn variant="outline" onClick={logout}>Changer de token / se déconnecter</Btn></div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {/* BARRE SUPÉRIEURE — toujours visible */}
+      <div style={{position:'sticky',top:0,zIndex:50,background:'#fff',borderBottom:'1px solid '+G.beigeD,padding:'14px 24px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:16,flexWrap:'wrap'}}>
+        <div>
+          <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:600,color:G.text}}>Loca-Wedding — Administration</h1>
+          <p style={{fontSize:11,color:G.textM}}>Les changements sont publiés directement sur le site en 1-2 minutes après publication (délai de reconstruction Netlify).</p>
+        </div>
+        <div style={{display:'flex',gap:10,alignItems:'center'}}>
+          <Btn variant="outline" onClick={logout}>Se déconnecter</Btn>
+          <Btn variant="gold" onClick={publish} disabled={publishing} style={{padding:'12px 26px'}}>{publishing?'Publication…':'Publier les changements'}</Btn>
+        </div>
+      </div>
+
+      {publishMsg && (
+        <div style={{margin:'14px 24px 0',padding:'12px 16px',background:publishMsg.type==='ok'?'#EEF5EA':'#FBF1F0',border:'1px solid '+(publishMsg.type==='ok'?G.sage:'#C4877A'),color:publishMsg.type==='ok'?'#3E5A34':'#8B3A2A',fontSize:13}}>
+          {publishMsg.text}
+        </div>
+      )}
+
+      {/* ONGLETS */}
+      <div style={{display:'flex',gap:4,padding:'18px 24px 0',flexWrap:'wrap'}}>
+        {TABS.map(t => (
+          <button key={t.id} onClick={()=>setTab(t.id)}
+            style={{padding:'10px 18px',border:'1px solid '+G.beigeD,borderBottom:tab===t.id?'3px solid '+G.sage:'1px solid '+G.beigeD,background:tab===t.id?'#fff':G.beige,cursor:'pointer',fontFamily:"'Jost',sans-serif",fontSize:12,letterSpacing:'.05em',textTransform:'uppercase',fontWeight:tab===t.id?700:500,color:tab===t.id?G.sage:G.textL}}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      <div style={{padding:'20px 24px 80px',maxWidth:1000,margin:'0 auto'}}>
+        {tab==='products'   && <ProductsTab data={data} setData={setData}/>}
+        {tab==='texts'      && <TextsTab data={data} setData={setData}/>}
+        {tab==='home'       && <HomeSectionsTab data={data} setData={setData}/>}
+        {tab==='categories' && <CategoriesTab data={data} setData={setData}/>}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// APP ROOT — login gate
+// ═══════════════════════════════════════════════════════════════════════════
+function App() {
+  const [authed, setAuthed] = React.useState(localStorage.getItem(LS_AUTH) === '1');
+  if (!authed) return <Login onSuccess={()=>setAuthed(true)}/>;
+  return <Dashboard/>;
+}
+
+// Hash réel du mot de passe par défaut "lunaweb2026", calculé une fois au
+// chargement de la page (SHA-256 n'est pas calculable de façon synchrone).
+sha256('lunaweb2026').then(h => { window.__ADMIN_HASH__ = h; });
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+
+</script>
+</body>
+</html>

@@ -82,233 +82,1224 @@ function useIsMobile() {
 
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "accentColor": "#8A9E7E",
-  "img_hero": "https:\/\/images.unsplash.com\/photo-1519225421980-715cb0215aed?w=1600&auto=format&q=85",
-  "img_hero2": "https:\/\/images.unsplash.com\/photo-1511795409834-ef04bbd61622?w=1600&auto=format&q=85",
-  "img_about": "https:\/\/images.unsplash.com\/photo-1465495976277-4387d4b0b4c6?w=1200&auto=format&q=80",
-  "img_gallery1": "https:\/\/images.unsplash.com\/photo-1519167758481-83f550bb49b3?w=700&auto=format&q=80",
-  "img_gallery2": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/54e8746d-9aee-4566-ac3e-5440ba4f6dbe.jpg?v=1777110837",
-  "img_gallery3": "https:\/\/images.unsplash.com\/photo-1511795409834-ef04bbd61622?w=700&auto=format&q=80",
-  "img_gallery4": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/Image_1_6bf7f4c9-2417-495a-8588-f115ff098410.jpg?v=1777054152",
-  "img_cat_mobilier": "https:\/\/images.unsplash.com\/photo-1519225421980-715cb0215aed?w=600&auto=format&q=80",
-  "img_cat_textile": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/Image_8_03c5b182-89fb-42ac-b82d-4a1f036e63ee.jpg?v=1777053950",
-  "img_cat_decoration": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/06e30553-c115-4bb5-9b5f-003b7d807c9e.jpg?v=1777054068",
-  "img_cat_vaisselle": "https:\/\/images.unsplash.com\/photo-1414235077428-338989a2e8c0?w=600&auto=format&q=80",
-  "img_cat_accessoires": "https:\/\/images.unsplash.com\/photo-1515934751635-c81c6bc9a2d8?w=600&auto=format&q=80",
-  "img_cat_ceremonie": "https:\/\/images.unsplash.com\/photo-1519167758481-83f550bb49b3?w=600&auto=format&q=80",
-  "img_cat_eclairage": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/Image_1_6bf7f4c9-2417-495a-8588-f115ff098410.jpg?v=1777054152",
-  "img_cat_packs": "https:\/\/images.unsplash.com\/photo-1511795409834-ef04bbd61622?w=600&auto=format&q=80",
-  "img_p1": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/Image_1-04-26_a_15.12.jpg?v=1776773991",
+  "img_hero": "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1600&auto=format&q=85",
+  "img_hero2": "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1600&auto=format&q=85",
+  "img_about": "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=1200&auto=format&q=80",
+  "img_gallery1": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=700&auto=format&q=80",
+  "img_gallery2": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/54e8746d-9aee-4566-ac3e-5440ba4f6dbe.jpg?v=1777110837",
+  "img_gallery3": "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=700&auto=format&q=80",
+  "img_gallery4": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/Image_1_6bf7f4c9-2417-495a-8588-f115ff098410.jpg?v=1777054152",
+  "img_cat_mobilier": "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=600&auto=format&q=80",
+  "img_cat_textile": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/Image_8_03c5b182-89fb-42ac-b82d-4a1f036e63ee.jpg?v=1777053950",
+  "img_cat_decoration": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/06e30553-c115-4bb5-9b5f-003b7d807c9e.jpg?v=1777054068",
+  "img_cat_vaisselle": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&auto=format&q=80",
+  "img_cat_accessoires": "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=600&auto=format&q=80",
+  "img_cat_ceremonie": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&auto=format&q=80",
+  "img_cat_eclairage": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/Image_1_6bf7f4c9-2417-495a-8588-f115ff098410.jpg?v=1777054152",
+  "img_cat_packs": "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=600&auto=format&q=80",
+  "img_p1": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/Image_1-04-26_a_15.12.jpg?v=1776773991",
   "img_p2": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/3b9fc9bd-a72a-476b-844a-30ef83764d9a.jpg?v=1784271677",
   "img_p3": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/9638836e-10e3-4418-bf85-1c26f8c15f4e.jpg?v=1784271678",
   "img_p4": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/3b9fc9bd-a72a-476b-844a-30ef83764d9a.jpg?v=1784271677",
-  "img_p5": "https:\/\/images.unsplash.com\/photo-1528825871115-3581a5387919?w=500&auto=format&q=75",
-  "img_p6": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/PHOTO-2026-09-29-21-37-26.jpg?v=1790710703",
-  "img_p7": "https:\/\/images.unsplash.com\/photo-1414235077428-338989a2e8c0?w=500&auto=format&q=75",
-  "img_p8": "https:\/\/images.unsplash.com\/photo-1515934751635-c81c6bc9a2d8?w=500&auto=format&q=75",
-  "img_p9": "https:\/\/images.unsplash.com\/photo-1519741497674-611481863552?w=500&auto=format&q=75",
-  "img_p10": "https:\/\/images.unsplash.com\/photo-1511795409834-ef04bbd61622?w=500&auto=format&q=75",
-  "img_p11": "https:\/\/images.unsplash.com\/photo-1528825871115-3581a5387919?w=500&auto=format&q=75",
-  "img_p12": "https:\/\/images.unsplash.com\/photo-1414235077428-338989a2e8c0?w=500&auto=format&q=75",
-  "img_p13": "https:\/\/images.unsplash.com\/photo-1511795409834-ef04bbd61622?w=500&auto=format&q=75",
-  "img_p14": "https:\/\/images.unsplash.com\/photo-1519741497674-611481863552?w=500&auto=format&q=75",
-  "img_p15": "https:\/\/images.unsplash.com\/photo-1511795409834-ef04bbd61622?w=500&auto=format&q=75",
-  "img_p16": "https:\/\/images.unsplash.com\/photo-1515934751635-c81c6bc9a2d8?w=500&auto=format&q=75",
-  "img_p17": "https:\/\/images.unsplash.com\/photo-1519741497674-611481863552?w=500&auto=format&q=75",
-  "img_p18": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/Image_1-04-26_a_15.12.jpg?v=1776773991",
-  "img_p19": "https:\/\/images.unsplash.com\/photo-1414235077428-338989a2e8c0?w=500&auto=format&q=75",
-  "img_p20": "https:\/\/images.unsplash.com\/photo-1414235077428-338989a2e8c0?w=500&auto=format&q=75",
-  "img_p21": "https:\/\/images.unsplash.com\/photo-1414235077428-338989a2e8c0?w=500&auto=format&q=75",
-  "img_p22": "https:\/\/images.unsplash.com\/photo-1519741497674-611481863552?w=500&auto=format&q=75",
-  "img_p23": "https:\/\/images.unsplash.com\/photo-1414235077428-338989a2e8c0?w=500&auto=format&q=75",
-  "img_p24": "https:\/\/images.unsplash.com\/photo-1515934751635-c81c6bc9a2d8?w=500&auto=format&q=75",
-  "img_p25": "https:\/\/images.unsplash.com\/photo-1515934751635-c81c6bc9a2d8?w=500&auto=format&q=75",
-  "img_p26": "https:\/\/images.unsplash.com\/photo-1515934751635-c81c6bc9a2d8?w=500&auto=format&q=75",
-  "img_p27": "https:\/\/images.unsplash.com\/photo-1515934751635-c81c6bc9a2d8?w=500&auto=format&q=75",
-  "img_p28": "https:\/\/images.unsplash.com\/photo-1511795409834-ef04bbd61622?w=500&auto=format&q=75",
-  "img_p29": "https:\/\/images.unsplash.com\/photo-1519167758481-83f550bb49b3?w=500&auto=format&q=75",
-  "img_p30": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/Image_1-04-26_a_15.12.jpg?v=1776773991",
-  "img_p31": "https:\/\/images.unsplash.com\/photo-1511795409834-ef04bbd61622?w=500&auto=format&q=75",
-  "img_p32": "https:\/\/images.unsplash.com\/photo-1519741497674-611481863552?w=500&auto=format&q=75",
-  "img_p33": "https:\/\/images.unsplash.com\/photo-1519741497674-611481863552?w=500&auto=format&q=75",
-  "img_p34": "https:\/\/images.unsplash.com\/photo-1519741497674-611481863552?w=500&auto=format&q=75",
-  "img_p35": "https:\/\/images.unsplash.com\/photo-1519741497674-611481863552?w=500&auto=format&q=75",
-  "img_p36": "https:\/\/images.unsplash.com\/photo-1511795409834-ef04bbd61622?w=500&auto=format&q=75",
-  "img_p37": "https:\/\/images.unsplash.com\/photo-1511795409834-ef04bbd61622?w=500&auto=format&q=75",
-  "img_p38": "https:\/\/images.unsplash.com\/photo-1511795409834-ef04bbd61622?w=500&auto=format&q=75",
-  "img_p39": "https:\/\/images.unsplash.com\/photo-1511795409834-ef04bbd61622?w=500&auto=format&q=75",
-  "p1_name": "Trones",
-  "p1_desc": "",
-  "p1_price": "300€",
-  "p2_name": "Chaise Napoleon",
-  "p2_desc": "Chaise Napoleon blanche, structure laquée, assise confortable. Empilable.",
-  "p2_price": "4€\/j",
-  "p3_name": "Chandelier noir 5 branches",
-  "p3_desc": "Table haute LED rechargeable, 16 couleurs. Idéale pour le cocktail.",
-  "p3_price": "22€\/j",
-  "p4_name": "Canapé lounge blanc",
-  "p4_desc": "Canapé 3 places velours blanc, style boho-chic.",
-  "p4_price": "45€\/j",
-  "p5_name": "Table en bois brut 200 cm",
-  "p5_desc": "Table en bois massif 200 cm, style rustique naturel.",
-  "p5_price": "25€\/j",
-  "p6_name": "Chaise Napoléon Blanche",
-  "p6_desc": "Chaise blanche, style bistro.",
-  "p6_price": "2,50€",
-  "p7_name": "Nappe en lin",
-  "p7_desc": "Nappe 100% lin naturel.",
-  "p7_price": "8€\/j",
-  "p8_name": "Chemin de table",
-  "p8_desc": "Chemin en organza, longueur 3 m.",
-  "p8_price": "5€\/j",
-  "p9_name": "Housse de chaise",
-  "p9_desc": "Housse universelle jersey stretch.",
-  "p9_price": "2€\/j",
-  "p10_name": "Rideau macramé bohème",
-  "p10_desc": "Panneau macramé 2×2,4 m, style bohème romantique.",
-  "p10_price": "35€\/j",
-  "p11_name": "Nappe ronde satin",
-  "p11_desc": "Nappe ronde satin pour table Ø180 cm, tombé luxueux.",
-  "p11_price": "Sur devis",
-  "p12_name": "Serviette coton brodée",
-  "p12_desc": "Serviette coton blanc ou crème.",
-  "p12_price": "1,50€\/j",
-  "p13_name": "Arche florale",
-  "p13_desc": "Arche florale 2,5×2 m.",
-  "p13_price": "55€\/j",
-  "p14_name": "Bougeoir en verre",
-  "p14_desc": "Bougeoir cylindrique en verre, H 25 cm.",
-  "p14_price": "3€\/j",
-  "p15_name": "Vase soliflore lot de 6",
-  "p15_desc": "Vase soliflore en verre, H 25 cm.",
-  "p15_price": "1,50€\/j",
-  "p16_name": "Miroir rond baroque",
-  "p16_desc": "Grand miroir à cadre Ø80 cm.",
-  "p16_price": "18€\/j",
-  "p17_name": "Lanterne métal",
-  "p17_desc": "Lanterne métal, style marocain H30 cm.",
-  "p17_price": "4€\/j",
-  "p18_name": "Colonne piédestal",
-  "p18_desc": "Piédestal H1 m, idéal pour compositions florales.",
-  "p18_price": "12€\/j",
-  "p19_name": "Assiette porcelaine blanche",
-  "p19_desc": "Assiette plate porcelaine Ø27 cm, finition brillante.",
-  "p19_price": "1,20€\/j",
-  "p20_name": "Verre à vin cristallin",
-  "p20_desc": "Verre à vin cristallin transparent, 35 cl.",
-  "p20_price": "0,80€\/j",
-  "p21_name": "Couverts inox dorés",
-  "p21_desc": "Ménagère 5 pièces inox finition dorée brossée.",
-  "p21_price": "1€\/j",
-  "p22_name": "Flûte à champagne",
-  "p22_desc": "Flûte en verre fin 20 cl.",
-  "p22_price": "0,60€\/j",
-  "p23_name": "Plateau de service argenté",
-  "p23_desc": "Plateau rond Ø40 cm métal argenté.",
-  "p23_price": "8€\/j",
-  "p24_name": "Panneau de bienvenue",
-  "p24_desc": "Panneau acrylique transparent avec chevalet doré.",
-  "p24_price": "25€\/j",
-  "p25_name": "Porte-noms calligraphiés",
-  "p25_desc": "Marque-places papier kraft calligraphié, lot de 10.",
-  "p25_price": "2,50€\/j",
-  "p26_name": "Plan de table cadre doré",
-  "p26_desc": "Cadre doré A2 pour plan de table, chevalet inclus.",
-  "p26_price": "15€\/j",
-  "p27_name": "Urne à messages en bois",
-  "p27_desc": "Urne à messages bois naturel avec fente, H25 cm.",
-  "p27_price": "12€\/j",
-  "p28_name": "Arche cérémonie",
-  "p28_desc": "Arche rectangulaire 2,5×2 m, drapé inclus.",
-  "p28_price": "65€\/j",
-  "p29_name": "Chaises cérémonie bois",
-  "p29_desc": "Chaises bois naturel style cross-back, photogéniques.",
-  "p29_price": "3€\/j",
-  "p30_name": "Tapis allée cérémonie",
-  "p30_desc": "Runner jute ou blanc ivoire, 10 m × 1 m.",
-  "p30_price": "28€\/j",
-  "p31_name": "Lustrin floral suspendu",
-  "p31_desc": "Structure ronde Ø80 cm pour composition florale suspendue.",
-  "p31_price": "40€\/j",
-  "p32_name": "Guirlande guinguette 10 m",
-  "p32_desc": "Guirlande 10 m avec 20 ampoules Edison, câble blanc.",
-  "p32_price": "15€\/j",
-  "p33_name": "Chandelier de table",
-  "p33_desc": "Chandelier métal doré 3 bras, H45 cm.",
-  "p33_price": "8€\/j",
-  "p34_name": "Spot LED warmwhite",
-  "p34_desc": "Projecteur LED warmwhite sur pied orientable.",
-  "p34_price": "18€\/j",
-  "p35_name": "Photophore flottant",
-  "p35_desc": "Photophore flottant en verre.",
-  "p35_price": "3€\/j",
-  "p36_name": "Pack Essentiel 50 pers.",
-  "p36_desc": "Mobilier + nappe + vaisselle pour 50 personnes.",
-  "p36_price": "450€\/j",
-  "p37_name": "Pack Prestige 100 pers.",
-  "p37_desc": "Pack complet haut de gamme pour 100 personnes.",
-  "p37_price": "950€\/j",
-  "p38_name": "Pack Cérémonie Laïque",
-  "p38_desc": "Arche + chaises + allée + décoration.",
-  "p38_price": "280€\/j",
-  "p39_name": "Pack Photo Booth",
-  "p39_desc": "Fond photo + accessoires + cadres.",
-  "p39_price": "120€\/j",
-  "img_p40": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/Wedding_ceremony_floral_arch_setup_20260929214925.jpg?v=1790711656",
-  "img_p40b": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/Wedding_arch_floral_decoration_s__20260929215219.jpg?v=1790711657",
-  "p40_name": "Triple Arche",
-  "p40_desc": "Ensemble de trois arches florales pour cérémonie ou allée, effet scénique.",
-  "p40_price": "100€",
-  "img_p41": "https:\/\/cdn.phototourl.com\/member\/2026-10-05-8469e602-7dc3-4eaa-90e1-bcdac74f045e.jpg",
-  "p41_name": "Trio arche",
-  "p41_desc": "Ensemble de trois arches pour cérémonie ou allée.",
-  "p41_price": "100€",
-  "img_p42": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/9638836e-10e3-4418-bf85-1c26f8c15f4e_21cebccd-4572-4bae-9348-c790e25981bc.jpg?v=1791231757",
-  "p42_name": "Chandelier noir fleuri",
-  "p42_desc": "Chandelier noir 5 bras avec composition de roses blanches, bougies fines.",
-  "p42_price": "À venir",
-  "img_p43": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/580c12db-aaec-46de-a331-30c67e1bdf30_49d9b66c-646c-44a9-9076-3e452661ef36.jpg?v=1791231756",
-  "p43_name": "Chandelier doré bordeaux",
-  "p43_desc": "Chandelier doré 5 bras, composition de roses blanches et rouge bordeaux.",
-  "p43_price": "À venir",
-  "img_p44": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/047e9041-a1fa-4bcb-9b06-b3c11b5fe40a_899fc535-999d-49db-82e9-783213731660.jpg?v=1791231756",
-  "p44_name": "Vase trompette blanc fleuri",
-  "p44_desc": "Vase trompette blanc sur pied, grande composition florale blanche et verdure.",
-  "p44_price": "À venir",
-  "img_p45": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/cd84e8eb-2bf8-45e2-a902-92d8ec3a77f5_57d03006-eccc-46c8-a337-4e567fd5b563.jpg?v=1791231756",
-  "p45_name": "Chandelier doré baroque",
-  "p45_desc": "Chandelier doré baroque 5 bras, style classique pour table d'honneur.",
-  "p45_price": "À venir",
-  "img_p46": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/943e37f5-d9b9-48ea-a1d5-e570d77f5f9a_40a66836-a6d9-4c25-bec1-c832f50d61ea.jpg?v=1791231756",
-  "p46_name": "Chandelier argenté classique",
-  "p46_desc": "Chandelier argenté 5 bras, finition chromée, style classique épuré.",
-  "p46_price": "À venir",
-  "img_p47": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/1cdd48f8-b543-446a-a8d4-ed4326259c0a_051da231-335a-4810-a0ef-50f6028d6338.jpg?v=1791231757",
-  "p47_name": "Couronne florale bougie flottante",
-  "p47_desc": "Couronne de roses blanches et roses pâles autour d'un cylindre à bougie flottante.",
-  "p47_price": "À venir",
-  "img_p48": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/e0f9c604-ea92-48fb-b486-99a4649aa370_8a254139-330f-43e3-9cf1-6692e705ee6c.jpg?v=1791231756",
-  "p48_name": "Centre de table acrylique fleuri",
-  "p48_desc": "Pied acrylique transparent surmonté d'une composition florale blanche, bougie pilier.",
-  "p48_price": "À venir",
-  "img_p50": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/1e54a57d-6dc2-4f17-995d-f8eebe92f5bd_db67544d-74cc-4461-a30a-15103d22dc3b.jpg?v=1791231757",
-  "p50_name": "Centre de table mauve romantique",
-  "p50_desc": "Composition de roses blanches et mauves sur chandelier blanc, ambiance romantique.",
-  "p50_price": "À venir",
-  "img_p51": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/eec3ed7f-1659-4ef5-bc0a-8eb3f81af23b_0a105f16-5fd7-4fdb-a4de-750db97d33a2.jpg?v=1791231756",
-  "p51_name": "Bouquet mauve sur pied",
-  "p51_desc": "Bouquet de roses blanches et mauves sur pied blanc, gros plan.",
-  "p51_price": "À venir",
-  "img_p52": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/2e637c02-34f0-4af6-989e-37f9c5b495e5_e6f82f16-b51f-4f03-a54d-07c35700f6dd.jpg?v=1791231756",
-  "p52_name": "Vase trompette blanc grand format",
-  "p52_desc": "Grand vase trompette blanc fleuri, entouré de photophores à bougies flottantes.",
-  "p52_price": "À venir",
-  "img_p53": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/0d0c3479-68e5-4a7e-b747-af9644ea8f5c_5f4e4297-4562-4daf-adaf-c40b80a8b6fe.jpg?v=1791231756",
-  "img_how1": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/Image_12.jpg?v=1777112777",
-  "img_how2": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/Image_9_1c1ed39f-a38b-4a93-b2ad-a7defd15ac94.jpg?v=1777112249",
-  "img_how3": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/Image_10_ce43f6df-f7ba-4ab4-a82f-c451ddcaf163.jpg?v=1777112320",
-  "img_how4": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/Image_11_cce8a2a3-a0b8-48a8-9db8-77e56517aca2.jpg?v=1777112419",
-  "img_how5": "https:\/\/cdn.shopify.com\/s\/files\/1\/0931\/7810\/2133\/files\/cd84e8eb-2bf8-45e2-a902-92d8ec3a77f5.jpg?v=1777110935",
-  "img_how6": "https:\/\/images.unsplash.com\/photo-1511795409834-ef04bbd61622?w=700&auto=format&q=80"
+  "img_p5": "https://images.unsplash.com/photo-1528825871115-3581a5387919?w=500&auto=format&q=75",
+  "img_p6": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/PHOTO-2026-09-29-21-37-26.jpg?v=1790710703",
+  "img_p7": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&auto=format&q=75",
+  "img_p8": "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=500&auto=format&q=75",
+  "img_p9": "https://images.unsplash.com/photo-1519741497674-611481863552?w=500&auto=format&q=75",
+  "img_p10": "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=500&auto=format&q=75",
+  "img_p11": "https://images.unsplash.com/photo-1528825871115-3581a5387919?w=500&auto=format&q=75",
+  "img_p12": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&auto=format&q=75",
+  "img_p13": "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=500&auto=format&q=75",
+  "img_p14": "https://images.unsplash.com/photo-1519741497674-611481863552?w=500&auto=format&q=75",
+  "img_p15": "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=500&auto=format&q=75",
+  "img_p16": "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=500&auto=format&q=75",
+  "img_p17": "https://images.unsplash.com/photo-1519741497674-611481863552?w=500&auto=format&q=75",
+  "img_p18": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/Image_1-04-26_a_15.12.jpg?v=1776773991",
+  "img_p19": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&auto=format&q=75",
+  "img_p20": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&auto=format&q=75",
+  "img_p21": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&auto=format&q=75",
+  "img_p22": "https://images.unsplash.com/photo-1519741497674-611481863552?w=500&auto=format&q=75",
+  "img_p23": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&auto=format&q=75",
+  "img_p24": "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=500&auto=format&q=75",
+  "img_p25": "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=500&auto=format&q=75",
+  "img_p26": "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=500&auto=format&q=75",
+  "img_p27": "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=500&auto=format&q=75",
+  "img_p28": "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=500&auto=format&q=75",
+  "img_p29": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=500&auto=format&q=75",
+  "img_p30": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/Image_1-04-26_a_15.12.jpg?v=1776773991",
+  "img_p31": "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=500&auto=format&q=75",
+  "img_p32": "https://images.unsplash.com/photo-1519741497674-611481863552?w=500&auto=format&q=75",
+  "img_p33": "https://images.unsplash.com/photo-1519741497674-611481863552?w=500&auto=format&q=75",
+  "img_p34": "https://images.unsplash.com/photo-1519741497674-611481863552?w=500&auto=format&q=75",
+  "img_p35": "https://images.unsplash.com/photo-1519741497674-611481863552?w=500&auto=format&q=75",
+  "img_p36": "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=500&auto=format&q=75",
+  "img_p37": "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=500&auto=format&q=75",
+  "img_p38": "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=500&auto=format&q=75",
+  "img_p39": "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=500&auto=format&q=75",
+  "img_p40": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/Wedding_ceremony_floral_arch_setup_20260929214925.jpg?v=1790711656",
+  "img_p40b": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/Wedding_arch_floral_decoration_s__20260929215219.jpg?v=1790711657",
+  "img_p41": "https://cdn.phototourl.com/member/2026-10-05-8469e602-7dc3-4eaa-90e1-bcdac74f045e.jpg",
+  "img_p42": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/9638836e-10e3-4418-bf85-1c26f8c15f4e_21cebccd-4572-4bae-9348-c790e25981bc.jpg?v=1791231757",
+  "img_p43": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/580c12db-aaec-46de-a331-30c67e1bdf30_49d9b66c-646c-44a9-9076-3e452661ef36.jpg?v=1791231756",
+  "img_p44": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/047e9041-a1fa-4bcb-9b06-b3c11b5fe40a_899fc535-999d-49db-82e9-783213731660.jpg?v=1791231756",
+  "img_p45": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/cd84e8eb-2bf8-45e2-a902-92d8ec3a77f5_57d03006-eccc-46c8-a337-4e567fd5b563.jpg?v=1791231756",
+  "img_p46": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/943e37f5-d9b9-48ea-a1d5-e570d77f5f9a_40a66836-a6d9-4c25-bec1-c832f50d61ea.jpg?v=1791231756",
+  "img_p47": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/1cdd48f8-b543-446a-a8d4-ed4326259c0a_051da231-335a-4810-a0ef-50f6028d6338.jpg?v=1791231757",
+  "img_p48": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/e0f9c604-ea92-48fb-b486-99a4649aa370_8a254139-330f-43e3-9cf1-6692e705ee6c.jpg?v=1791231756",
+  "img_p50": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/1e54a57d-6dc2-4f17-995d-f8eebe92f5bd_db67544d-74cc-4461-a30a-15103d22dc3b.jpg?v=1791231757",
+  "img_p51": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/eec3ed7f-1659-4ef5-bc0a-8eb3f81af23b_0a105f16-5fd7-4fdb-a4de-750db97d33a2.jpg?v=1791231756",
+  "img_p52": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/2e637c02-34f0-4af6-989e-37f9c5b495e5_e6f82f16-b51f-4f03-a54d-07c35700f6dd.jpg?v=1791231756",
+  "img_p53": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/0d0c3479-68e5-4a7e-b747-af9644ea8f5c_5f4e4297-4562-4daf-adaf-c40b80a8b6fe.jpg?v=1791231756",
+  "img_how1": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/Image_12.jpg?v=1777112777",
+  "img_how2": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/Image_9_1c1ed39f-a38b-4a93-b2ad-a7defd15ac94.jpg?v=1777112249",
+  "img_how3": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/Image_10_ce43f6df-f7ba-4ab4-a82f-c451ddcaf163.jpg?v=1777112320",
+  "img_how4": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/Image_11_cce8a2a3-a0b8-48a8-9db8-77e56517aca2.jpg?v=1777112419",
+  "img_how5": "https://cdn.shopify.com/s/files/1/0931/7810/2133/files/cd84e8eb-2bf8-45e2-a902-92d8ec3a77f5.jpg?v=1777110935",
+  "img_how6": "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=700&auto=format&q=80",
+  "hero_badge": "Saison 2026 · Disponibilités limitées",
+  "hero_title_line1": "Votre mariage mérite",
+  "hero_title_line2": "le meilleur décor",
+  "hero_subtitle": "Location de mobilier & décoration haut de gamme pour votre mariage dans toute la Belgique.",
+  "home_categories_eyebrow": "Nos collections",
+  "home_categories_title": "Tout pour votre grand jour",
+  "home_categories_sub": "8 catégories, plus de 500 articles disponibles à la location en Belgique.",
+  "home_how_eyebrow": "Simple & rassurant",
+  "home_how_title": "3 étapes vers le mariage de vos rêves",
+  "home_how_steps": [
+    {
+      "title": "Choisissez vos articles",
+      "desc": "Parcourez le catalogue et sélectionnez le mobilier, la décoration et les accessoires qui correspondent à votre vision."
+    },
+    {
+      "title": "Recevez votre devis",
+      "desc": "Envoyez-nous votre liste et votre date. Nous vous répondons sous 24h avec un devis détaillé et personnalisé, sans engagement."
+    },
+    {
+      "title": "Profitez sans stress",
+      "desc": "Nous reprenons tout le matériel après votre mariage. Vous n'avez plus qu'à vivre pleinement votre journée unique."
+    }
+  ],
+  "home_gallery_eyebrow": "Nos réalisations",
+  "home_gallery_title": "Mariages dont nous sommes fiers",
+  "home_gallery_sub": "Quelques réalisations récentes en Belgique.",
+  "home_bestsellers_eyebrow": "Coup de cœur",
+  "home_bestsellers_title": "Nos articles les plus demandés",
+  "home_scarcity_badge": "Saison haute · Forte demande",
+  "home_scarcity_title": "Les weekends de juin & juillet 2026 se remplissent rapidement",
+  "home_scarcity_desc": "Nos stocks sont limités. Vérifiez la disponibilité pour votre date dès maintenant — gratuit et sans engagement.",
+  "home_scarcity_cta_note": "Réponse garantie sous 24h",
+  "home_testimonials_eyebrow": "Ils nous ont fait confiance",
+  "home_testimonials_title": "300+ couples nous ont dit oui",
+  "home_testimonials_sub": "Des témoignages vrais, de vrais mariés, de toute la Belgique.",
+  "home_testimonials": [
+    {
+      "name": "Sophie & Thomas",
+      "loc": "Liège, juin 2025",
+      "stars": 5,
+      "text": "Un service impeccable du début à la fin. La décoration était exactement comme nous l'avions imaginée. Merci infiniment !",
+      "img": "https://i.pravatar.cc/80?img=47"
+    },
+    {
+      "name": "Camille & Hugo",
+      "loc": "Bruxelles, septembre 2025",
+      "stars": 5,
+      "text": "Installation soignée, reprise sans accroc. Nous avons pu profiter de notre journée sans nous soucier de quoi que ce soit.",
+      "img": "https://i.pravatar.cc/80?img=44"
+    },
+    {
+      "name": "Léa & Antoine",
+      "loc": "Gand, juillet 2025",
+      "stars": 5,
+      "text": "Le pack Prestige était une révélation. Nos invités ont été subjugués. Tout était parfait du premier contact à la reprise.",
+      "img": "https://i.pravatar.cc/80?img=45"
+    }
+  ],
+  "home_reassurance_eyebrow": "Nos engagements",
+  "home_reassurance_title": "Pourquoi choisir Loca-Wedding ?",
+  "home_reassurance": [
+    {
+      "title": "Matériel vérifié",
+      "desc": "Chaque article est inspecté et reconditionné après chaque mariage. Qualité garantie à chaque location."
+    },
+    {
+      "title": "Ancrage belge",
+      "desc": "Fondée en Belgique en 2019, nous connaissons les lieux de réception et les prestataires locaux."
+    },
+    {
+      "title": "Conseil personnalisé",
+      "desc": "Notre équipe vous accompagne de A à Z : choix des articles, quantités, agencement. Un seul interlocuteur."
+    },
+    {
+      "title": "Devis sous 24h",
+      "desc": "Envoyez votre demande. Nous vous répondons avec un devis détaillé sous 24 heures, sans engagement."
+    },
+    {
+      "title": "Flexibilité & réactivité",
+      "desc": "Modifications jusqu'à J-7 et un service d'urgence pour les imprévus de votre grand jour."
+    },
+    {
+      "title": "Engagement durable",
+      "desc": "Louer plutôt qu'acheter, c'est aussi un geste pour la planète. Nos articles ont une longue durée de vie."
+    }
+  ],
+  "home_about_eyebrow": "Notre histoire",
+  "home_about_title_line1": "Née d'un mariage,",
+  "home_about_title_line2": "pour tous les mariages",
+  "home_about_desc": "En 2019, en cherchant à décorer notre propre mariage en Belgique, nous avons réalisé qu'il manquait une offre de location vraiment premium. Loca-Wedding est née de cette frustration — et de cette passion.",
+  "home_cta_eyebrow": "Votre mariage de rêve commence ici",
+  "home_cta_title": "Demandez votre devis gratuit",
+  "home_cta_sub": "Réponse personnalisée sous 24h · Sans engagement · 100% gratuit",
+  "footer_tagline": "Location de matériel de mariage haut de gamme. Créée en Belgique, pour les mariages belges.",
+  "footer_badge": "Entreprise belge",
+  "footer_phone": "+32 489 05 69 43",
+  "footer_email": "contact@loca-wedding.be",
+  "footer_zone": "Belgique & Luxembourg",
+  "footer_hours": "Lun–Sam · 9h–19h",
+  "footer_copyright": "© 2026 Loca-Wedding · TVA BE 0XXX.XXX.XXX",
+  "footer_legal": "Mentions légales · CGV",
+  "how_header_eyebrow": "Simple, transparent & rassurant",
+  "how_header_title": "Comment ça marche",
+  "how_steps": [
+    {
+      "title": "Parcourez le catalogue",
+      "desc": "Explorez nos 8 catégories et plus de 500 articles. Notez les références qui vous correspondent. Chaque fiche produit précise les quantités disponibles et les tarifs à la journée."
+    },
+    {
+      "title": "Envoyez votre demande",
+      "desc": "Remplissez notre formulaire en ligne avec votre date, le lieu de réception et le nombre d'invités. C'est gratuit et sans aucun engagement de votre part."
+    },
+    {
+      "title": "Recevez votre devis sous 24h",
+      "desc": "Notre équipe analyse votre demande et vous envoie un devis détaillé et personnalisé. Nous vous conseillons aussi sur les quantités et les associations."
+    },
+    {
+      "title": "Validez & confirmez",
+      "desc": "Un acompte de 30% confirme votre réservation et bloque vos articles pour votre date. Le solde est réglé à la reprise. Annulation possible jusqu'à J-30."
+    },
+    {
+      "title": "Le matériel est prêt",
+      "desc": "Notre équipe prépare, vérifie et conditionne chaque article avec soin. Tout est inspecté avant de quitter notre entrepôt."
+    },
+    {
+      "title": "Reprise après votre mariage",
+      "desc": "Notre équipe revient récupérer l'intégralité du matériel. Vous n'avez rien à vous soucier."
+    }
+  ],
+  "how_cta_title": "Prêt à commencer ?",
+  "how_cta_sub": "Devis gratuit, réponse sous 24h, sans engagement.",
+  "about_header_badge": "Fondée en Belgique · 2019",
+  "about_header_title_line1": "Notre histoire,",
+  "about_header_title_line2": "votre mariage",
+  "about_intro_eyebrow": "Notre histoire",
+  "about_intro_title_line1": "Née d'une frustration,",
+  "about_intro_title_line2": "construite avec passion",
+  "about_intro_p1": "En 2019, en organisant notre propre mariage quelque part entre Liège et Namur, nous avons réalisé qu'il n'existait pas vraiment, en Belgique, d'offre de location de décoration vraiment premium, bien organisée et accompagnée.",
+  "about_intro_p2": "Trop de stress, trop peu de choix, des prestataires peu réactifs. Nous avons décidé de créer ce que nous aurions voulu trouver : une plateforme belge, humaine, avec une offre complète et un vrai service d'accompagnement.",
+  "about_intro_p3": "Depuis, Loca-Wedding a accompagné plus de 300 couples dans toute la Belgique. Chaque mariage est unique. Chaque client mérite une attention particulière.",
+  "about_values_eyebrow": "Ce qui nous anime",
+  "about_values_title": "Mission, valeurs & vision",
+  "about_values": [
+    {
+      "title": "Notre mission",
+      "desc": "Rendre accessibles les plus belles décorations de mariage à tous les couples belges, en leur offrant un service impeccable du premier contact à la dernière bougie éteinte."
+    },
+    {
+      "title": "Nos valeurs",
+      "desc": "Qualité sans compromis. Proximité humaine. Honnêteté totale dans nos prix et nos engagements. Respect de l'environnement à travers la location plutôt que l'achat jetable."
+    },
+    {
+      "title": "Notre vision",
+      "desc": "Devenir la référence belge de la location événementielle de mariage — une marque que les futurs mariés recommandent à leurs proches, et dont ils se souviennent avec émotion."
+    }
+  ],
+  "about_cta_title": "Faisons connaissance",
+  "about_cta_sub": "Parlons de votre mariage. Sans pression, juste entre nous.",
+  "contact_header_eyebrow": "Nous sommes là pour vous",
+  "contact_header_title": "Contactez-nous",
+  "contact_coord_title": "Nos coordonnées",
+  "contact_phone": "+32 470 00 00 00",
+  "contact_email": "contact@loca-wedding.be",
+  "contact_zone": "Toute la Belgique & Luxembourg",
+  "contact_hours": "Lun – Sam · 9h00 – 19h00",
+  "contact_note": "Pour un devis précis, utilisez notre formulaire de devis — réponse plus rapide et plus précise.",
+  "contact_sent_title": "Message envoyé !",
+  "contact_sent_sub": "Nous vous répondons sous 24 heures.",
+  "devis_header_eyebrow": "Gratuit · Sans engagement · Réponse sous 24h",
+  "devis_header_title": "Demandez un devis",
+  "devis_sent_sub": "Votre demande a été reçue. Nous vous répondons dans les 24 heures avec votre devis personnalisé.",
+  "devis_urgency_bold": "Saison 2026 · Forte demande — ",
+  "devis_urgency_text": "Certains weekends de juin–août 2026 sont déjà réservés. Envoyez votre demande maintenant.",
+  "devis_footer_note": "Réponse garantie sous 24h · Sans engagement · 100% gratuit",
+  "categories": [
+    {
+      "id": "mobilier",
+      "label": "Mobilier",
+      "desc": "Tables, chaises, canapés & meubles",
+      "count": 24
+    },
+    {
+      "id": "textile",
+      "label": "Textile",
+      "desc": "Nappes, housses & chemins de table",
+      "count": 18
+    },
+    {
+      "id": "decoration",
+      "label": "Centre de table",
+      "desc": "Bougeoirs, vases & arches florales",
+      "count": 32
+    },
+    {
+      "id": "vaisselle",
+      "label": "Vaisselle",
+      "desc": "Assiettes, verres & couverts",
+      "count": 28
+    },
+    {
+      "id": "accessoires",
+      "label": "Accessoires",
+      "desc": "Panneaux, cadres & porte-noms",
+      "count": 15
+    },
+    {
+      "id": "ceremonie",
+      "label": "Cérémonie",
+      "desc": "Arches, chaises & couloirs",
+      "count": 20
+    },
+    {
+      "id": "eclairage",
+      "label": "Mur floraux/arche",
+      "desc": "Guirlandes, lanternes & bougies",
+      "count": 16
+    },
+    {
+      "id": "packs",
+      "label": "Packs Mariage",
+      "desc": "Ensembles complets clé en main",
+      "count": 8
+    }
+  ],
+  "home_sections": [
+    "hero",
+    "trust",
+    "categories",
+    "how",
+    "gallery",
+    "bestsellers",
+    "scarcity",
+    "testimonials",
+    "reassurance",
+    "about_teaser",
+    "cta"
+  ],
+  "products": [
+    {
+      "id": 1,
+      "cat": "mobilier",
+      "name": "Trones",
+      "price": "300€",
+      "tag": "Bestseller",
+      "img": "p1",
+      "stock": 2,
+      "desc": ""
+    },
+    {
+      "id": 2,
+      "cat": "mobilier",
+      "name": "Chaise Napoleon",
+      "price": "4€/j",
+      "tag": "",
+      "img": "p2",
+      "stock": 120,
+      "desc": "Chaise Napoleon blanche, structure laquée, assise confortable. Empilable."
+    },
+    {
+      "id": 3,
+      "cat": "mobilier",
+      "name": "Chandelier noir 5 branches",
+      "price": "22€/j",
+      "tag": "Nouveau",
+      "img": "p3",
+      "stock": 5,
+      "desc": "Table haute LED rechargeable, 16 couleurs. Idéale pour le cocktail."
+    },
+    {
+      "id": 4,
+      "cat": "mobilier",
+      "name": "Canapé lounge blanc",
+      "price": "45€/j",
+      "tag": "",
+      "img": "p4",
+      "stock": 3,
+      "desc": "Canapé 3 places velours blanc, style boho-chic."
+    },
+    {
+      "id": 5,
+      "cat": "mobilier",
+      "name": "Table en bois brut 200 cm",
+      "price": "25€/j",
+      "tag": "",
+      "img": "p5",
+      "stock": 10,
+      "desc": "Table en bois massif 200 cm, style rustique naturel."
+    },
+    {
+      "id": 6,
+      "cat": "mobilier",
+      "name": "Chaise Napoléon Blanche",
+      "price": "2,50€",
+      "tag": "",
+      "img": "p6",
+      "stock": 80,
+      "desc": "Chaise blanche, style bistro."
+    },
+    {
+      "id": 7,
+      "cat": "textile",
+      "name": "Nappe en lin — Beige",
+      "price": "8€/j",
+      "tag": "Bestseller",
+      "img": "p7",
+      "stock": 40,
+      "desc": "Nappe 100% lin naturel.",
+      "group": "nappe_lin",
+      "colorLabel": "Beige",
+      "baseName": "Nappe en lin"
+    },
+    {
+      "id": 40,
+      "cat": "textile",
+      "name": "Nappe en lin — Blanc",
+      "price": "8€/j",
+      "tag": "Bestseller",
+      "img": "p7",
+      "stock": 40,
+      "desc": "Nappe 100% lin naturel.",
+      "group": "nappe_lin",
+      "colorLabel": "Blanc",
+      "baseName": "Nappe en lin"
+    },
+    {
+      "id": 41,
+      "cat": "textile",
+      "name": "Nappe en lin — Gris",
+      "price": "8€/j",
+      "tag": "Bestseller",
+      "img": "p7",
+      "stock": 40,
+      "desc": "Nappe 100% lin naturel.",
+      "group": "nappe_lin",
+      "colorLabel": "Gris",
+      "baseName": "Nappe en lin"
+    },
+    {
+      "id": 42,
+      "cat": "textile",
+      "name": "Nappe en lin — Rose poudré",
+      "price": "8€/j",
+      "tag": "Bestseller",
+      "img": "p7",
+      "stock": 40,
+      "desc": "Nappe 100% lin naturel.",
+      "group": "nappe_lin",
+      "colorLabel": "Rose poudré",
+      "baseName": "Nappe en lin"
+    },
+    {
+      "id": 8,
+      "cat": "textile",
+      "name": "Chemin de table — Doré",
+      "price": "5€/j",
+      "tag": "",
+      "img": "p8",
+      "stock": 50,
+      "desc": "Chemin en organza, longueur 3 m.",
+      "group": "chemin_table",
+      "colorLabel": "Doré",
+      "baseName": "Chemin de table"
+    },
+    {
+      "id": 43,
+      "cat": "textile",
+      "name": "Chemin de table — Argenté",
+      "price": "5€/j",
+      "tag": "",
+      "img": "p8",
+      "stock": 50,
+      "desc": "Chemin en organza, longueur 3 m.",
+      "group": "chemin_table",
+      "colorLabel": "Argenté",
+      "baseName": "Chemin de table"
+    },
+    {
+      "id": 44,
+      "cat": "textile",
+      "name": "Chemin de table — Blanc",
+      "price": "5€/j",
+      "tag": "",
+      "img": "p8",
+      "stock": 50,
+      "desc": "Chemin en organza, longueur 3 m.",
+      "group": "chemin_table",
+      "colorLabel": "Blanc",
+      "baseName": "Chemin de table"
+    },
+    {
+      "id": 9,
+      "cat": "textile",
+      "name": "Housse de chaise — Ivoire",
+      "price": "2€/j",
+      "tag": "",
+      "img": "p9",
+      "stock": 200,
+      "desc": "Housse universelle jersey stretch.",
+      "group": "housse_chaise",
+      "colorLabel": "Ivoire",
+      "baseName": "Housse de chaise"
+    },
+    {
+      "id": 45,
+      "cat": "textile",
+      "name": "Housse de chaise — Blanc",
+      "price": "2€/j",
+      "tag": "",
+      "img": "p9",
+      "stock": 200,
+      "desc": "Housse universelle jersey stretch.",
+      "group": "housse_chaise",
+      "colorLabel": "Blanc",
+      "baseName": "Housse de chaise"
+    },
+    {
+      "id": 46,
+      "cat": "textile",
+      "name": "Housse de chaise — Noir",
+      "price": "2€/j",
+      "tag": "",
+      "img": "p9",
+      "stock": 200,
+      "desc": "Housse universelle jersey stretch.",
+      "group": "housse_chaise",
+      "colorLabel": "Noir",
+      "baseName": "Housse de chaise"
+    },
+    {
+      "id": 47,
+      "cat": "textile",
+      "name": "Housse de chaise — Gris perle",
+      "price": "2€/j",
+      "tag": "",
+      "img": "p9",
+      "stock": 200,
+      "desc": "Housse universelle jersey stretch.",
+      "group": "housse_chaise",
+      "colorLabel": "Gris perle",
+      "baseName": "Housse de chaise"
+    },
+    {
+      "id": 10,
+      "cat": "textile",
+      "name": "Rideau macramé bohème",
+      "price": "35€/j",
+      "tag": "Nouveau",
+      "img": "p10",
+      "stock": 4,
+      "desc": "Panneau macramé 2×2,4 m, style bohème romantique."
+    },
+    {
+      "id": 11,
+      "cat": "textile",
+      "name": "Nappe ronde satin — Blanc",
+      "price": "Sur devis",
+      "tag": "",
+      "img": "p11",
+      "stock": 20,
+      "desc": "Nappe ronde satin pour table Ø180 cm, tombé luxueux.",
+      "group": "nappe_satin",
+      "colorLabel": "Blanc",
+      "baseName": "Nappe ronde satin"
+    },
+    {
+      "id": 48,
+      "cat": "textile",
+      "name": "Nappe ronde satin — Ivoire",
+      "price": "Sur devis",
+      "tag": "",
+      "img": "p11",
+      "stock": 20,
+      "desc": "Nappe ronde satin pour table Ø180 cm, tombé luxueux.",
+      "group": "nappe_satin",
+      "colorLabel": "Ivoire",
+      "baseName": "Nappe ronde satin"
+    },
+    {
+      "id": 49,
+      "cat": "textile",
+      "name": "Nappe ronde satin — Noir",
+      "price": "Sur devis",
+      "tag": "",
+      "img": "p11",
+      "stock": 20,
+      "desc": "Nappe ronde satin pour table Ø180 cm, tombé luxueux.",
+      "group": "nappe_satin",
+      "colorLabel": "Noir",
+      "baseName": "Nappe ronde satin"
+    },
+    {
+      "id": 50,
+      "cat": "textile",
+      "name": "Nappe ronde satin — Or",
+      "price": "Sur devis",
+      "tag": "",
+      "img": "p11",
+      "stock": 20,
+      "desc": "Nappe ronde satin pour table Ø180 cm, tombé luxueux.",
+      "group": "nappe_satin",
+      "colorLabel": "Or",
+      "baseName": "Nappe ronde satin"
+    },
+    {
+      "id": 12,
+      "cat": "textile",
+      "name": "Serviette coton brodée",
+      "price": "1,50€/j",
+      "tag": "",
+      "img": "p12",
+      "stock": 300,
+      "desc": "Serviette coton blanc ou crème."
+    },
+    {
+      "id": 13,
+      "cat": "decoration",
+      "name": "Arche florale — Bois naturel",
+      "price": "55€/j",
+      "tag": "Bestseller",
+      "img": "p13",
+      "stock": 6,
+      "desc": "Arche florale 2,5×2 m.",
+      "group": "arche_florale",
+      "colorLabel": "Bois naturel",
+      "baseName": "Arche florale"
+    },
+    {
+      "id": 51,
+      "cat": "decoration",
+      "name": "Arche florale — Blanchi",
+      "price": "55€/j",
+      "tag": "Bestseller",
+      "img": "p13",
+      "stock": 6,
+      "desc": "Arche florale 2,5×2 m.",
+      "group": "arche_florale",
+      "colorLabel": "Blanchi",
+      "baseName": "Arche florale"
+    },
+    {
+      "id": 52,
+      "cat": "decoration",
+      "name": "Arche florale — Doré",
+      "price": "55€/j",
+      "tag": "Bestseller",
+      "img": "p13",
+      "stock": 6,
+      "desc": "Arche florale 2,5×2 m.",
+      "group": "arche_florale",
+      "colorLabel": "Doré",
+      "baseName": "Arche florale"
+    },
+    {
+      "id": 14,
+      "cat": "decoration",
+      "name": "Bougeoir en verre — Doré",
+      "price": "3€/j",
+      "tag": "",
+      "img": "p14",
+      "stock": 60,
+      "desc": "Bougeoir cylindrique en verre, H 25 cm.",
+      "group": "bougeoir_verre",
+      "colorLabel": "Doré",
+      "baseName": "Bougeoir en verre"
+    },
+    {
+      "id": 53,
+      "cat": "decoration",
+      "name": "Bougeoir en verre — Argenté",
+      "price": "3€/j",
+      "tag": "",
+      "img": "p14",
+      "stock": 60,
+      "desc": "Bougeoir cylindrique en verre, H 25 cm.",
+      "group": "bougeoir_verre",
+      "colorLabel": "Argenté",
+      "baseName": "Bougeoir en verre"
+    },
+    {
+      "id": 54,
+      "cat": "decoration",
+      "name": "Bougeoir en verre — Transparent",
+      "price": "3€/j",
+      "tag": "",
+      "img": "p14",
+      "stock": 60,
+      "desc": "Bougeoir cylindrique en verre, H 25 cm.",
+      "group": "bougeoir_verre",
+      "colorLabel": "Transparent",
+      "baseName": "Bougeoir en verre"
+    },
+    {
+      "id": 15,
+      "cat": "decoration",
+      "name": "Vase soliflore lot de 6 — Transparent",
+      "price": "1,50€/j",
+      "tag": "",
+      "img": "p15",
+      "stock": 30,
+      "desc": "Vase soliflore en verre, H 25 cm.",
+      "group": "vase_soliflore",
+      "colorLabel": "Transparent",
+      "baseName": "Vase soliflore lot de 6"
+    },
+    {
+      "id": 55,
+      "cat": "decoration",
+      "name": "Vase soliflore lot de 6 — Doré",
+      "price": "1,50€/j",
+      "tag": "",
+      "img": "p15",
+      "stock": 30,
+      "desc": "Vase soliflore en verre, H 25 cm.",
+      "group": "vase_soliflore",
+      "colorLabel": "Doré",
+      "baseName": "Vase soliflore lot de 6"
+    },
+    {
+      "id": 56,
+      "cat": "decoration",
+      "name": "Vase soliflore lot de 6 — Ambré",
+      "price": "1,50€/j",
+      "tag": "",
+      "img": "p15",
+      "stock": 30,
+      "desc": "Vase soliflore en verre, H 25 cm.",
+      "group": "vase_soliflore",
+      "colorLabel": "Ambré",
+      "baseName": "Vase soliflore lot de 6"
+    },
+    {
+      "id": 16,
+      "cat": "decoration",
+      "name": "Miroir rond baroque — Doré",
+      "price": "18€/j",
+      "tag": "Nouveau",
+      "img": "p16",
+      "stock": 4,
+      "desc": "Grand miroir à cadre Ø80 cm.",
+      "group": "miroir_baroque",
+      "colorLabel": "Doré",
+      "baseName": "Miroir rond baroque"
+    },
+    {
+      "id": 57,
+      "cat": "decoration",
+      "name": "Miroir rond baroque — Argenté",
+      "price": "18€/j",
+      "tag": "Nouveau",
+      "img": "p16",
+      "stock": 4,
+      "desc": "Grand miroir à cadre Ø80 cm.",
+      "group": "miroir_baroque",
+      "colorLabel": "Argenté",
+      "baseName": "Miroir rond baroque"
+    },
+    {
+      "id": 58,
+      "cat": "decoration",
+      "name": "Miroir rond baroque — Noir",
+      "price": "18€/j",
+      "tag": "Nouveau",
+      "img": "p16",
+      "stock": 4,
+      "desc": "Grand miroir à cadre Ø80 cm.",
+      "group": "miroir_baroque",
+      "colorLabel": "Noir",
+      "baseName": "Miroir rond baroque"
+    },
+    {
+      "id": 17,
+      "cat": "decoration",
+      "name": "Lanterne métal — Doré",
+      "price": "4€/j",
+      "tag": "",
+      "img": "p17",
+      "stock": 25,
+      "desc": "Lanterne métal, style marocain H30 cm.",
+      "group": "lanterne_metal",
+      "colorLabel": "Doré",
+      "baseName": "Lanterne métal"
+    },
+    {
+      "id": 59,
+      "cat": "decoration",
+      "name": "Lanterne métal — Noir",
+      "price": "4€/j",
+      "tag": "",
+      "img": "p17",
+      "stock": 25,
+      "desc": "Lanterne métal, style marocain H30 cm.",
+      "group": "lanterne_metal",
+      "colorLabel": "Noir",
+      "baseName": "Lanterne métal"
+    },
+    {
+      "id": 60,
+      "cat": "decoration",
+      "name": "Lanterne métal — Blanc",
+      "price": "4€/j",
+      "tag": "",
+      "img": "p17",
+      "stock": 25,
+      "desc": "Lanterne métal, style marocain H30 cm.",
+      "group": "lanterne_metal",
+      "colorLabel": "Blanc",
+      "baseName": "Lanterne métal"
+    },
+    {
+      "id": 18,
+      "cat": "decoration",
+      "name": "Colonne piédestal — Blanc",
+      "price": "12€/j",
+      "tag": "",
+      "img": "p18",
+      "stock": 8,
+      "desc": "Piédestal H1 m, idéal pour compositions florales.",
+      "group": "colonne_piedestal",
+      "colorLabel": "Blanc",
+      "baseName": "Colonne piédestal"
+    },
+    {
+      "id": 61,
+      "cat": "decoration",
+      "name": "Colonne piédestal — Doré",
+      "price": "12€/j",
+      "tag": "",
+      "img": "p18",
+      "stock": 8,
+      "desc": "Piédestal H1 m, idéal pour compositions florales.",
+      "group": "colonne_piedestal",
+      "colorLabel": "Doré",
+      "baseName": "Colonne piédestal"
+    },
+    {
+      "id": 62,
+      "cat": "decoration",
+      "name": "Colonne piédestal — Noir",
+      "price": "12€/j",
+      "tag": "",
+      "img": "p18",
+      "stock": 8,
+      "desc": "Piédestal H1 m, idéal pour compositions florales.",
+      "group": "colonne_piedestal",
+      "colorLabel": "Noir",
+      "baseName": "Colonne piédestal"
+    },
+    {
+      "id": 19,
+      "cat": "vaisselle",
+      "name": "Assiette porcelaine blanche",
+      "price": "1,20€/j",
+      "tag": "Bestseller",
+      "img": "p19",
+      "stock": 500,
+      "desc": "Assiette plate porcelaine Ø27 cm, finition brillante."
+    },
+    {
+      "id": 20,
+      "cat": "vaisselle",
+      "name": "Verre à vin cristallin",
+      "price": "0,80€/j",
+      "tag": "",
+      "img": "p20",
+      "stock": 400,
+      "desc": "Verre à vin cristallin transparent, 35 cl."
+    },
+    {
+      "id": 21,
+      "cat": "vaisselle",
+      "name": "Couverts inox dorés",
+      "price": "1€/j",
+      "tag": "Nouveau",
+      "img": "p21",
+      "stock": 300,
+      "desc": "Ménagère 5 pièces inox finition dorée brossée."
+    },
+    {
+      "id": 22,
+      "cat": "vaisselle",
+      "name": "Flûte à champagne",
+      "price": "0,60€/j",
+      "tag": "",
+      "img": "p22",
+      "stock": 400,
+      "desc": "Flûte en verre fin 20 cl."
+    },
+    {
+      "id": 23,
+      "cat": "vaisselle",
+      "name": "Plateau de service argenté",
+      "price": "8€/j",
+      "tag": "",
+      "img": "p23",
+      "stock": 15,
+      "desc": "Plateau rond Ø40 cm métal argenté."
+    },
+    {
+      "id": 24,
+      "cat": "accessoires",
+      "name": "Panneau de bienvenue",
+      "price": "25€/j",
+      "tag": "Bestseller",
+      "img": "p24",
+      "stock": 10,
+      "desc": "Panneau acrylique transparent avec chevalet doré."
+    },
+    {
+      "id": 25,
+      "cat": "accessoires",
+      "name": "Porte-noms calligraphiés",
+      "price": "2,50€/j",
+      "tag": "",
+      "img": "p25",
+      "stock": 200,
+      "desc": "Marque-places papier kraft calligraphié, lot de 10."
+    },
+    {
+      "id": 26,
+      "cat": "accessoires",
+      "name": "Plan de table cadre doré",
+      "price": "15€/j",
+      "tag": "",
+      "img": "p26",
+      "stock": 8,
+      "desc": "Cadre doré A2 pour plan de table, chevalet inclus."
+    },
+    {
+      "id": 27,
+      "cat": "accessoires",
+      "name": "Urne à messages en bois",
+      "price": "12€/j",
+      "tag": "",
+      "img": "p27",
+      "stock": 12,
+      "desc": "Urne à messages bois naturel avec fente, H25 cm."
+    },
+    {
+      "id": 28,
+      "cat": "ceremonie",
+      "name": "Arche cérémonie — Blanc",
+      "price": "65€/j",
+      "tag": "Bestseller",
+      "img": "p28",
+      "stock": 4,
+      "desc": "Arche rectangulaire 2,5×2 m, drapé inclus.",
+      "group": "arche_ceremonie",
+      "colorLabel": "Blanc",
+      "baseName": "Arche cérémonie"
+    },
+    {
+      "id": 63,
+      "cat": "ceremonie",
+      "name": "Arche cérémonie — Doré",
+      "price": "65€/j",
+      "tag": "Bestseller",
+      "img": "p28",
+      "stock": 4,
+      "desc": "Arche rectangulaire 2,5×2 m, drapé inclus.",
+      "group": "arche_ceremonie",
+      "colorLabel": "Doré",
+      "baseName": "Arche cérémonie"
+    },
+    {
+      "id": 64,
+      "cat": "ceremonie",
+      "name": "Arche cérémonie — Naturel",
+      "price": "65€/j",
+      "tag": "Bestseller",
+      "img": "p28",
+      "stock": 4,
+      "desc": "Arche rectangulaire 2,5×2 m, drapé inclus.",
+      "group": "arche_ceremonie",
+      "colorLabel": "Naturel",
+      "baseName": "Arche cérémonie"
+    },
+    {
+      "id": 29,
+      "cat": "ceremonie",
+      "name": "Chaises cérémonie bois",
+      "price": "3€/j",
+      "tag": "",
+      "img": "p29",
+      "stock": 150,
+      "desc": "Chaises bois naturel style cross-back, photogéniques."
+    },
+    {
+      "id": 30,
+      "cat": "ceremonie",
+      "name": "Tapis allée cérémonie",
+      "price": "28€/j",
+      "tag": "",
+      "img": "p30",
+      "stock": 6,
+      "desc": "Runner jute ou blanc ivoire, 10 m × 1 m."
+    },
+    {
+      "id": 31,
+      "cat": "ceremonie",
+      "name": "Lustrin floral suspendu",
+      "price": "40€/j",
+      "tag": "Nouveau",
+      "img": "p31",
+      "stock": 3,
+      "desc": "Structure ronde Ø80 cm pour composition florale suspendue."
+    },
+    {
+      "id": 32,
+      "cat": "eclairage",
+      "name": "Guirlande guinguette 10 m",
+      "price": "15€/j",
+      "tag": "Bestseller",
+      "img": "p32",
+      "stock": 20,
+      "desc": "Guirlande 10 m avec 20 ampoules Edison, câble blanc."
+    },
+    {
+      "id": 33,
+      "cat": "eclairage",
+      "name": "Chandelier de table — Doré",
+      "price": "8€/j",
+      "tag": "",
+      "img": "p33",
+      "stock": 15,
+      "desc": "Chandelier métal doré 3 bras, H45 cm.",
+      "group": "chandelier_table",
+      "colorLabel": "Doré",
+      "baseName": "Chandelier de table"
+    },
+    {
+      "id": 65,
+      "cat": "eclairage",
+      "name": "Chandelier de table — Argenté",
+      "price": "8€/j",
+      "tag": "",
+      "img": "p33",
+      "stock": 15,
+      "desc": "Chandelier métal doré 3 bras, H45 cm.",
+      "group": "chandelier_table",
+      "colorLabel": "Argenté",
+      "baseName": "Chandelier de table"
+    },
+    {
+      "id": 66,
+      "cat": "eclairage",
+      "name": "Chandelier de table — Noir",
+      "price": "8€/j",
+      "tag": "",
+      "img": "p33",
+      "stock": 15,
+      "desc": "Chandelier métal doré 3 bras, H45 cm.",
+      "group": "chandelier_table",
+      "colorLabel": "Noir",
+      "baseName": "Chandelier de table"
+    },
+    {
+      "id": 34,
+      "cat": "eclairage",
+      "name": "Spot LED warmwhite",
+      "price": "18€/j",
+      "tag": "",
+      "img": "p34",
+      "stock": 10,
+      "desc": "Projecteur LED warmwhite sur pied orientable."
+    },
+    {
+      "id": 35,
+      "cat": "eclairage",
+      "name": "Photophore flottant",
+      "price": "3€/j",
+      "tag": "Nouveau",
+      "img": "p35",
+      "stock": 30,
+      "desc": "Photophore flottant en verre."
+    },
+    {
+      "id": 36,
+      "cat": "packs",
+      "name": "Pack Essentiel 50 pers.",
+      "price": "450€/j",
+      "tag": "Bestseller",
+      "img": "p36",
+      "stock": 1,
+      "desc": "Mobilier + nappe + vaisselle pour 50 personnes."
+    },
+    {
+      "id": 37,
+      "cat": "packs",
+      "name": "Pack Prestige 100 pers.",
+      "price": "950€/j",
+      "tag": "",
+      "img": "p37",
+      "stock": 1,
+      "desc": "Pack complet haut de gamme pour 100 personnes."
+    },
+    {
+      "id": 38,
+      "cat": "packs",
+      "name": "Pack Cérémonie Laïque",
+      "price": "280€/j",
+      "tag": "Nouveau",
+      "img": "p38",
+      "stock": 2,
+      "desc": "Arche + chaises + allée + décoration."
+    },
+    {
+      "id": 39,
+      "cat": "packs",
+      "name": "Pack Photo Booth",
+      "price": "120€/j",
+      "tag": "",
+      "img": "p39",
+      "stock": 3,
+      "desc": "Fond photo + accessoires + cadres."
+    },
+    {
+      "id": 67,
+      "cat": "ceremonie",
+      "name": "Triple Arche",
+      "price": "100€",
+      "tag": "Nouveau",
+      "img": "p40",
+      "stock": 3,
+      "desc": "Ensemble de trois arches florales pour cérémonie ou allée, effet scénique.",
+      "images": [
+        "p40",
+        "p40b"
+      ]
+    },
+    {
+      "id": 68,
+      "cat": "ceremonie",
+      "name": "Trio arche",
+      "price": "100€",
+      "tag": "Nouveau",
+      "img": "p41",
+      "stock": 3,
+      "desc": "Ensemble de trois arches pour cérémonie ou allée."
+    },
+    {
+      "id": 69,
+      "cat": "decoration",
+      "name": "Chandelier noir fleuri",
+      "price": "À venir",
+      "tag": "Nouveau",
+      "img": "p42",
+      "stock": 5,
+      "desc": "Chandelier noir 5 bras avec composition de roses blanches, bougies fines."
+    },
+    {
+      "id": 70,
+      "cat": "decoration",
+      "name": "Chandelier doré bordeaux",
+      "price": "À venir",
+      "tag": "Nouveau",
+      "img": "p43",
+      "stock": 5,
+      "desc": "Chandelier doré 5 bras, composition de roses blanches et rouge bordeaux."
+    },
+    {
+      "id": 71,
+      "cat": "decoration",
+      "name": "Vase trompette blanc fleuri",
+      "price": "À venir",
+      "tag": "Nouveau",
+      "img": "p44",
+      "stock": 5,
+      "desc": "Vase trompette blanc sur pied, grande composition florale blanche et verdure."
+    },
+    {
+      "id": 72,
+      "cat": "decoration",
+      "name": "Chandelier doré baroque",
+      "price": "À venir",
+      "tag": "Nouveau",
+      "img": "p45",
+      "stock": 5,
+      "desc": "Chandelier doré baroque 5 bras, style classique pour table d'honneur.",
+      "images": [
+        "p45",
+        "p53"
+      ]
+    },
+    {
+      "id": 73,
+      "cat": "decoration",
+      "name": "Chandelier argenté classique",
+      "price": "À venir",
+      "tag": "Nouveau",
+      "img": "p46",
+      "stock": 5,
+      "desc": "Chandelier argenté 5 bras, finition chromée, style classique épuré."
+    },
+    {
+      "id": 74,
+      "cat": "decoration",
+      "name": "Couronne florale bougie flottante",
+      "price": "À venir",
+      "tag": "Nouveau",
+      "img": "p47",
+      "stock": 5,
+      "desc": "Couronne de roses blanches et roses pâles autour d'un cylindre à bougie flottante."
+    },
+    {
+      "id": 75,
+      "cat": "decoration",
+      "name": "Centre de table acrylique fleuri",
+      "price": "À venir",
+      "tag": "Nouveau",
+      "img": "p48",
+      "stock": 5,
+      "desc": "Pied acrylique transparent surmonté d'une composition florale blanche, bougie pilier."
+    },
+    {
+      "id": 77,
+      "cat": "decoration",
+      "name": "Centre de table mauve romantique",
+      "price": "À venir",
+      "tag": "Nouveau",
+      "img": "p50",
+      "stock": 5,
+      "desc": "Composition de roses blanches et mauves sur chandelier blanc, ambiance romantique."
+    },
+    {
+      "id": 78,
+      "cat": "decoration",
+      "name": "Bouquet mauve sur pied",
+      "price": "À venir",
+      "tag": "Nouveau",
+      "img": "p51",
+      "stock": 5,
+      "desc": "Bouquet de roses blanches et mauves sur pied blanc, gros plan."
+    },
+    {
+      "id": 79,
+      "cat": "decoration",
+      "name": "Vase trompette blanc grand format",
+      "price": "À venir",
+      "tag": "Nouveau",
+      "img": "p52",
+      "stock": 5,
+      "desc": "Grand vase trompette blanc fleuri, entouré de photophores à bougies flottantes."
+    }
+  ]
 }/*EDITMODE-END*/;;
 
 const U = 'https://images.unsplash.com/photo-';
@@ -358,16 +1349,8 @@ function buildIMGS() {
 }
 let IMGS = buildIMGS();
 
-const CATEGORIES = [
-  {id:'mobilier',   label:'Mobilier',     desc:'Tables, chaises, canapés & meubles', count:24},
-  {id:'textile',    label:'Textile',      desc:'Nappes, housses & chemins de table', count:18},
-  {id:'decoration', label:'Centre de table',desc:'Bougeoirs, vases & arches florales', count:32},
-  {id:'vaisselle',  label:'Vaisselle',    desc:'Assiettes, verres & couverts',       count:28},
-  {id:'accessoires',label:'Accessoires',  desc:'Panneaux, cadres & porte-noms',      count:15},
-  {id:'ceremonie',  label:'Cérémonie',    desc:'Arches, chaises & couloirs',         count:20},
-  {id:'eclairage',  label:'Mur floraux/arche',desc:'Guirlandes, lanternes & bougies',    count:16},
-  {id:'packs',      label:'Packs Mariage',desc:'Ensembles complets clé en main',     count:8},
-];
+// Catégories pilotées depuis TWEAK_DEFAULTS.categories (éditable via la page admin).
+const CATEGORIES = TWEAK_DEFAULTS.categories;
 
 // Couleur -> code hex pour les ronds de sélection sur les fiches à variantes.
 const SWATCH_HEX = {
@@ -377,122 +1360,8 @@ const SWATCH_HEX = {
   'Bois naturel':'#C8A165', 'Blanchi':'#EDE4D3', 'Naturel':'#B8935F',
 };
 
-function getProducts() {
-  const d = TWEAK_DEFAULTS;
-  // Produits à variantes couleur : même fiche (nom/prix/desc/photo pour l'instant),
-  // un "group" partagé + un "colorLabel" par couleur. La photo est un placeholder
-  // partagé (celle du produit d'origine) en attendant les vraies photos par couleur.
-  return [
-  {id:1, cat:'mobilier',   name:d.p1_name,  price:d.p1_price,  tag:'Bestseller',img:'p1', stock:2,   desc:d.p1_desc},
-  {id:2, cat:'mobilier',   name:d.p2_name,  price:d.p2_price,  tag:'',          img:'p2', stock:120, desc:d.p2_desc},
-  {id:3, cat:'mobilier',   name:d.p3_name,  price:d.p3_price,  tag:'Nouveau',   img:'p3', stock:5,   desc:d.p3_desc},
-  {id:4, cat:'mobilier',   name:d.p4_name,  price:d.p4_price,  tag:'',          img:'p4', stock:3,   desc:d.p4_desc},
-  {id:5, cat:'mobilier',   name:d.p5_name,  price:d.p5_price,  tag:'',          img:'p5', stock:10,  desc:d.p5_desc},
-  {id:6, cat:'mobilier',   name:d.p6_name,  price:d.p6_price,  tag:'',          img:'p6', stock:80,  desc:d.p6_desc},
-
-  // Nappe en lin — group nappe_lin
-  {id:7, cat:'textile',    name:d.p7_name+' — Beige',        baseName:d.p7_name, group:'nappe_lin',  colorLabel:'Beige',       price:d.p7_price, tag:'Bestseller',img:'p7', stock:40,  desc:d.p7_desc},
-  {id:40,cat:'textile',    name:d.p7_name+' — Blanc',        baseName:d.p7_name, group:'nappe_lin',  colorLabel:'Blanc',       price:d.p7_price, tag:'Bestseller',img:'p7', stock:40,  desc:d.p7_desc},
-  {id:41,cat:'textile',    name:d.p7_name+' — Gris',         baseName:d.p7_name, group:'nappe_lin',  colorLabel:'Gris',        price:d.p7_price, tag:'Bestseller',img:'p7', stock:40,  desc:d.p7_desc},
-  {id:42,cat:'textile',    name:d.p7_name+' — Rose poudré',  baseName:d.p7_name, group:'nappe_lin',  colorLabel:'Rose poudré', price:d.p7_price, tag:'Bestseller',img:'p7', stock:40,  desc:d.p7_desc},
-
-  // Chemin de table — group chemin_table
-  {id:8, cat:'textile',    name:d.p8_name+' — Doré',    baseName:d.p8_name, group:'chemin_table', colorLabel:'Doré',    price:d.p8_price, tag:'', img:'p8', stock:50, desc:d.p8_desc},
-  {id:43,cat:'textile',    name:d.p8_name+' — Argenté', baseName:d.p8_name, group:'chemin_table', colorLabel:'Argenté', price:d.p8_price, tag:'', img:'p8', stock:50, desc:d.p8_desc},
-  {id:44,cat:'textile',    name:d.p8_name+' — Blanc',   baseName:d.p8_name, group:'chemin_table', colorLabel:'Blanc',   price:d.p8_price, tag:'', img:'p8', stock:50, desc:d.p8_desc},
-
-  // Housse de chaise — group housse_chaise
-  {id:9, cat:'textile',    name:d.p9_name+' — Ivoire',     baseName:d.p9_name, group:'housse_chaise', colorLabel:'Ivoire',     price:d.p9_price, tag:'', img:'p9', stock:200, desc:d.p9_desc},
-  {id:45,cat:'textile',    name:d.p9_name+' — Blanc',      baseName:d.p9_name, group:'housse_chaise', colorLabel:'Blanc',      price:d.p9_price, tag:'', img:'p9', stock:200, desc:d.p9_desc},
-  {id:46,cat:'textile',    name:d.p9_name+' — Noir',       baseName:d.p9_name, group:'housse_chaise', colorLabel:'Noir',       price:d.p9_price, tag:'', img:'p9', stock:200, desc:d.p9_desc},
-  {id:47,cat:'textile',    name:d.p9_name+' — Gris perle', baseName:d.p9_name, group:'housse_chaise', colorLabel:'Gris perle', price:d.p9_price, tag:'', img:'p9', stock:200, desc:d.p9_desc},
-
-  {id:10,cat:'textile',    name:d.p10_name, price:d.p10_price, tag:'Nouveau',   img:'p10',stock:4,   desc:d.p10_desc},
-
-  // Nappe ronde satin — group nappe_satin
-  {id:11,cat:'textile',    name:d.p11_name+' — Blanc',  baseName:d.p11_name, group:'nappe_satin', colorLabel:'Blanc',  price:d.p11_price, tag:'', img:'p11', stock:20, desc:d.p11_desc},
-  {id:48,cat:'textile',    name:d.p11_name+' — Ivoire', baseName:d.p11_name, group:'nappe_satin', colorLabel:'Ivoire', price:d.p11_price, tag:'', img:'p11', stock:20, desc:d.p11_desc},
-  {id:49,cat:'textile',    name:d.p11_name+' — Noir',   baseName:d.p11_name, group:'nappe_satin', colorLabel:'Noir',   price:d.p11_price, tag:'', img:'p11', stock:20, desc:d.p11_desc},
-  {id:50,cat:'textile',    name:d.p11_name+' — Or',     baseName:d.p11_name, group:'nappe_satin', colorLabel:'Or',     price:d.p11_price, tag:'', img:'p11', stock:20, desc:d.p11_desc},
-
-  {id:12,cat:'textile',    name:d.p12_name, price:d.p12_price, tag:'',          img:'p12',stock:300, desc:d.p12_desc},
-
-  // Arche florale — group arche_florale
-  {id:13,cat:'decoration', name:d.p13_name+' — Bois naturel', baseName:d.p13_name, group:'arche_florale', colorLabel:'Bois naturel', price:d.p13_price, tag:'Bestseller', img:'p13', stock:6, desc:d.p13_desc},
-  {id:51,cat:'decoration', name:d.p13_name+' — Blanchi',      baseName:d.p13_name, group:'arche_florale', colorLabel:'Blanchi',      price:d.p13_price, tag:'Bestseller', img:'p13', stock:6, desc:d.p13_desc},
-  {id:52,cat:'decoration', name:d.p13_name+' — Doré',         baseName:d.p13_name, group:'arche_florale', colorLabel:'Doré',         price:d.p13_price, tag:'Bestseller', img:'p13', stock:6, desc:d.p13_desc},
-
-  // Bougeoir en verre — group bougeoir_verre
-  {id:14,cat:'decoration', name:d.p14_name+' — Doré',        baseName:d.p14_name, group:'bougeoir_verre', colorLabel:'Doré',        price:d.p14_price, tag:'', img:'p14', stock:60, desc:d.p14_desc},
-  {id:53,cat:'decoration', name:d.p14_name+' — Argenté',     baseName:d.p14_name, group:'bougeoir_verre', colorLabel:'Argenté',     price:d.p14_price, tag:'', img:'p14', stock:60, desc:d.p14_desc},
-  {id:54,cat:'decoration', name:d.p14_name+' — Transparent', baseName:d.p14_name, group:'bougeoir_verre', colorLabel:'Transparent',price:d.p14_price, tag:'', img:'p14', stock:60, desc:d.p14_desc},
-
-  // Vase soliflore (lot de 6) — group vase_soliflore
-  {id:15,cat:'decoration', name:d.p15_name+' — Transparent', baseName:d.p15_name, group:'vase_soliflore', colorLabel:'Transparent',price:d.p15_price, tag:'', img:'p15', stock:30, desc:d.p15_desc},
-  {id:55,cat:'decoration', name:d.p15_name+' — Doré',        baseName:d.p15_name, group:'vase_soliflore', colorLabel:'Doré',        price:d.p15_price, tag:'', img:'p15', stock:30, desc:d.p15_desc},
-  {id:56,cat:'decoration', name:d.p15_name+' — Ambré',       baseName:d.p15_name, group:'vase_soliflore', colorLabel:'Ambré',       price:d.p15_price, tag:'', img:'p15', stock:30, desc:d.p15_desc},
-
-  // Miroir rond baroque — group miroir_baroque
-  {id:16,cat:'decoration', name:d.p16_name+' — Doré',    baseName:d.p16_name, group:'miroir_baroque', colorLabel:'Doré',    price:d.p16_price, tag:'Nouveau', img:'p16', stock:4, desc:d.p16_desc},
-  {id:57,cat:'decoration', name:d.p16_name+' — Argenté', baseName:d.p16_name, group:'miroir_baroque', colorLabel:'Argenté', price:d.p16_price, tag:'Nouveau', img:'p16', stock:4, desc:d.p16_desc},
-  {id:58,cat:'decoration', name:d.p16_name+' — Noir',    baseName:d.p16_name, group:'miroir_baroque', colorLabel:'Noir',    price:d.p16_price, tag:'Nouveau', img:'p16', stock:4, desc:d.p16_desc},
-
-  // Lanterne métal — group lanterne_metal
-  {id:17,cat:'decoration', name:d.p17_name+' — Doré',  baseName:d.p17_name, group:'lanterne_metal', colorLabel:'Doré',  price:d.p17_price, tag:'', img:'p17', stock:25, desc:d.p17_desc},
-  {id:59,cat:'decoration', name:d.p17_name+' — Noir',  baseName:d.p17_name, group:'lanterne_metal', colorLabel:'Noir',  price:d.p17_price, tag:'', img:'p17', stock:25, desc:d.p17_desc},
-  {id:60,cat:'decoration', name:d.p17_name+' — Blanc', baseName:d.p17_name, group:'lanterne_metal', colorLabel:'Blanc', price:d.p17_price, tag:'', img:'p17', stock:25, desc:d.p17_desc},
-
-  // Colonne piédestal — group colonne_piedestal
-  {id:18,cat:'decoration', name:d.p18_name+' — Blanc', baseName:d.p18_name, group:'colonne_piedestal', colorLabel:'Blanc', price:d.p18_price, tag:'', img:'p18', stock:8, desc:d.p18_desc},
-  {id:61,cat:'decoration', name:d.p18_name+' — Doré',  baseName:d.p18_name, group:'colonne_piedestal', colorLabel:'Doré',  price:d.p18_price, tag:'', img:'p18', stock:8, desc:d.p18_desc},
-  {id:62,cat:'decoration', name:d.p18_name+' — Noir',  baseName:d.p18_name, group:'colonne_piedestal', colorLabel:'Noir',  price:d.p18_price, tag:'', img:'p18', stock:8, desc:d.p18_desc},
-
-  {id:19,cat:'vaisselle',  name:d.p19_name, price:d.p19_price, tag:'Bestseller',img:'p19',stock:500, desc:d.p19_desc},
-  {id:20,cat:'vaisselle',  name:d.p20_name, price:d.p20_price, tag:'',          img:'p20',stock:400, desc:d.p20_desc},
-  {id:21,cat:'vaisselle',  name:d.p21_name, price:d.p21_price, tag:'Nouveau',   img:'p21',stock:300, desc:d.p21_desc},
-  {id:22,cat:'vaisselle',  name:d.p22_name, price:d.p22_price, tag:'',          img:'p22',stock:400, desc:d.p22_desc},
-  {id:23,cat:'vaisselle',  name:d.p23_name, price:d.p23_price, tag:'',          img:'p23',stock:15,  desc:d.p23_desc},
-  {id:24,cat:'accessoires',name:d.p24_name, price:d.p24_price, tag:'Bestseller',img:'p24',stock:10,  desc:d.p24_desc},
-  {id:25,cat:'accessoires',name:d.p25_name, price:d.p25_price, tag:'',          img:'p25',stock:200, desc:d.p25_desc},
-  {id:26,cat:'accessoires',name:d.p26_name, price:d.p26_price, tag:'',          img:'p26',stock:8,   desc:d.p26_desc},
-  {id:27,cat:'accessoires',name:d.p27_name, price:d.p27_price, tag:'',          img:'p27',stock:12,  desc:d.p27_desc},
-
-  // Arche cérémonie — group arche_ceremonie
-  {id:28,cat:'ceremonie',  name:d.p28_name+' — Blanc',   baseName:d.p28_name, group:'arche_ceremonie', colorLabel:'Blanc',   price:d.p28_price, tag:'Bestseller', img:'p28', stock:4, desc:d.p28_desc},
-  {id:63,cat:'ceremonie',  name:d.p28_name+' — Doré',    baseName:d.p28_name, group:'arche_ceremonie', colorLabel:'Doré',    price:d.p28_price, tag:'Bestseller', img:'p28', stock:4, desc:d.p28_desc},
-  {id:64,cat:'ceremonie',  name:d.p28_name+' — Naturel', baseName:d.p28_name, group:'arche_ceremonie', colorLabel:'Naturel', price:d.p28_price, tag:'Bestseller', img:'p28', stock:4, desc:d.p28_desc},
-
-  {id:29,cat:'ceremonie',  name:d.p29_name, price:d.p29_price, tag:'',          img:'p29',stock:150, desc:d.p29_desc},
-  {id:30,cat:'ceremonie',  name:d.p30_name, price:d.p30_price, tag:'',          img:'p30',stock:6,   desc:d.p30_desc},
-  {id:31,cat:'ceremonie',  name:d.p31_name, price:d.p31_price, tag:'Nouveau',   img:'p31',stock:3,   desc:d.p31_desc},
-  {id:32,cat:'eclairage',  name:d.p32_name, price:d.p32_price, tag:'Bestseller',img:'p32',stock:20,  desc:d.p32_desc},
-
-  // Chandelier de table — group chandelier_table
-  {id:33,cat:'eclairage',  name:d.p33_name+' — Doré',    baseName:d.p33_name, group:'chandelier_table', colorLabel:'Doré',    price:d.p33_price, tag:'', img:'p33', stock:15, desc:d.p33_desc},
-  {id:65,cat:'eclairage',  name:d.p33_name+' — Argenté', baseName:d.p33_name, group:'chandelier_table', colorLabel:'Argenté', price:d.p33_price, tag:'', img:'p33', stock:15, desc:d.p33_desc},
-  {id:66,cat:'eclairage',  name:d.p33_name+' — Noir',    baseName:d.p33_name, group:'chandelier_table', colorLabel:'Noir',    price:d.p33_price, tag:'', img:'p33', stock:15, desc:d.p33_desc},
-
-  {id:34,cat:'eclairage',  name:d.p34_name, price:d.p34_price, tag:'',          img:'p34',stock:10,  desc:d.p34_desc},
-  {id:35,cat:'eclairage',  name:d.p35_name, price:d.p35_price, tag:'Nouveau',   img:'p35',stock:30,  desc:d.p35_desc},
-  {id:36,cat:'packs',      name:d.p36_name, price:d.p36_price, tag:'Bestseller',img:'p36',stock:1,   desc:d.p36_desc},
-  {id:37,cat:'packs',      name:d.p37_name, price:d.p37_price, tag:'',          img:'p37',stock:1,   desc:d.p37_desc},
-  {id:38,cat:'packs',      name:d.p38_name, price:d.p38_price, tag:'Nouveau',   img:'p38',stock:2,   desc:d.p38_desc},
-  {id:39,cat:'packs',      name:d.p39_name, price:d.p39_price, tag:'',          img:'p39',stock:3,   desc:d.p39_desc},
-  {id:67,cat:'ceremonie',  name:d.p40_name, price:d.p40_price, tag:'Nouveau',   img:'p40',images:['p40','p40b'], stock:3, desc:d.p40_desc},
-  {id:68,cat:'ceremonie',  name:d.p41_name, price:d.p41_price, tag:'Nouveau',   img:'p41', stock:3, desc:d.p41_desc},
-  {id:69,cat:'decoration',  name:d.p42_name, price:d.p42_price, tag:'Nouveau',   img:'p42', stock:5, desc:d.p42_desc},
-  {id:70,cat:'decoration',  name:d.p43_name, price:d.p43_price, tag:'Nouveau',   img:'p43', stock:5, desc:d.p43_desc},
-  {id:71,cat:'decoration', name:d.p44_name, price:d.p44_price, tag:'Nouveau',   img:'p44', stock:5, desc:d.p44_desc},
-  {id:72,cat:'decoration',  name:d.p45_name, price:d.p45_price, tag:'Nouveau',   img:'p45', images:['p45','p53'], stock:5, desc:d.p45_desc},
-  {id:73,cat:'decoration',  name:d.p46_name, price:d.p46_price, tag:'Nouveau',   img:'p46', stock:5, desc:d.p46_desc},
-  {id:74,cat:'decoration', name:d.p47_name, price:d.p47_price, tag:'Nouveau',   img:'p47', stock:5, desc:d.p47_desc},
-  {id:75,cat:'decoration', name:d.p48_name, price:d.p48_price, tag:'Nouveau',   img:'p48', stock:5, desc:d.p48_desc},
-  {id:77,cat:'decoration', name:d.p50_name, price:d.p50_price, tag:'Nouveau',   img:'p50', stock:5, desc:d.p50_desc},
-  {id:78,cat:'decoration', name:d.p51_name, price:d.p51_price, tag:'Nouveau',   img:'p51', stock:5, desc:d.p51_desc},
-  {id:79,cat:'decoration', name:d.p52_name, price:d.p52_price, tag:'Nouveau',   img:'p52', stock:5, desc:d.p52_desc},
-  ];
-}
-let PRODUCTS = getProducts();
+// PRODUCTS vient désormais directement de TWEAK_DEFAULTS.products (éditable via admin.html).
+let PRODUCTS = TWEAK_DEFAULTS.products;
 // Renvoie toutes les couleurs d'un produit (lui-même seul s'il n'a pas de variantes).
 function getVariants(p) {
   return p.group ? PRODUCTS.filter(x => x.group === p.group) : [p];
@@ -685,13 +1554,14 @@ function BottomNav({page, setPage}) {
 // ── FOOTER ────────────────────────────────────────────────────────────────────
 function Footer({setPage}) {
   const isMobile = useIsMobile();
+  const d = TWEAK_DEFAULTS;
   return (
     <footer style={{background:G.text,color:'#fff',padding:isMobile?'40px 20px 20px':'52px 80px 26px'}}>
       <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'1.3fr 1fr 1fr 1fr',gap:isMobile?28:40,marginBottom:isMobile?28:40}}>
         <div style={{gridColumn:isMobile?'1 / -1':'auto'}}>
           {LOGO && <img src={LOGO} alt="Loca-Wedding" style={{height:50,width:'auto',marginBottom:14}}/>}
-          <p style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:'rgba(255,255,255,.5)',lineHeight:1.8,maxWidth:200,margin:'0 0 14px'}}>Location de matériel de mariage haut de gamme. Créée en Belgique, pour les mariages belges.</p>
-          <span style={{fontFamily:"'Jost',sans-serif",fontSize:10,color:G.goldL,border:'1px solid rgba(201,169,110,.3)',padding:'4px 10px'}}>Entreprise belge</span>
+          <p style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:'rgba(255,255,255,.5)',lineHeight:1.8,maxWidth:200,margin:'0 0 14px'}}>{d.footer_tagline}</p>
+          <span style={{fontFamily:"'Jost',sans-serif",fontSize:10,color:G.goldL,border:'1px solid rgba(201,169,110,.3)',padding:'4px 10px'}}>{d.footer_badge}</span>
         </div>
         {[
           {t:'Catalogue',ls:[['Mobilier','catalogue'],['Décoration','catalogue'],['Vaisselle','catalogue'],['Packs','catalogue']]},
@@ -705,16 +1575,16 @@ function Footer({setPage}) {
                 onMouseEnter={e=>e.target.style.color=G.goldL} onMouseLeave={e=>e.target.style.color='rgba(255,255,255,.55)'}>{l}</button>
             )) : (
               <div style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:'rgba(255,255,255,.55)',lineHeight:2.3}}>
-                <div>+32 470 00 00 00</div><div>contact@loca-wedding.be</div>
-                <div>Belgique & Luxembourg</div><div>Lun–Sam · 9h–19h</div>
+                <div>{d.footer_phone}</div><div>{d.footer_email}</div>
+                <div>{d.footer_zone}</div><div>{d.footer_hours}</div>
               </div>
             )}
           </div>
         ))}
       </div>
       <div style={{borderTop:'1px solid rgba(255,255,255,.08)',paddingTop:20,display:'flex',justifyContent:'space-between',flexWrap:'wrap',gap:8}}>
-        <span style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:'rgba(255,255,255,.3)'}}>© 2026 Loca-Wedding · TVA BE 0XXX.XXX.XXX</span>
-        <span style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:'rgba(255,255,255,.3)'}}>Mentions légales · CGV</span>
+        <span style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:'rgba(255,255,255,.3)'}}>{d.footer_copyright}</span>
+        <span style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:'rgba(255,255,255,.3)'}}>{d.footer_legal}</span>
       </div>
     </footer>
   );
@@ -727,12 +1597,16 @@ function HomePage({setPage, addToCart}) {
   const [modal, setModal] = React.useState(null);
   const isMobile = useIsMobile();
   const PAD = isMobile ? 20 : 80;
-  return (
-    <div>
-      <Modal product={modal} onClose={()=>setModal(null)} setPage={setPage} addToCart={addToCart}/>
+  const d = TWEAK_DEFAULTS;
 
-      {/* HERO */}
-      <section style={{height:'100vh',minHeight:isMobile?560:700,position:'relative',display:'flex',alignItems:'center',justifyContent:'center'}}>
+  // Chaque grande section de la home est stockée ici sous forme de JSX, et le
+  // rendu final itère sur d.home_sections (éditable via admin.html) pour choisir
+  // quelles sections afficher et dans quel ordre. Un id absent de home_sections
+  // ne s'affiche simplement pas.
+  const SECTIONS = {
+
+    hero: (
+      <section key="hero" style={{height:'100vh',minHeight:isMobile?560:700,position:'relative',display:'flex',alignItems:'center',justifyContent:'center'}}>
         <img src={IMGS.hero} alt="Mariage élégant" style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover'}}/>
         <div style={{position:'absolute',inset:0,background:'linear-gradient(to bottom,rgba(44,36,25,.3) 0%,rgba(44,36,25,.6) 100%)'}}/>
         <div style={{position:'relative',textAlign:'center',padding:isMobile?'0 20px':'0 40px',maxWidth:860,display:'flex',flexDirection:'column',alignItems:'center'}}>
@@ -743,13 +1617,13 @@ function HomePage({setPage, addToCart}) {
           {/* Scarcity badge */}
           <div style={{display:'inline-flex',alignItems:'center',gap:8,background:'rgba(255,255,255,.12)',backdropFilter:'blur(6px)',border:'1px solid rgba(255,255,255,.2)',padding:'6px 16px',marginBottom:isMobile?18:24,textAlign:'left'}}>
             <div style={{width:7,height:7,borderRadius:'50%',background:'#E8C14A',flexShrink:0,display:'inline-block'}} className="pulse"/>
-            <span style={{fontFamily:"'Jost',sans-serif",fontSize:isMobile?9:10,letterSpacing:'.15em',textTransform:'uppercase',color:'#fff',fontWeight:600}}>Saison 2026 · Disponibilités limitées</span>
+            <span style={{fontFamily:"'Jost',sans-serif",fontSize:isMobile?9:10,letterSpacing:'.15em',textTransform:'uppercase',color:'#fff',fontWeight:600}}>{d.hero_badge}</span>
           </div>
           <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'clamp(34px,8vw,80px)',fontWeight:300,color:'#fff',margin:'0 0 18px',lineHeight:1.05}}>
-            Votre mariage mérite<br/><em style={{fontStyle:'italic',color:G.goldL}}>le meilleur décor</em>
+            {d.hero_title_line1}<br/><em style={{fontStyle:'italic',color:G.goldL}}>{d.hero_title_line2}</em>
           </h1>
           <p style={{fontFamily:"'Jost',sans-serif",fontSize:isMobile?13:15,color:'rgba(255,255,255,.88)',maxWidth:500,margin:'0 auto 36px',lineHeight:1.75}}>
-            Location de mobilier & décoration haut de gamme pour votre mariage dans toute la Belgique.
+            {d.hero_subtitle}
           </p>
           <div style={{display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap'}}>
             <Btn onClick={()=>setPage('catalogue')} style={{padding:'14px 32px',fontSize:13}}>Voir le catalogue</Btn>
@@ -766,9 +1640,10 @@ function HomePage({setPage, addToCart}) {
           ))}
         </div>
       </section>
+    ),
 
-      {/* TRUST STRIP */}
-      <section style={{background:G.beigeD,padding:isMobile?'16px 20px':'22px 80px'}}>
+    trust: (
+      <section key="trust" style={{background:G.beigeD,padding:isMobile?'16px 20px':'22px 80px'}}>
         <div style={{display:'flex',gap:isMobile?16:40,justifyContent:'center',flexWrap:'wrap',alignItems:'center'}}>
           {['Matériel vérifié & désinfecté','Entreprise 100% belge','+300 mariages depuis 2019','Accompagnement personnalisé','Matériel premium & durable','Toute la Belgique'].map(t=>(
             <div key={t} style={{display:'flex',alignItems:'center',gap:7}}>
@@ -778,10 +1653,11 @@ function HomePage({setPage, addToCart}) {
           ))}
         </div>
       </section>
+    ),
 
-      {/* CATEGORIES */}
-      <section style={{padding:isMobile?'48px 20px':'88px 80px',background:G.cream}}>
-        <SectionTitle eyebrow="Nos collections" title="Tout pour votre grand jour" sub="8 catégories, plus de 500 articles disponibles à la location en Belgique."/>
+    categories: (
+      <section key="categories" style={{padding:isMobile?'48px 20px':'88px 80px',background:G.cream}}>
+        <SectionTitle eyebrow={d.home_categories_eyebrow} title={d.home_categories_title} sub={d.home_categories_sub}/>
         <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(4,1fr)',gap:3}}>
           {CATEGORIES.map(cat => {
             const [h,sH] = React.useState(false);
@@ -800,23 +1676,20 @@ function HomePage({setPage, addToCart}) {
           })}
         </div>
       </section>
+    ),
 
-      {/* HOW IT WORKS */}
-      <section style={{padding:isMobile?'48px 20px':'88px 80px',background:G.beige}}>
-        <SectionTitle eyebrow="Simple & rassurant" title="3 étapes vers le mariage de vos rêves"/>
+    how: (
+      <section key="how" style={{padding:isMobile?'48px 20px':'88px 80px',background:G.beige}}>
+        <SectionTitle eyebrow={d.home_how_eyebrow} title={d.home_how_title}/>
         <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:isMobile?36:48,position:'relative'}}>
           {!isMobile && <div style={{position:'absolute',top:28,left:'16%',right:'16%',height:1,background:G.goldL,opacity:.4}}/>}
-          {[
-            {n:'01',t:'Choisissez vos articles',d:'Parcourez le catalogue et sélectionnez le mobilier, la décoration et les accessoires qui correspondent à votre vision.'},
-            {n:'02',t:'Recevez votre devis',d:'Envoyez-nous votre liste et votre date. Nous vous répondons sous 24h avec un devis détaillé et personnalisé, sans engagement.'},
-            {n:'03',t:'Profitez sans stress',d:'Nous reprenons tout le matériel après votre mariage. Vous n\'avez plus qu\'à vivre pleinement votre journée unique.'},
-          ].map(s => (
-            <div key={s.n} style={{textAlign:'center',position:'relative',zIndex:1}}>
+          {d.home_how_steps.map((s,i) => (
+            <div key={i} style={{textAlign:'center',position:'relative',zIndex:1}}>
               <div style={{width:54,height:54,background:G.cream,border:'1.5px solid '+G.goldL,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 18px'}}>
-                <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:19,fontWeight:700,color:G.gold}}>{s.n}</span>
+                <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:19,fontWeight:700,color:G.gold}}>{String(i+1).padStart(2,'0')}</span>
               </div>
-              <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontWeight:600,color:G.text,margin:'0 0 10px'}}>{s.t}</h3>
-              <p style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:G.textM,lineHeight:1.7,margin:0}}>{s.d}</p>
+              <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontWeight:600,color:G.text,margin:'0 0 10px'}}>{s.title}</h3>
+              <p style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:G.textM,lineHeight:1.7,margin:0}}>{s.desc}</p>
             </div>
           ))}
         </div>
@@ -824,11 +1697,12 @@ function HomePage({setPage, addToCart}) {
           <Btn variant="sage" onClick={()=>setPage('how')} style={{padding:'12px 32px'}}>En savoir plus</Btn>
         </div>
       </section>
+    ),
 
-      {/* GALLERY */}
-      <section style={{background:G.text}}>
+    gallery: (
+      <section key="gallery" style={{background:G.text}}>
         <div style={{padding:isMobile?'40px 20px 28px':'60px 80px 40px',textAlign:'center'}}>
-          <SectionTitle eyebrow="Nos réalisations" title="Mariages dont nous sommes fiers" sub="Quelques réalisations récentes en Belgique." light/>
+          <SectionTitle eyebrow={d.home_gallery_eyebrow} title={d.home_gallery_title} sub={d.home_gallery_sub} light/>
         </div>
         <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(3,1fr)',gridAutoRows:isMobile?'150px':undefined,gridTemplateRows:isMobile?undefined:'220px 220px',gap:3}}>
           {[
@@ -851,10 +1725,11 @@ function HomePage({setPage, addToCart}) {
           })}
         </div>
       </section>
+    ),
 
-      {/* BESTSELLERS */}
-      <section style={{padding:isMobile?'48px 20px':'88px 80px',background:G.cream}}>
-        <SectionTitle eyebrow="Coup de cœur" title="Nos articles les plus demandés"/>
+    bestsellers: (
+      <section key="bestsellers" style={{padding:isMobile?'48px 20px':'88px 80px',background:G.cream}}>
+        <SectionTitle eyebrow={d.home_bestsellers_eyebrow} title={d.home_bestsellers_title}/>
         <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(4,1fr)',gap:isMobile?12:18}}>
           {(() => {
             const seenGroups = new Set();
@@ -871,44 +1746,42 @@ function HomePage({setPage, addToCart}) {
           <Btn onClick={()=>setPage('catalogue')} style={{padding:'13px 36px'}}>Voir tout le catalogue</Btn>
         </div>
       </section>
+    ),
 
-      {/* SCARCITY BANNER */}
-      <section style={{background:'linear-gradient(135deg,#3D2E1F 0%,#2C2419 100%)',padding:isMobile?'40px 20px':'56px 80px',position:'relative',overflow:'hidden'}}>
+    scarcity: (
+      <section key="scarcity" style={{background:'linear-gradient(135deg,#3D2E1F 0%,#2C2419 100%)',padding:isMobile?'40px 20px':'56px 80px',position:'relative',overflow:'hidden'}}>
         {!isMobile && <div style={{position:'absolute',right:80,top:'50%',transform:'translateY(-50%)',fontSize:110,opacity:.04,fontFamily:'serif'}}>2026</div>}
         <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr auto',gap:isMobile?24:40,alignItems:'center',position:'relative'}}>
           <div>
             <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:14}}>
               <div style={{width:7,height:7,borderRadius:'50%',background:'#E8C14A',flexShrink:0}} className="pulse"/>
-              <span style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.18em',textTransform:'uppercase',color:'#E8C14A',fontWeight:600}}>Saison haute · Forte demande</span>
+              <span style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.18em',textTransform:'uppercase',color:'#E8C14A',fontWeight:600}}>{d.home_scarcity_badge}</span>
             </div>
-            <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?26:38,fontWeight:400,color:'#fff',margin:'0 0 12px',lineHeight:1.1}}>Les weekends de juin & juillet 2026 se remplissent rapidement</h2>
-            <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:'rgba(255,255,255,.6)',lineHeight:1.7,maxWidth:540}}>Nos stocks sont limités. Vérifiez la disponibilité pour votre date dès maintenant — gratuit et sans engagement.</p>
+            <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?26:38,fontWeight:400,color:'#fff',margin:'0 0 12px',lineHeight:1.1}}>{d.home_scarcity_title}</h2>
+            <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:'rgba(255,255,255,.6)',lineHeight:1.7,maxWidth:540}}>{d.home_scarcity_desc}</p>
           </div>
           <div style={{textAlign:isMobile?'left':'center',flexShrink:0}}>
             <Btn onClick={()=>setPage('devis')} full={isMobile} style={{padding:'14px 32px',fontSize:12,display:'block',marginBottom:8}}>Vérifier ma date</Btn>
-            <p style={{fontFamily:"'Jost',sans-serif",fontSize:10,color:'rgba(255,255,255,.35)'}}>Réponse garantie sous 24h</p>
+            <p style={{fontFamily:"'Jost',sans-serif",fontSize:10,color:'rgba(255,255,255,.35)'}}>{d.home_scarcity_cta_note}</p>
           </div>
         </div>
       </section>
+    ),
 
-      {/* TESTIMONIALS */}
-      <section style={{padding:isMobile?'48px 20px':'88px 80px',background:G.beige}}>
-        <SectionTitle eyebrow="Ils nous ont fait confiance" title="300+ couples nous ont dit oui" sub="Des témoignages vrais, de vrais mariés, de toute la Belgique."/>
+    testimonials: (
+      <section key="testimonials" style={{padding:isMobile?'48px 20px':'88px 80px',background:G.beige}}>
+        <SectionTitle eyebrow={d.home_testimonials_eyebrow} title={d.home_testimonials_title} sub={d.home_testimonials_sub}/>
         <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:20,marginBottom:28}}>
-          {[
-            {n:'Sophie & Thomas',loc:'Liège, juin 2025',s:5,t:'Un service impeccable du début à la fin. La décoration était exactement comme nous l\'avions imaginée. Merci infiniment !',img:'https://i.pravatar.cc/80?img=47'},
-            {n:'Camille & Hugo',loc:'Bruxelles, septembre 2025',s:5,t:'Installation soignée, reprise sans accroc. Nous avons pu profiter de notre journée sans nous soucier de quoi que ce soit.',img:'https://i.pravatar.cc/80?img=44'},
-            {n:'Léa & Antoine',loc:'Gand, juillet 2025',s:5,t:'Le pack Prestige était une révélation. Nos invités ont été subjugués. Tout était parfait du premier contact à la reprise.',img:'https://i.pravatar.cc/80?img=45'},
-          ].map(t => (
-            <div key={t.n} style={{background:G.cream,padding:'26px 26px 22px',position:'relative'}}>
+          {d.home_testimonials.map((t,ti) => (
+            <div key={ti} style={{background:G.cream,padding:'26px 26px 22px',position:'relative'}}>
               <div style={{display:'flex',gap:3,marginBottom:12}}>
-                {[1,2,3,4,5].map(i=><span key={i} style={{color:i<=t.s?G.gold:'#ddd',fontSize:12}}>★</span>)}
+                {[1,2,3,4,5].map(i=><span key={i} style={{color:i<=t.stars?G.gold:'#ddd',fontSize:12}}>★</span>)}
               </div>
-              <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:16,color:G.text,lineHeight:1.7,fontStyle:'italic',margin:'0 0 18px'}}>« {t.t} »</p>
+              <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:16,color:G.text,lineHeight:1.7,fontStyle:'italic',margin:'0 0 18px'}}>« {t.text} »</p>
               <div style={{display:'flex',alignItems:'center',gap:10,borderTop:'1px solid '+G.beigeD,paddingTop:14}}>
-                <img src={t.img} alt={t.n} style={{width:38,height:38,borderRadius:'50%',objectFit:'cover'}}/>
+                <img src={t.img} alt={t.name} style={{width:38,height:38,borderRadius:'50%',objectFit:'cover'}}/>
                 <div>
-                  <div style={{fontFamily:"'Jost',sans-serif",fontSize:12,fontWeight:600,color:G.text}}>{t.n}</div>
+                  <div style={{fontFamily:"'Jost',sans-serif",fontSize:12,fontWeight:600,color:G.text}}>{t.name}</div>
                   <div style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:G.textM}}>{t.loc}</div>
                 </div>
               </div>
@@ -916,51 +1789,55 @@ function HomePage({setPage, addToCart}) {
           ))}
         </div>
       </section>
+    ),
 
-      {/* REASSURANCE */}
-      <section style={{padding:isMobile?'48px 20px':'80px 80px',background:G.cream}}>
-        <SectionTitle eyebrow="Nos engagements" title="Pourquoi choisir Loca-Wedding ?"/>
+    reassurance: (
+      <section key="reassurance" style={{padding:isMobile?'48px 20px':'80px 80px',background:G.cream}}>
+        <SectionTitle eyebrow={d.home_reassurance_eyebrow} title={d.home_reassurance_title}/>
         <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:isMobile?14:24}}>
-          {[
-            {t:'Matériel vérifié',d:'Chaque article est inspecté et reconditionné après chaque mariage. Qualité garantie à chaque location.'},
-            {t:'Ancrage belge',d:'Fondée en Belgique en 2019, nous connaissons les lieux de réception et les prestataires locaux.'},
-            {t:'Conseil personnalisé',d:'Notre équipe vous accompagne de A à Z : choix des articles, quantités, agencement. Un seul interlocuteur.'},
-            {t:'Devis sous 24h',d:'Envoyez votre demande. Nous vous répondons avec un devis détaillé sous 24 heures, sans engagement.'},
-            {t:'Flexibilité & réactivité',d:'Modifications jusqu\'à J-7 et un service d\'urgence pour les imprévus de votre grand jour.'},
-            {t:'Engagement durable',d:'Louer plutôt qu\'acheter, c\'est aussi un geste pour la planète. Nos articles ont une longue durée de vie.'},
-          ].map(r => (
-            <div key={r.t} style={{background:G.beige,padding:'24px 22px',borderBottom:'3px solid '+G.sage}}>
-              <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:19,fontWeight:600,color:G.text,margin:'0 0 10px'}}>{r.t}</h3>
-              <p style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:G.textM,lineHeight:1.7,margin:0}}>{r.d}</p>
+          {d.home_reassurance.map((r,ri) => (
+            <div key={ri} style={{background:G.beige,padding:'24px 22px',borderBottom:'3px solid '+G.sage}}>
+              <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:19,fontWeight:600,color:G.text,margin:'0 0 10px'}}>{r.title}</h3>
+              <p style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:G.textM,lineHeight:1.7,margin:0}}>{r.desc}</p>
             </div>
           ))}
         </div>
       </section>
+    ),
 
-      {/* ABOUT TEASER */}
-      <section style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',minHeight:isMobile?'auto':400}}>
+    about_teaser: (
+      <section key="about_teaser" style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',minHeight:isMobile?'auto':400}}>
         <div style={{position:'relative',overflow:'hidden',height:isMobile?220:'auto'}}>
           <img src={IMGS.about} alt="Notre équipe" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
           <div style={{position:'absolute',inset:0,background:'rgba(44,36,25,.2)'}}/>
         </div>
         <div style={{background:G.beigeD,padding:isMobile?'32px 20px':'60px 56px',display:'flex',flexDirection:'column',justifyContent:'center'}}>
-          <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.sage,fontWeight:600,margin:'0 0 14px'}}>Notre histoire</p>
-          <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?26:36,fontWeight:400,color:G.text,margin:'0 0 18px',lineHeight:1.15}}>Née d'un mariage,<br/><em style={{fontStyle:'italic',color:G.gold}}>pour tous les mariages</em></h2>
-          <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textL,lineHeight:1.8,margin:'0 0 24px'}}>En 2019, en cherchant à décorer notre propre mariage en Belgique, nous avons réalisé qu'il manquait une offre de location vraiment premium. Loca-Wedding est née de cette frustration — et de cette passion.</p>
+          <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.sage,fontWeight:600,margin:'0 0 14px'}}>{d.home_about_eyebrow}</p>
+          <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?26:36,fontWeight:400,color:G.text,margin:'0 0 18px',lineHeight:1.15}}>{d.home_about_title_line1}<br/><em style={{fontStyle:'italic',color:G.gold}}>{d.home_about_title_line2}</em></h2>
+          <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textL,lineHeight:1.8,margin:'0 0 24px'}}>{d.home_about_desc}</p>
           <Btn variant="sage" onClick={()=>setPage('about')} full={isMobile} style={{alignSelf:isMobile?'stretch':'flex-start',padding:'11px 26px'}}>Découvrir notre histoire</Btn>
         </div>
       </section>
+    ),
 
-      {/* CTA */}
-      <section style={{padding:isMobile?'48px 20px':'72px 80px',background:G.text,textAlign:'center'}}>
-        <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.goldL,margin:'0 0 12px'}}>Votre mariage de rêve commence ici</p>
-        <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?30:48,fontWeight:300,color:'#fff',margin:'0 0 12px',lineHeight:1.05}}>Demandez votre devis gratuit</h2>
-        <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:'rgba(255,255,255,.45)',margin:'0 0 32px'}}>Réponse personnalisée sous 24h · Sans engagement · 100% gratuit</p>
+    cta: (
+      <section key="cta" style={{padding:isMobile?'48px 20px':'72px 80px',background:G.text,textAlign:'center'}}>
+        <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.goldL,margin:'0 0 12px'}}>{d.home_cta_eyebrow}</p>
+        <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?30:48,fontWeight:300,color:'#fff',margin:'0 0 12px',lineHeight:1.05}}>{d.home_cta_title}</h2>
+        <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:'rgba(255,255,255,.45)',margin:'0 0 32px'}}>{d.home_cta_sub}</p>
         <div style={{display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap'}}>
           <Btn onClick={()=>setPage('devis')} style={{padding:'14px 40px',fontSize:13}}>Commencer maintenant</Btn>
           <Btn variant="outline" onClick={()=>setPage('contact')} style={{padding:'14px 28px',fontSize:13,color:'rgba(255,255,255,.65)',borderColor:'rgba(255,255,255,.2)'}}>Nous contacter</Btn>
         </div>
       </section>
+    ),
+
+  };
+
+  return (
+    <div>
+      <Modal product={modal} onClose={()=>setModal(null)} setPage={setPage} addToCart={addToCart}/>
+      {(d.home_sections||[]).map(id => SECTIONS[id] || null)}
     </div>
   );
 }
@@ -1064,22 +1941,17 @@ function CataloguePage({setPage, initialCat='all', addToCart}) {
 // ═══════════════════════════════════════════════════════════════════════════════
 function HowPage({setPage}) {
   const isMobile = useIsMobile();
-  const steps = [
-    {n:'01',t:'Parcourez le catalogue',d:'Explorez nos 8 catégories et plus de 500 articles. Notez les références qui vous correspondent. Chaque fiche produit précise les quantités disponibles et les tarifs à la journée.',img:IMGS.how1},
-    {n:'02',t:'Envoyez votre demande',d:'Remplissez notre formulaire en ligne avec votre date, le lieu de réception et le nombre d\'invités. C\'est gratuit et sans aucun engagement de votre part.',img:IMGS.how2},
-    {n:'03',t:'Recevez votre devis sous 24h',d:'Notre équipe analyse votre demande et vous envoie un devis détaillé et personnalisé. Nous vous conseillons aussi sur les quantités et les associations.',img:IMGS.how3},
-    {n:'04',t:'Validez & confirmez',d:'Un acompte de 30% confirme votre réservation et bloque vos articles pour votre date. Le solde est réglé à la reprise. Annulation possible jusqu\'à J-30.',img:IMGS.how4},
-    {n:'05',t:'Le matériel est prêt',d:'Notre équipe prépare, vérifie et conditionne chaque article avec soin. Tout est inspecté avant de quitter notre entrepôt.',img:IMGS.how5},
-    {n:'06',t:'Reprise après votre mariage',d:'Notre équipe revient récupérer l\'intégralité du matériel. Vous n\'avez rien à vous soucier.',img:IMGS.how6},
-  ];
+  const d = TWEAK_DEFAULTS;
+  const howImgs = [IMGS.how1, IMGS.how2, IMGS.how3, IMGS.how4, IMGS.how5, IMGS.how6];
+  const steps = d.how_steps.map((s,i) => ({n:String(i+1).padStart(2,'0'), t:s.title, d:s.desc, img:howImgs[i]}));
   return (
     <div style={{paddingTop:0,background:G.cream}}>
       <div style={{position:'relative',height:isMobile?150:200,overflow:'hidden'}}>
         <img src={IMGS.gallery1} alt="Comment ça marche" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
         <div style={{position:'absolute',inset:0,background:'rgba(44,36,25,.55)',display:'flex',alignItems:'center',padding:isMobile?'0 20px':'0 80px'}}>
           <div>
-            <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.goldL,fontWeight:600,margin:'0 0 6px'}}>Simple, transparent & rassurant</p>
-            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?30:48,fontWeight:400,color:'#fff',margin:0}}>Comment ça marche</h1>
+            <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.goldL,fontWeight:600,margin:'0 0 6px'}}>{d.how_header_eyebrow}</p>
+            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?30:48,fontWeight:400,color:'#fff',margin:0}}>{d.how_header_title}</h1>
           </div>
         </div>
       </div>
@@ -1099,8 +1971,8 @@ function HowPage({setPage}) {
         ))}
         <div style={{background:G.beige,padding:isMobile?'24px 20px':'36px 48px',display:'flex',flexDirection:isMobile?'column':'row',justifyContent:'space-between',alignItems:isMobile?'stretch':'center',gap:20,borderLeft:'4px solid '+G.sage}}>
           <div>
-            <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?21:26,fontWeight:600,color:G.text,margin:'0 0 5px'}}>Prêt à commencer ?</h3>
-            <p style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:G.textM,margin:0}}>Devis gratuit, réponse sous 24h, sans engagement.</p>
+            <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?21:26,fontWeight:600,color:G.text,margin:'0 0 5px'}}>{d.how_cta_title}</h3>
+            <p style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:G.textM,margin:0}}>{d.how_cta_sub}</p>
           </div>
           <Btn variant="sage" onClick={()=>setPage('devis')} full={isMobile} style={{flexShrink:0,padding:'12px 30px'}}>Demander un devis</Btn>
         </div>
@@ -1114,25 +1986,26 @@ function HowPage({setPage}) {
 // ═══════════════════════════════════════════════════════════════════════════════
 function AboutPage({setPage}) {
   const isMobile = useIsMobile();
+  const d = TWEAK_DEFAULTS;
   return (
     <div style={{paddingTop:0,background:G.cream}}>
       <div style={{position:'relative',height:isMobile?220:300,overflow:'hidden'}}>
         <img src={IMGS.about} alt="Notre équipe" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
         <div style={{position:'absolute',inset:0,background:'linear-gradient(to right,rgba(44,36,25,.75) 0%,rgba(44,36,25,.3) 100%)',display:'flex',alignItems:'flex-end',padding:isMobile?'0 20px 28px':'0 80px 44px'}}>
           <div>
-            <span style={{fontFamily:"'Jost',sans-serif",fontSize:9,letterSpacing:'.2em',textTransform:'uppercase',color:G.goldL,fontWeight:600,border:'1px solid rgba(223,196,154,.3)',padding:'4px 10px',display:'inline-block',marginBottom:12}}>Fondée en Belgique · 2019</span>
-            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?32:52,fontWeight:300,color:'#fff',margin:0,lineHeight:1.05}}>Notre histoire,<br/><em style={{fontStyle:'italic',color:G.goldL}}>votre mariage</em></h1>
+            <span style={{fontFamily:"'Jost',sans-serif",fontSize:9,letterSpacing:'.2em',textTransform:'uppercase',color:G.goldL,fontWeight:600,border:'1px solid rgba(223,196,154,.3)',padding:'4px 10px',display:'inline-block',marginBottom:12}}>{d.about_header_badge}</span>
+            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?32:52,fontWeight:300,color:'#fff',margin:0,lineHeight:1.05}}>{d.about_header_title_line1}<br/><em style={{fontStyle:'italic',color:G.goldL}}>{d.about_header_title_line2}</em></h1>
           </div>
         </div>
       </div>
 
       <section style={{padding:isMobile?'40px 20px':'68px 80px',display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:isMobile?28:72,alignItems:'center'}}>
         <div>
-          <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.sage,fontWeight:600,margin:'0 0 14px'}}>Notre histoire</p>
-          <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?26:36,fontWeight:400,color:G.text,margin:'0 0 22px',lineHeight:1.15}}>Née d'une frustration,<br/>construite avec passion</h2>
-          <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textL,lineHeight:1.85,margin:'0 0 14px'}}>En 2019, en organisant notre propre mariage quelque part entre Liège et Namur, nous avons réalisé qu'il n'existait pas vraiment, en Belgique, d'offre de location de décoration vraiment premium, bien organisée et accompagnée.</p>
-          <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textL,lineHeight:1.85,margin:'0 0 14px'}}>Trop de stress, trop peu de choix, des prestataires peu réactifs. Nous avons décidé de créer ce que nous aurions voulu trouver : une plateforme belge, humaine, avec une offre complète et un vrai service d'accompagnement.</p>
-          <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textL,lineHeight:1.85,margin:0}}>Depuis, Loca-Wedding a accompagné plus de 300 couples dans toute la Belgique. Chaque mariage est unique. Chaque client mérite une attention particulière.</p>
+          <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.sage,fontWeight:600,margin:'0 0 14px'}}>{d.about_intro_eyebrow}</p>
+          <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?26:36,fontWeight:400,color:G.text,margin:'0 0 22px',lineHeight:1.15}}>{d.about_intro_title_line1}<br/>{d.about_intro_title_line2}</h2>
+          <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textL,lineHeight:1.85,margin:'0 0 14px'}}>{d.about_intro_p1}</p>
+          <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textL,lineHeight:1.85,margin:'0 0 14px'}}>{d.about_intro_p2}</p>
+          <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textL,lineHeight:1.85,margin:0}}>{d.about_intro_p3}</p>
         </div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,height:isMobile?280:400}}>
           <img src={IMGS.gallery1} alt="" style={{width:'100%',height:'100%',objectFit:'cover',gridRow:'span 2'}} loading="lazy"/>
@@ -1142,16 +2015,12 @@ function AboutPage({setPage}) {
       </section>
 
       <section style={{padding:isMobile?'40px 20px':'68px 80px',background:G.beige}}>
-        <SectionTitle eyebrow="Ce qui nous anime" title="Mission, valeurs & vision"/>
+        <SectionTitle eyebrow={d.about_values_eyebrow} title={d.about_values_title}/>
         <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:isMobile?14:24}}>
-          {[
-            {t:'Notre mission',c:G.gold,d:'Rendre accessibles les plus belles décorations de mariage à tous les couples belges, en leur offrant un service impeccable du premier contact à la dernière bougie éteinte.'},
-            {t:'Nos valeurs',c:G.sage,d:'Qualité sans compromis. Proximité humaine. Honnêteté totale dans nos prix et nos engagements. Respect de l\'environnement à travers la location plutôt que l\'achat jetable.'},
-            {t:'Notre vision',c:G.gold,d:'Devenir la référence belge de la location événementielle de mariage — une marque que les futurs mariés recommandent à leurs proches, et dont ils se souviennent avec émotion.'},
-          ].map(v=>(
-            <div key={v.t} style={{background:G.cream,padding:'28px 24px',borderTop:'4px solid '+v.c}}>
-              <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:600,color:G.text,margin:'0 0 12px'}}>{v.t}</h3>
-              <p style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:G.textM,lineHeight:1.75,margin:0}}>{v.d}</p>
+          {d.about_values.map((v,vi)=>(
+            <div key={vi} style={{background:G.cream,padding:'28px 24px',borderTop:'4px solid '+(vi%2===0?G.gold:G.sage)}}>
+              <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:600,color:G.text,margin:'0 0 12px'}}>{v.title}</h3>
+              <p style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:G.textM,lineHeight:1.75,margin:0}}>{v.desc}</p>
             </div>
           ))}
         </div>
@@ -1190,8 +2059,8 @@ function AboutPage({setPage}) {
       </section>
 
       <section style={{padding:isMobile?'40px 20px':'60px 80px',background:G.beige,textAlign:'center'}}>
-        <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?26:38,fontWeight:400,color:G.text,margin:'0 0 14px'}}>Faisons connaissance</h2>
-        <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textM,margin:'0 0 28px'}}>Parlons de votre mariage. Sans pression, juste entre nous.</p>
+        <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?26:38,fontWeight:400,color:G.text,margin:'0 0 14px'}}>{d.about_cta_title}</h2>
+        <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textM,margin:'0 0 28px'}}>{d.about_cta_sub}</p>
         <div style={{display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap'}}>
           <Btn variant="sage" onClick={()=>setPage('devis')} style={{padding:'12px 32px'}}>Demander un devis</Btn>
           <Btn variant="outline" onClick={()=>setPage('contact')} style={{padding:'12px 24px'}}>Nous écrire</Btn>
@@ -1206,6 +2075,7 @@ function AboutPage({setPage}) {
 // ═══════════════════════════════════════════════════════════════════════════════
 function DevisPage({cart={}, setCartQty=()=>{}, clearCart=()=>{}}) {
   const isMobile = useIsMobile();
+  const d = TWEAK_DEFAULTS;
   const [f,setF] = React.useState({nom:'',email:'',tel:'',date:'',lieu:'',invites:'',msg:''});
   const [sent,setSent] = React.useState(false);
   const [submitting,setSubmitting] = React.useState(false);
@@ -1256,23 +2126,23 @@ function DevisPage({cart={}, setCartQty=()=>{}, clearCart=()=>{}}) {
         <img src={IMGS.gallery2} alt="Devis" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
         <div style={{position:'absolute',inset:0,background:'rgba(44,36,25,.58)',display:'flex',alignItems:'flex-end',padding:isMobile?'0 20px 24px':'0 80px 36px'}}>
           <div>
-            <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.goldL,fontWeight:600,margin:'0 0 6px'}}>Gratuit · Sans engagement · Réponse sous 24h</p>
-            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?28:48,fontWeight:400,color:'#fff',margin:0}}>Demandez un devis</h1>
+            <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.goldL,fontWeight:600,margin:'0 0 6px'}}>{d.devis_header_eyebrow}</p>
+            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?28:48,fontWeight:400,color:'#fff',margin:0}}>{d.devis_header_title}</h1>
           </div>
         </div>
       </div>
       {sent ? (
         <div style={{padding:isMobile?'56px 24px':'100px',textAlign:'center'}}>
           <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?26:38,fontWeight:400,color:G.text,margin:'0 0 14px'}}>Merci, {f.nom.split(' ')[0]||'cher(e) client(e)'} !</h2>
-          <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textM,lineHeight:1.75,maxWidth:440,margin:'0 auto'}}>Votre demande a été reçue. Nous vous répondons dans les 24 heures avec votre devis personnalisé.</p>
+          <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textM,lineHeight:1.75,maxWidth:440,margin:'0 auto'}}>{d.devis_sent_sub}</p>
         </div>
       ) : (
         <div style={{padding:isMobile?'28px 16px':'48px 80px',maxWidth:900,margin:'0 auto'}}>
           <div style={{background:'#FDF3F1',border:'1px solid #C4877A',padding:'12px 18px',marginBottom:32,display:'flex',alignItems:'center',gap:10}}>
             <div style={{width:7,height:7,borderRadius:'50%',background:'#C4877A',flexShrink:0}} className="pulse"/>
             <div>
-              <span style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:'#8B3A2A',fontWeight:600}}>Saison 2026 · Forte demande — </span>
-              <span style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:'#8B3A2A'}}>Certains weekends de juin–août 2026 sont déjà réservés. Envoyez votre demande maintenant.</span>
+              <span style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:'#8B3A2A',fontWeight:600}}>{d.devis_urgency_bold}</span>
+              <span style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:'#8B3A2A'}}>{d.devis_urgency_text}</span>
             </div>
           </div>
           <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:20,marginBottom:20}}>
@@ -1352,7 +2222,7 @@ function DevisPage({cart={}, setCartQty=()=>{}, clearCart=()=>{}}) {
           {cartItems.length===0 && (
             <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:'#8B3A2A',textAlign:'center',marginTop:10}}>Sélectionnez au moins un article ci-dessus pour envoyer votre demande.</p>
           )}
-          <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:G.textM,textAlign:'center',marginTop:10}}>Réponse garantie sous 24h · Sans engagement · 100% gratuit</p>
+          <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:G.textM,textAlign:'center',marginTop:10}}>{d.devis_footer_note}</p>
         </div>
       )}
     </div>
@@ -1365,6 +2235,7 @@ function DevisPage({cart={}, setCartQty=()=>{}, clearCart=()=>{}}) {
 function ContactPage() {
   const isMobile = useIsMobile();
   const [sent,setSent] = React.useState(false);
+  const d = TWEAK_DEFAULTS;
   const inp = {width:'100%',padding:'10px 12px',border:'1px solid '+G.beigeD,background:'#fff',fontFamily:"'Jost',sans-serif",fontSize:13,color:G.text,outline:'none',boxSizing:'border-box'};
   const lbl = {fontFamily:"'Jost',sans-serif",fontSize:10,letterSpacing:'.14em',textTransform:'uppercase',color:G.textM,fontWeight:600,display:'block',marginBottom:5};
   return (
@@ -1373,28 +2244,28 @@ function ContactPage() {
         <img src={IMGS.gallery4} alt="Contact" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
         <div style={{position:'absolute',inset:0,background:'rgba(44,36,25,.55)',display:'flex',alignItems:'flex-end',padding:isMobile?'0 20px 24px':'0 80px 36px'}}>
           <div>
-            <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.goldL,fontWeight:600,margin:'0 0 6px'}}>Nous sommes là pour vous</p>
-            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?28:48,fontWeight:400,color:'#fff',margin:0}}>Contactez-nous</h1>
+            <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.22em',textTransform:'uppercase',color:G.goldL,fontWeight:600,margin:'0 0 6px'}}>{d.contact_header_eyebrow}</p>
+            <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:isMobile?28:48,fontWeight:400,color:'#fff',margin:0}}>{d.contact_header_title}</h1>
           </div>
         </div>
       </div>
       <div style={{padding:isMobile?'28px 16px':'56px 80px',display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1.6fr',gap:isMobile?32:72}}>
         <div>
-          <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:24,fontWeight:600,color:G.text,margin:'0 0 22px'}}>Nos coordonnées</h3>
-          {[['Téléphone','+32 470 00 00 00'],['Email','contact@loca-wedding.be'],['Zone de livraison','Toute la Belgique & Luxembourg'],['Horaires','Lun – Sam · 9h00 – 19h00']].map(([l,v])=>(
+          <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:24,fontWeight:600,color:G.text,margin:'0 0 22px'}}>{d.contact_coord_title}</h3>
+          {[['Téléphone',d.contact_phone],['Email',d.contact_email],['Zone de livraison',d.contact_zone],['Horaires',d.contact_hours]].map(([l,v])=>(
             <div key={l} style={{marginBottom:20,paddingBottom:20,borderBottom:'1px solid '+G.beigeD}}>
               <div style={{fontFamily:"'Jost',sans-serif",fontSize:10,letterSpacing:'.12em',textTransform:'uppercase',color:G.sage,fontWeight:600,marginBottom:3}}>{l}</div>
               <div style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.text}}>{v}</div>
             </div>
           ))}
           <div style={{background:G.beige,padding:'16px 18px',borderLeft:'3px solid '+G.sage}}>
-            <p style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:G.textL,lineHeight:1.7,margin:0}}>Pour un devis précis, utilisez notre <strong>formulaire de devis</strong> — réponse plus rapide et plus précise.</p>
+            <p style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:G.textL,lineHeight:1.7,margin:0}}>{d.contact_note}</p>
           </div>
         </div>
         {sent ? (
           <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',textAlign:'center',gap:10}}>
-            <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:32,fontWeight:400,color:G.text}}>Message envoyé !</h2>
-            <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textM}}>Nous vous répondons sous 24 heures.</p>
+            <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:32,fontWeight:400,color:G.text}}>{d.contact_sent_title}</h2>
+            <p style={{fontFamily:"'Jost',sans-serif",fontSize:13,color:G.textM}}>{d.contact_sent_sub}</p>
           </div>
         ) : (
           <div>
