@@ -609,8 +609,8 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
       "desc": "Housse universelle jersey stretch.",
       "group": "housse_chaise",
       "colorLabel": "Ivoire",
-      "baseName": "Long vase argenté",
-      "imgUrl": "https://cdn.jsdelivr.net/gh/locawedding1-cmd/loca-wedding-site@main/uploads/1792348259159-hf-20261018-182903-13698407-f3ec-4fb8-b4f5-d9068efdb6fd.jpg"
+      "baseName": "Housse de chaise",
+      "imgUrl": ""
     },
     {
       "id": 45,
@@ -1367,7 +1367,7 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
       "colorLabel": "Ivoire",
       "baseName": "Housse de chaise ",
       "images": [
-        "https://cdn.jsdelivr.net/gh/locawedding1-cmd/loca-wedding-site@main/uploads/1792602161316-hf-20261021-155325-f88b32f5-9bca-4693-9d38-de5abd958950.jpg",
+        "https://cdn.jsdelivr.net/gh/locawedding1-cmd/loca-wedding-site@main/uploads/1792648483720-shopping-1.jpg",
         "https://cdn.jsdelivr.net/gh/locawedding1-cmd/loca-wedding-site@main/uploads/1792347875105-066f4cf8-4fa4-47c5-8d52-f6da22925c1e.jpg",
         "https://cdn.jsdelivr.net/gh/locawedding1-cmd/loca-wedding-site@main/uploads/1792597651041-8a9b9182-9067-477c-bd06-b6c299bf4aee.jpg",
         "https://cdn.jsdelivr.net/gh/locawedding1-cmd/loca-wedding-site@main/uploads/1792597653095-6996d9b6-6079-4de5-8a70-21de992e49ee.jpg"
@@ -1874,9 +1874,29 @@ function EditModeProvider({children}) {
   function updateProduct(id, patch) {
     setDraft(d => ({...d, products: d.products.map(p => p.id===id ? {...p, ...patch} : p)}));
   }
+  // Comme pour la photo : la carte catalogue d'un groupe de couleurs affiche
+  // la couleur sélectionnée localement (pas forcément le "représentant" du
+  // groupe) — on édite donc le produit réellement affiché. Le nom commun
+  // (baseName) est propagé à toute la couleur du groupe pour rester cohérent.
+  function updateProductField(product, patch) {
+    if (patch.baseName !== undefined && product.group) {
+      setDraft(d => ({...d, products: d.products.map(p =>
+        p.group === product.group ? {...p, baseName: patch.baseName} : p
+      )}));
+      const rest = {...patch}; delete rest.baseName;
+      if (Object.keys(rest).length) updateProduct(product.id, rest);
+    } else {
+      updateProduct(product.id, patch);
+    }
+  }
   function setProductImage(product, url) {
+    // Si une galerie existe déjà, sa 1ère photo prime sur img/imgUrl à
+    // l'affichage (voir ProductCard) — il faut donc aussi la remplacer,
+    // sinon "changer la photo" n'a visuellement aucun effet.
+    const patch = { imgUrl: url };
+    if (product.images && product.images.length) patch.images = [url, ...product.images.slice(1)];
     if (product.img) setField('img_' + product.img, url);
-    else updateProduct(product.id, {imgUrl: url});
+    updateProduct(product.id, patch);
   }
   function addProductImages(product, urls) {
     if (!urls || !urls.length) return;
@@ -1991,7 +2011,7 @@ function EditModeProvider({children}) {
   const value = {
     editMode, draft, loading, loginError, publishing, publishMsg, token,
     tryAutoResume, login, logout, setField, updateCategoryField,
-    updateProduct, setProductImage, addProductImages, removeProductImage, reorderProduct, deleteProduct, addProduct,
+    updateProduct, updateProductField, setProductImage, addProductImages, removeProductImage, reorderProduct, deleteProduct, addProduct,
     addFirstColorVariant, addColorVariant, removeColorVariant,
     reorderSection, uploadImage, publish,
   };
@@ -2216,7 +2236,7 @@ function ProductCard({variants, onClick, editCtrls}) {
             {product.images.length} <span style={{fontSize:11}}>›</span>
           </span>
         )}
-        {editCtrls && <ProductImageOverlay onUploaded={editCtrls.onImageChange}/>}
+        {editCtrls && <ProductImageOverlay onUploaded={url=>editCtrls.onImageChange(url, product)}/>}
         {editCtrls && (
           <div onClick={e=>e.stopPropagation()} style={{position:'absolute',bottom:6,left:6,display:'flex',gap:4,zIndex:6}}>
             <button type="button" title="Monter" onClick={editCtrls.onMoveUp} disabled={!editCtrls.canMoveUp} style={{width:24,height:22,border:'none',background:'rgba(255,255,255,.92)',cursor:editCtrls.canMoveUp?'pointer':'default',opacity:editCtrls.canMoveUp?1:.4,fontSize:11}}>↑</button>
@@ -2228,10 +2248,10 @@ function ProductCard({variants, onClick, editCtrls}) {
       <div style={{padding:'13px 15px 16px',flex:1,display:'flex',flexDirection:'column'}}>
         <StockBadge stock={product.stock}/>
         <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:16,fontWeight:600,color:G.text,margin:'0 0 4px'}}>
-          {editCtrls ? <Edit value={hasColors?product.baseName:product.name} onCommit={v=>editCtrls.onUpdate(hasColors?{baseName:v}:{name:v})}>{hasColors?product.baseName:product.name}</Edit> : (hasColors?product.baseName:product.name)}
+          {editCtrls ? <Edit value={hasColors?product.baseName:product.name} onCommit={v=>editCtrls.onUpdate(hasColors?{baseName:v}:{name:v}, product)}>{hasColors?product.baseName:product.name}</Edit> : (hasColors?product.baseName:product.name)}
         </p>
         <p style={{fontFamily:"'Jost',sans-serif",fontSize:11,color:G.textM,margin:'0 0 auto',lineHeight:1.5,paddingBottom:10}}>
-          {editCtrls ? <Edit value={product.desc} multiline onCommit={v=>editCtrls.onUpdate({desc:v})}>{product.desc.slice(0,58)}…</Edit> : (product.desc.slice(0,58)+'…')}
+          {editCtrls ? <Edit value={product.desc} multiline onCommit={v=>editCtrls.onUpdate({desc:v}, product)}>{product.desc.slice(0,58)}…</Edit> : (product.desc.slice(0,58)+'…')}
         </p>
         {hasColors && (
           <div onClick={e=>e.stopPropagation()} style={{display:'flex',alignItems:'center',gap:6,margin:'0 0 10px'}}>
@@ -2248,7 +2268,7 @@ function ProductCard({variants, onClick, editCtrls}) {
         )}
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',borderTop:'1px solid '+G.beigeD,paddingTop:10,marginTop:10}}>
           <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:17,fontWeight:700,color:G.gold}}>
-            {editCtrls ? <Edit value={product.price} onCommit={v=>editCtrls.onUpdate({price:v})}>{product.price}</Edit> : product.price}
+            {editCtrls ? <Edit value={product.price} onCommit={v=>editCtrls.onUpdate({price:v}, product)}>{product.price}</Edit> : product.price}
           </span>
           <span style={{fontFamily:"'Jost',sans-serif",fontSize:10,letterSpacing:'.1em',textTransform:'uppercase',color:G.sage,fontWeight:600}}>Voir →</span>
         </div>
@@ -2886,8 +2906,8 @@ function CataloguePage({setPage, initialCat='all', addToCart}) {
                 onMoveUp: ()=>editCtx.reorderProduct(p.id,-1),
                 onMoveDown: ()=>editCtx.reorderProduct(p.id,1),
                 onDelete: ()=>{ if (confirm('Supprimer définitivement cet article du catalogue ?')) editCtx.deleteProduct(p.id); },
-                onUpdate: patch=>editCtx.updateProduct(p.id, patch),
-                onImageChange: url=>editCtx.setProductImage(p, url),
+                onUpdate: (patch, variantProduct)=>editCtx.updateProductField(variantProduct||p, patch),
+                onImageChange: (url, variantProduct)=>editCtx.setProductImage(variantProduct||p, url),
               } : null;
               return <ProductCard key={p.id} variants={getVariants(p, PRODUCTS)} onClick={setModal} editCtrls={editCtrls}/>;
             })}
