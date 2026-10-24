@@ -3713,8 +3713,29 @@ function DevisPage({cart={}, setCartQty=()=>{}, clearCart=()=>{}}) {
 function ContactPage() {
   const isMobile = useIsMobile();
   const [sent,setSent] = React.useState(false);
+  const [sending,setSending] = React.useState(false);
+  const [sendError,setSendError] = React.useState('');
+  const [f,setF] = React.useState({nom:'',email:'',tel:'',sujet:'Question générale',msg:''});
+  const setField = (k,v) => setF(p=>({...p,[k]:v}));
   const d = useContent();
   const IMGS = useImgs();
+  async function handleSend() {
+    if (!f.nom.trim() || !f.email.trim() || !f.msg.trim()) return;
+    setSendError('');
+    if (!SB) { setSendError("L'envoi en ligne n'est pas encore activé — merci de nous contacter par téléphone ou email en attendant."); return; }
+    setSending(true);
+    try {
+      const { error } = await SB.from('contact_messages').insert({
+        name: f.nom, email: f.email, phone: f.tel || null, subject: f.sujet, message: f.msg,
+      });
+      if (error) throw error;
+      setSent(true);
+    } catch (e) {
+      setSendError("Une erreur est survenue lors de l'envoi. Merci de réessayer, ou de nous contacter directement.");
+    } finally {
+      setSending(false);
+    }
+  }
   const inp = {width:'100%',padding:'10px 12px',border:'1px solid '+G.beigeD,background:'#fff',fontFamily:"'Jost',sans-serif",fontSize:13,color:G.text,outline:'none',boxSizing:'border-box'};
   const lbl = {fontFamily:"'Jost',sans-serif",fontSize:10,letterSpacing:'.14em',textTransform:'uppercase',color:G.textM,fontWeight:600,display:'block',marginBottom:5};
   return (
@@ -3749,20 +3770,21 @@ function ContactPage() {
         ) : (
           <div>
             <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:16,marginBottom:16}}>
-              <div><label style={lbl}>Nom</label><input style={inp}/></div>
-              <div><label style={lbl}>Email</label><input type="email" style={inp}/></div>
+              <div><label style={lbl}>Nom</label><input style={inp} value={f.nom} onChange={e=>setField('nom',e.target.value)}/></div>
+              <div><label style={lbl}>Email</label><input type="email" style={inp} value={f.email} onChange={e=>setField('email',e.target.value)}/></div>
             </div>
-            <div style={{marginBottom:16}}><label style={lbl}>Téléphone</label><input style={inp} placeholder="+32…"/></div>
+            <div style={{marginBottom:16}}><label style={lbl}>Téléphone</label><input style={inp} placeholder="+32…" value={f.tel} onChange={e=>setField('tel',e.target.value)}/></div>
             <div style={{marginBottom:16}}><label style={lbl}>Sujet</label>
-              <select style={{...inp}}>
+              <select style={{...inp}} value={f.sujet} onChange={e=>setField('sujet',e.target.value)}>
                 <option>Question générale</option>
                 <option>Disponibilité d'un article</option>
                 <option>Demande de devis</option>
                 <option>Suivi de commande</option>
               </select>
             </div>
-            <div style={{marginBottom:22}}><label style={lbl}>Message</label><textarea rows={6} style={{...inp,resize:'vertical'}}/></div>
-            <Btn onClick={()=>setSent(true)} full style={{padding:'13px'}}>Envoyer le message</Btn>
+            <div style={{marginBottom:22}}><label style={lbl}>Message</label><textarea rows={6} style={{...inp,resize:'vertical'}} value={f.msg} onChange={e=>setField('msg',e.target.value)}/></div>
+            {sendError && <p style={{color:'#9E5A52',fontSize:12,marginBottom:14}}>{sendError}</p>}
+            <Btn onClick={handleSend} disabled={sending || !f.nom.trim() || !f.email.trim() || !f.msg.trim()} full style={{padding:'13px'}}>{sending?'Envoi…':'Envoyer le message'}</Btn>
           </div>
         )}
       </div>
