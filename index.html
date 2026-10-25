@@ -60,6 +60,9 @@
       .lw-nav-links{display:none !important}
       .lw-burger-btn{display:flex !important}
       .lw-mobile-bar{display:flex !important}
+      /* Evite le zoom automatique de Safari iOS quand on touche un champ
+         (se déclenche dès que font-size < 16px sur un input/textarea). */
+      input,textarea,select{font-size:16px !important}
     }
   </style>
   <script type="text/javascript">
@@ -2572,9 +2575,9 @@ function BottomNav({page, setPage}) {
       <div style={{background:'rgba(250,250,248,.98)',backdropFilter:'blur(16px)',borderBottom:'1px solid '+G.beigeD,display:'flex',alignItems:'stretch',justifyContent:'center',height:52,boxShadow:'0 2px 16px rgba(44,36,25,.06)'}}>
         <div className="lw-nav-links" style={{display:'flex',alignItems:'stretch',justifyContent:'center'}}>
           {links.map(([id,label]) => (
-            <button key={id} onClick={()=>setPage(id)} style={{background:'none',border:'none',cursor:'pointer',fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.12em',textTransform:'uppercase',color:page===id?G.sage:G.textL,fontWeight:page===id?700:400,padding:'0 24px',borderBottom:'2px solid '+(page===id?G.sage:'transparent'),transition:'color .2s',whiteSpace:'nowrap'}}>
+            <a key={id} href={pageToPath(id)} onClick={e=>{e.preventDefault();setPage(id);}} style={{background:'none',border:'none',cursor:'pointer',fontFamily:"'Jost',sans-serif",fontSize:11,letterSpacing:'.12em',textTransform:'uppercase',color:page===id?G.sage:G.textL,fontWeight:page===id?700:400,padding:'0 24px',display:'flex',alignItems:'center',borderBottom:'2px solid '+(page===id?G.sage:'transparent'),transition:'color .2s',whiteSpace:'nowrap',textDecoration:'none'}}>
               {label}
-            </button>
+            </a>
           ))}
           <div style={{display:'flex',alignItems:'center',paddingLeft:18,marginLeft:8,borderLeft:'1px solid '+G.beigeD}}>
             <Btn onClick={()=>setPage('devis')} variant="sage" style={{padding:'7px 16px',fontSize:10}}>Devis gratuit</Btn>
@@ -2597,9 +2600,9 @@ function BottomNav({page, setPage}) {
       {open && (
         <div style={{position:'fixed',top:52,left:0,right:0,bottom:0,zIndex:199,background:G.cream,display:'flex',flexDirection:'column',padding:'12px 0',overflowY:'auto'}}>
           {links.map(([id,label]) => (
-            <button key={id} onClick={()=>go(id)} style={{background:'none',border:'none',borderBottom:'1px solid '+G.beigeD,cursor:'pointer',fontFamily:"'Jost',sans-serif",fontSize:14,letterSpacing:'.08em',textTransform:'uppercase',color:page===id?G.sage:G.text,fontWeight:page===id?700:500,padding:'16px 24px',textAlign:'left'}}>
+            <a key={id} href={pageToPath(id)} onClick={e=>{e.preventDefault();go(id);}} style={{background:'none',border:'none',borderBottom:'1px solid '+G.beigeD,cursor:'pointer',fontFamily:"'Jost',sans-serif",fontSize:14,letterSpacing:'.08em',textTransform:'uppercase',color:page===id?G.sage:G.text,fontWeight:page===id?700:500,padding:'16px 24px',textAlign:'left',textDecoration:'none',display:'block'}}>
               {label}
-            </button>
+            </a>
           ))}
           <div style={{padding:'20px 24px'}}>
             <Btn onClick={()=>go('devis')} variant="sage" full style={{padding:'13px'}}>Devis gratuit</Btn>
@@ -2623,15 +2626,15 @@ function Footer({setPage}) {
           <span style={{fontFamily:"'Jost',sans-serif",fontSize:10,color:G.goldL,border:'1px solid rgba(201,169,110,.3)',padding:'4px 10px'}}><Edit k="footer_badge">{d.footer_badge}</Edit></span>
         </div>
         {[
-          {t:'Catalogue',ls:[['Mobilier','catalogue'],['Décoration','catalogue'],['Vaisselle','catalogue'],['Packs','catalogue']]},
+          {t:'Catalogue',ls:[['Mobilier','cat_mobilier'],['Décoration','cat_decoration'],['Vaisselle','cat_vaisselle'],['Packs','cat_packs']]},
           {t:'Informations',ls:[['Comment ça marche','how'],['À propos de nous','about'],['Demander un devis','devis'],['Contact','contact']]},
           {t:'Contact',ls:null},
         ].map(col => (
           <div key={col.t}>
             <p style={{fontFamily:"'Jost',sans-serif",fontSize:10,letterSpacing:'.18em',textTransform:'uppercase',color:G.goldL,fontWeight:600,margin:'0 0 14px'}}>{col.t}</p>
             {col.ls ? col.ls.map(([l,id]) => (
-              <button key={l} onClick={()=>setPage(id)} style={{display:'block',background:'none',border:'none',cursor:'pointer',fontFamily:"'Jost',sans-serif",fontSize:12,color:'rgba(255,255,255,.55)',padding:'3px 0',textAlign:'left'}}
-                onMouseEnter={e=>e.target.style.color=G.goldL} onMouseLeave={e=>e.target.style.color='rgba(255,255,255,.55)'}>{l}</button>
+              <a key={l} href={pageToPath(id)} onClick={e=>{e.preventDefault();setPage(id);}} style={{display:'block',background:'none',border:'none',cursor:'pointer',fontFamily:"'Jost',sans-serif",fontSize:12,color:'rgba(255,255,255,.55)',padding:'3px 0',textAlign:'left',textDecoration:'none'}}
+                onMouseEnter={e=>e.target.style.color=G.goldL} onMouseLeave={e=>e.target.style.color='rgba(255,255,255,.55)'}>{l}</a>
             )) : (
               <div style={{fontFamily:"'Jost',sans-serif",fontSize:12,color:'rgba(255,255,255,.55)',lineHeight:2.3}}>
                 <div><Edit k="footer_phone">{d.footer_phone}</Edit></div><div><Edit k="footer_email">{d.footer_email}</Edit></div>
@@ -3383,12 +3386,78 @@ function ContactPage() {
   );
 }
 
+// ── ROUTING (URLs réelles pour le SEO) ─────────────────────────────────────────
+// Chaque "page" de l'app a maintenant une vraie URL indexable par Google
+// (plutôt qu'un simple état en mémoire). _redirects fait pointer toutes les
+// URLs vers index.html (SPA fallback), et ce mapping convertit page <-> URL.
+const PAGE_META = {
+  home:      { path:'/',                     title:'Loca-Wedding — Location & Décoration de Mariage · Belgique',          desc:'Location de mobilier et décoration haut de gamme pour votre mariage en Belgique. Large catalogue, livraison, installation et reprise incluses. Devis gratuit en 12h.' },
+  catalogue: { path:'/catalogue',             title:'Catalogue location mariage — Mobilier, vaisselle, décoration | Loca-Wedding', desc:'Plus de 500 articles à louer pour votre mariage en Belgique : mobilier, vaisselle, décoration, éclairage, textile. Devis gratuit en 12h.' },
+  how:       { path:'/comment-ca-marche',     title:'Comment ça marche — Location de mobilier de mariage | Loca-Wedding', desc:'Découvrez comment louer votre mobilier et décoration de mariage en Belgique : sélection, devis, livraison, installation, reprise.' },
+  about:     { path:'/a-propos',              title:'À propos de Loca-Wedding — Location mariage en Belgique',           desc:'Loca-Wedding, entreprise belge spécialisée dans la location de mobilier et décoration pour mariages depuis 2019.' },
+  devis:     { path:'/devis',                 title:'Demander un devis gratuit — Location mariage | Loca-Wedding',       desc:'Demandez votre devis gratuit en 12h pour la location de mobilier et décoration de votre mariage en Belgique.' },
+  contact:   { path:'/contact',               title:'Contact — Loca-Wedding',                                            desc:'Contactez Loca-Wedding pour toute question sur la location de mobilier et décoration de votre mariage en Belgique.' },
+};
+const CAT_META = {
+  mobilier:    { title:'Location mobilier de mariage — Tables, chaises, mange-debout | Loca-Wedding', desc:'Louez tables, chaises, mange-debout et mobilier pour votre mariage en Belgique. Large choix, livraison et installation incluses.' },
+  textile:     { title:'Location nappes & textile de mariage | Loca-Wedding',                          desc:'Nappes, housses de chaise et textile de qualité à louer pour votre mariage en Belgique. Devis gratuit en 12h.' },
+  decoration:  { title:'Location décoration de mariage — Arches, centres de table | Loca-Wedding',      desc:'Décoration florale, arches, centres de table et accessoires à louer pour sublimer votre mariage en Belgique.' },
+  vaisselle:   { title:'Location vaisselle de mariage | Loca-Wedding',                                  desc:'Vaisselle, verrerie et couverts haut de gamme à louer pour votre mariage en Belgique.' },
+  accessoires: { title:'Accessoires de mariage à louer | Loca-Wedding',                                 desc:'Tous les accessoires pour sublimer la décoration et l’organisation de votre mariage en Belgique.' },
+  ceremonie:   { title:'Location mobilier de cérémonie de mariage | Loca-Wedding',                      desc:'Mobilier et décoration pour la cérémonie de votre mariage, à louer partout en Belgique.' },
+  eclairage:   { title:'Location éclairage de mariage | Loca-Wedding',                                  desc:'Guirlandes lumineuses, spots et éclairage décoratif à louer pour votre mariage en Belgique.' },
+  packs:       { title:'Packs mariage tout-en-un — Location mobilier & décoration | Loca-Wedding',      desc:'Nos packs complets Essentiel, Standard et Prestige pour équiper votre mariage en Belgique sans prise de tête.' },
+};
+function pathToPage(pathname) {
+  const clean = pathname.replace(/\/+$/,'') || '/';
+  if (clean.startsWith('/catalogue/')) return 'cat_'+clean.slice('/catalogue/'.length);
+  for (const [id,meta] of Object.entries(PAGE_META)) if (meta.path===clean) return id;
+  return 'home';
+}
+function pageToPath(page) {
+  if (page.startsWith('cat_')) return '/catalogue/'+page.replace('cat_','');
+  return (PAGE_META[page]||PAGE_META.home).path;
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // APP
 // ═══════════════════════════════════════════════════════════════════════════════
 function App() {
-  const [page,setPage] = React.useState(()=>localStorage.getItem('lw_page')||'home');
-  const navigate = p => setPage(p);
+  const [page,setPage] = React.useState(() => {
+    if (typeof window !== 'undefined' && window.location.pathname !== '/') {
+      return pathToPage(window.location.pathname);
+    }
+    return localStorage.getItem('lw_page')||'home';
+  });
+  const navigate = p => {
+    const path = pageToPath(p);
+    if (window.location.pathname !== path) window.history.pushState({page:p}, '', path);
+    setPage(p);
+  };
+
+  React.useEffect(() => {
+    const onPopState = () => setPage(pathToPage(window.location.pathname));
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
+  // Titre, meta description et canonical mis à jour pour chaque page (SEO).
+  React.useEffect(() => {
+    const meta = page.startsWith('cat_')
+      ? (CAT_META[page.replace('cat_','')] || PAGE_META.catalogue)
+      : (PAGE_META[page] || PAGE_META.home);
+    document.title = meta.title;
+    const descTag = document.querySelector('meta[name="description"]');
+    if (descTag) descTag.setAttribute('content', meta.desc);
+    const canonicalTag = document.querySelector('link[rel="canonical"]');
+    if (canonicalTag) canonicalTag.setAttribute('href', 'https://locawedding.be'+pageToPath(page));
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', meta.title);
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) ogDesc.setAttribute('content', meta.desc);
+    const ogUrl = document.querySelector('meta[property="og:url"]');
+    if (ogUrl) ogUrl.setAttribute('content', 'https://locawedding.be'+pageToPath(page));
+  }, [page]);
 
   // Panier de devis : { [productId]: quantite }, persiste en localStorage.
   const [cart,setCart] = React.useState(()=>{
