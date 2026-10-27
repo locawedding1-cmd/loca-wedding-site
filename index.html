@@ -2391,7 +2391,11 @@ function Modal({product, onClose, setPage, addToCart}) {
             ))}
           </div>
           <div style={{display:'flex',gap:12,alignItems:'center'}}>
-            <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:26,fontWeight:700,color:G.gold,flexShrink:0}}>{current.price}</span>
+            <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:26,fontWeight:700,color:G.gold,flexShrink:0,minWidth:60}}>
+              {editCtx && editCtx.editMode
+                ? <Edit value={current.price} onCommit={v=>editCtx.updateProductField(current, {price:v})}>{current.price}</Edit>
+                : current.price}
+            </span>
             <Btn onClick={()=>{addToCart(current.id,1);onClose();setPage('devis');}} style={{flex:1,padding:'12px 16px'}}>Ajouter au devis</Btn>
           </div>
         </div>
