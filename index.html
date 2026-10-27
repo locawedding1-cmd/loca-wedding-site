@@ -2184,8 +2184,8 @@ function ProductCard({variants, onClick, editCtrls}) {
           </div>
         )}
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',borderTop:'1px solid '+G.beigeD,paddingTop:10,marginTop:10}}>
-          <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:17,fontWeight:700,color:G.gold}}>
-            {editCtrls ? <Edit value={product.price} onCommit={v=>editCtrls.onUpdate({price:v}, product)}>{product.price}</Edit> : product.price}
+          <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:17,fontWeight:700,color:G.gold,minWidth:editCtrls?80:undefined,display:'inline-block'}}>
+            {editCtrls ? <Edit value={product.price} onCommit={v=>editCtrls.onUpdate({price:v}, product)}>{product.price || 'Ajouter un prix'}</Edit> : product.price}
           </span>
           <span style={{fontFamily:"'Jost',sans-serif",fontSize:10,letterSpacing:'.1em',textTransform:'uppercase',color:G.sage,fontWeight:600}}>Voir →</span>
         </div>
@@ -2393,7 +2393,7 @@ function Modal({product, onClose, setPage, addToCart}) {
           <div style={{display:'flex',gap:12,alignItems:'center'}}>
             <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:26,fontWeight:700,color:G.gold,flexShrink:0,minWidth:60}}>
               {editCtx && editCtx.editMode
-                ? <Edit value={current.price} onCommit={v=>editCtx.updateProductField(current, {price:v})}>{current.price}</Edit>
+                ? <Edit value={current.price} onCommit={v=>editCtx.updateProductField(current, {price:v})}>{current.price || 'Ajouter un prix'}</Edit>
                 : current.price}
             </span>
             <Btn onClick={()=>{addToCart(current.id,1);onClose();setPage('devis');}} style={{flex:1,padding:'12px 16px'}}>Ajouter au devis</Btn>
