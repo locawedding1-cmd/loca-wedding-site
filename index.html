@@ -2166,11 +2166,13 @@ function ProductCard({variants, onClick, editCtrls}) {
   if (!product) return null;
   return (
     <div onMouseEnter={()=>sH(true)} onMouseLeave={()=>sH(false)} onClick={()=>onClick(product)}
-      style={{background:'#fff',cursor:'pointer',transition:'transform .25s,box-shadow .25s',transform:h?'translateY(-4px)':'none',boxShadow:h?'0 14px 40px rgba(44,36,25,.12)':'0 2px 10px rgba(44,36,25,.05)',display:'flex',flexDirection:'column',contentVisibility:'auto',containIntrinsicSize:'0 420px'}}>
+      style={{background:'#fff',cursor:'pointer',transition:'transform .25s,box-shadow .25s',transform:h?'translateY(-4px)':'none',boxShadow:h?'0 14px 40px rgba(44,36,25,.12)':'0 2px 10px rgba(44,36,25,.05)',display:'flex',flexDirection:'column',contentVisibility:'auto',containIntrinsicSize:'0 420px',minWidth:0}}>
       <div style={{position:'relative',overflow:'hidden',height:260,background:G.beige}}>
         <img src={(IMGS[(product.images&&product.images[0])||product.img] || (product.images&&product.images[0]) || product.img) || product.imgUrl} alt={product.name} style={{width:'100%',height:'100%',objectFit:'contain',transition:'transform .4s',transform:'scale('+(['p40','p40b','p41'].includes(product.img)?1.35:1)*(h?1.05:1)+')'}} loading="lazy" decoding="async"/>
-        {product.tag && <span style={{position:'absolute',top:10,left:10,background:product.tag==='Bestseller'?G.gold:G.sage,color:'#fff',fontFamily:"'Jost',sans-serif",fontSize:9,letterSpacing:'.1em',textTransform:'uppercase',padding:'3px 9px',fontWeight:600}}>{product.tag}</span>}
-        {product.stock <= 5 && <span style={{position:'absolute',top:10,right:10,background:'rgba(196,135,122,.92)',color:'#fff',fontFamily:"'Jost',sans-serif",fontSize:9,padding:'3px 8px',fontWeight:600,letterSpacing:'.05em'}}>STOCK LIMITÉ</span>}
+        <div style={{position:'absolute',top:10,left:10,display:'flex',flexDirection:'column',alignItems:'flex-start',gap:4,maxWidth:'calc(100% - 20px)'}}>
+          {product.tag && <span style={{background:product.tag==='Bestseller'?G.gold:G.sage,color:'#fff',fontFamily:"'Jost',sans-serif",fontSize:9,letterSpacing:'.1em',textTransform:'uppercase',padding:'3px 9px',fontWeight:600,whiteSpace:'nowrap'}}>{product.tag}</span>}
+          {product.stock <= 5 && <span style={{background:'rgba(196,135,122,.92)',color:'#fff',fontFamily:"'Jost',sans-serif",fontSize:9,padding:'3px 8px',fontWeight:600,letterSpacing:'.05em',whiteSpace:'nowrap'}}>STOCK LIMITÉ</span>}
+        </div>
         {product.images && product.images.length>1 && (
           <span title={product.images.length+' photos'} style={{position:'absolute',bottom:10,right:10,background:'rgba(44,36,25,.75)',color:'#fff',fontFamily:"'Jost',sans-serif",fontSize:10,fontWeight:600,padding:'4px 8px',borderRadius:999,display:'flex',alignItems:'center',gap:4}}>
             {product.images.length} <span style={{fontSize:11}}>›</span>
